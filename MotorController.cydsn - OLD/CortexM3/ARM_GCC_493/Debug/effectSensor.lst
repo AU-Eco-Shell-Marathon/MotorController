@@ -1,0 +1,2511 @@
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"effectSensor.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.ISR_AMP,"ax",%progbits
+  19              		.align	2
+  20              		.global	ISR_AMP
+  21              		.thumb
+  22              		.thumb_func
+  23              		.type	ISR_AMP, %function
+  24              	ISR_AMP:
+  25              	.LFB63:
+  26              		.file 1 ".\\effectSensor.c"
+   1:.\effectSensor.c **** /* ========================================
+   2:.\effectSensor.c ****  *
+   3:.\effectSensor.c ****  * Copyright YOUR COMPANY, THE YEAR
+   4:.\effectSensor.c ****  * All Rights Reserved
+   5:.\effectSensor.c ****  * UNPUBLISHED, LICENSED SOFTWARE.
+   6:.\effectSensor.c ****  *
+   7:.\effectSensor.c ****  * CONFIDENTIAL AND PROPRIETARY INFORMATION
+   8:.\effectSensor.c ****  * WHICH IS THE PROPERTY OF your company.
+   9:.\effectSensor.c ****  *
+  10:.\effectSensor.c ****  * ========================================
+  11:.\effectSensor.c **** */
+  12:.\effectSensor.c **** #include "effectSensor.h"
+  13:.\effectSensor.c **** #define effect_sensor_OFFSET 5000 //mV
+  14:.\effectSensor.c **** int16 Current_temp = 0;
+  15:.\effectSensor.c **** int16 Volt_temp = 0;
+  16:.\effectSensor.c **** 
+  17:.\effectSensor.c **** int16 Volt_offset = 0;
+  18:.\effectSensor.c **** int16 Current_offset = 0;
+  19:.\effectSensor.c **** 
+  20:.\effectSensor.c **** 
+  21:.\effectSensor.c **** int32 y_Current = 0;
+  22:.\effectSensor.c **** int32 y_Volt = 0;
+  23:.\effectSensor.c **** 
+  24:.\effectSensor.c **** uint8 a = 3; // fra 0 til 255! er lig med 0-1.
+  25:.\effectSensor.c **** 
+  26:.\effectSensor.c **** 
+  27:.\effectSensor.c **** void DMA_ADC_A_V_init();
+  28:.\effectSensor.c **** 
+  29:.\effectSensor.c **** CY_ISR_PROTO(ISR_AMP);
+  30:.\effectSensor.c **** 
+  31:.\effectSensor.c **** CY_ISR_PROTO(ISR_VOLT);
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 2
+
+
+  32:.\effectSensor.c **** 
+  33:.\effectSensor.c **** void VDACSetOffset(int16 Current);
+  34:.\effectSensor.c **** 
+  35:.\effectSensor.c **** 
+  36:.\effectSensor.c **** CY_ISR(ISR_AMP)
+  37:.\effectSensor.c **** {
+  27              		.loc 1 37 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32 0000 10B4     		push	{r4}
+  33              		.cfi_def_cfa_offset 4
+  34              		.cfi_offset 4, -4
+  38:.\effectSensor.c ****     y_Current = (int32)a*(int32)Current_temp + (((int32)(256u-a)*(int32)y_Current)>>8);
+  35              		.loc 1 38 0
+  36 0002 084B     		ldr	r3, .L3
+  37 0004 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+  38 0006 0849     		ldr	r1, .L3+4
+  39 0008 B1F90000 		ldrsh	r0, [r1]
+  40 000c C2F58074 		rsb	r4, r2, #256
+  41 0010 4B68     		ldr	r3, [r1, #4]
+  42 0012 03FB04F3 		mul	r3, r3, r4
+  43 0016 1B12     		asrs	r3, r3, #8
+  44 0018 00FB0233 		mla	r3, r0, r2, r3
+  45 001c 4B60     		str	r3, [r1, #4]
+  39:.\effectSensor.c **** }
+  46              		.loc 1 39 0
+  47 001e 5DF8044B 		ldr	r4, [sp], #4
+  48              		.cfi_restore 4
+  49              		.cfi_def_cfa_offset 0
+  50 0022 7047     		bx	lr
+  51              	.L4:
+  52              		.align	2
+  53              	.L3:
+  54 0024 00000000 		.word	.LANCHOR0
+  55 0028 00000000 		.word	.LANCHOR1
+  56              		.cfi_endproc
+  57              	.LFE63:
+  58              		.size	ISR_AMP, .-ISR_AMP
+  59              		.section	.text.ISR_VOLT,"ax",%progbits
+  60              		.align	2
+  61              		.global	ISR_VOLT
+  62              		.thumb
+  63              		.thumb_func
+  64              		.type	ISR_VOLT, %function
+  65              	ISR_VOLT:
+  66              	.LFB64:
+  40:.\effectSensor.c **** 
+  41:.\effectSensor.c **** 
+  42:.\effectSensor.c **** CY_ISR(ISR_VOLT)
+  43:.\effectSensor.c **** {
+  67              		.loc 1 43 0
+  68              		.cfi_startproc
+  69              		@ args = 0, pretend = 0, frame = 0
+  70              		@ frame_needed = 0, uses_anonymous_args = 0
+  71              		@ link register save eliminated.
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 3
+
+
+  72 0000 10B4     		push	{r4}
+  73              		.cfi_def_cfa_offset 4
+  74              		.cfi_offset 4, -4
+  44:.\effectSensor.c ****     y_Volt = (int32)a*(int32)Volt_temp + (((int32)(256u-a)*(int32)y_Volt)>>8);
+  75              		.loc 1 44 0
+  76 0002 084B     		ldr	r3, .L7
+  77 0004 1A78     		ldrb	r2, [r3]	@ zero_extendqisi2
+  78 0006 0849     		ldr	r1, .L7+4
+  79 0008 B1F90800 		ldrsh	r0, [r1, #8]
+  80 000c C2F58074 		rsb	r4, r2, #256
+  81 0010 CB68     		ldr	r3, [r1, #12]
+  82 0012 03FB04F3 		mul	r3, r3, r4
+  83 0016 1B12     		asrs	r3, r3, #8
+  84 0018 00FB0233 		mla	r3, r0, r2, r3
+  85 001c CB60     		str	r3, [r1, #12]
+  45:.\effectSensor.c **** }
+  86              		.loc 1 45 0
+  87 001e 5DF8044B 		ldr	r4, [sp], #4
+  88              		.cfi_restore 4
+  89              		.cfi_def_cfa_offset 0
+  90 0022 7047     		bx	lr
+  91              	.L8:
+  92              		.align	2
+  93              	.L7:
+  94 0024 00000000 		.word	.LANCHOR0
+  95 0028 00000000 		.word	.LANCHOR1
+  96              		.cfi_endproc
+  97              	.LFE64:
+  98              		.size	ISR_VOLT, .-ISR_VOLT
+  99              		.section	.text.effectSensor_calibrate,"ax",%progbits
+ 100              		.align	2
+ 101              		.global	effectSensor_calibrate
+ 102              		.thumb
+ 103              		.thumb_func
+ 104              		.type	effectSensor_calibrate, %function
+ 105              	effectSensor_calibrate:
+ 106              	.LFB66:
+  46:.\effectSensor.c **** 
+  47:.\effectSensor.c **** void effectSensor_init(int16 Volt, int16 Current)
+  48:.\effectSensor.c **** {
+  49:.\effectSensor.c ****     Volt_offset = Volt;
+  50:.\effectSensor.c ****     Current_offset = Current;
+  51:.\effectSensor.c ****     
+  52:.\effectSensor.c ****     
+  53:.\effectSensor.c ****     PGA_1_Start();
+  54:.\effectSensor.c ****     PGA_2_Start();
+  55:.\effectSensor.c ****    // Opamp_1_Start();
+  56:.\effectSensor.c ****     
+  57:.\effectSensor.c ****     ADC_A_Start();
+  58:.\effectSensor.c ****     ADC_V_Start();
+  59:.\effectSensor.c ****     ADC_A_StartConvert();
+  60:.\effectSensor.c ****     ADC_V_StartConvert();
+  61:.\effectSensor.c ****     
+  62:.\effectSensor.c ****     isr_A_StartEx(ISR_AMP);
+  63:.\effectSensor.c ****     isr_V_StartEx(ISR_VOLT);
+  64:.\effectSensor.c ****     
+  65:.\effectSensor.c ****     DMA_ADC_A_V_init();
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 4
+
+
+  66:.\effectSensor.c ****     
+  67:.\effectSensor.c ****     //VDACSetOffset(Current_offset);
+  68:.\effectSensor.c ****     VDAC8_1_Start();
+  69:.\effectSensor.c ****     CyDelay(100);
+  70:.\effectSensor.c ****     Comp_1_Start();
+  71:.\effectSensor.c **** }
+  72:.\effectSensor.c **** 
+  73:.\effectSensor.c **** void effectSensor_calibrate(int16 * Volt, int16 * Current)
+  74:.\effectSensor.c **** {
+ 107              		.loc 1 74 0
+ 108              		.cfi_startproc
+ 109              		@ args = 0, pretend = 0, frame = 0
+ 110              		@ frame_needed = 0, uses_anonymous_args = 0
+ 111              	.LVL0:
+ 112 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 113              		.cfi_def_cfa_offset 24
+ 114              		.cfi_offset 3, -24
+ 115              		.cfi_offset 4, -20
+ 116              		.cfi_offset 5, -16
+ 117              		.cfi_offset 6, -12
+ 118              		.cfi_offset 7, -8
+ 119              		.cfi_offset 14, -4
+ 120 0002 0646     		mov	r6, r0
+ 121 0004 0D46     		mov	r5, r1
+  75:.\effectSensor.c ****     uint8 a_tmp = a;
+ 122              		.loc 1 75 0
+ 123 0006 0B4C     		ldr	r4, .L11
+ 124 0008 2778     		ldrb	r7, [r4]	@ zero_extendqisi2
+ 125              	.LVL1:
+  76:.\effectSensor.c ****     a = 1;
+ 126              		.loc 1 76 0
+ 127 000a 0123     		movs	r3, #1
+ 128 000c 2370     		strb	r3, [r4]
+  77:.\effectSensor.c ****     CyDelay(10000);
+ 129              		.loc 1 77 0
+ 130 000e 42F21070 		movw	r0, #10000
+ 131              	.LVL2:
+ 132 0012 FFF7FEFF 		bl	CyDelay
+ 133              	.LVL3:
+  78:.\effectSensor.c ****     Volt_offset = (int16)(y_Volt>>8);
+ 134              		.loc 1 78 0
+ 135 0016 084B     		ldr	r3, .L11+4
+ 136 0018 DA68     		ldr	r2, [r3, #12]
+ 137 001a C2F30F22 		ubfx	r2, r2, #8, #16
+ 138 001e 1A82     		strh	r2, [r3, #16]	@ movhi
+  79:.\effectSensor.c ****     Current_offset = (int16)(y_Current>>8);
+ 139              		.loc 1 79 0
+ 140 0020 5968     		ldr	r1, [r3, #4]
+ 141 0022 C1F30F21 		ubfx	r1, r1, #8, #16
+ 142 0026 5982     		strh	r1, [r3, #18]	@ movhi
+  80:.\effectSensor.c ****     
+  81:.\effectSensor.c ****     a = a_tmp;
+ 143              		.loc 1 81 0
+ 144 0028 2770     		strb	r7, [r4]
+  82:.\effectSensor.c ****     
+  83:.\effectSensor.c ****     *Volt = Volt_offset;
+ 145              		.loc 1 83 0
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 5
+
+
+ 146 002a 3280     		strh	r2, [r6]	@ movhi
+  84:.\effectSensor.c ****     *Current = Current_offset;
+ 147              		.loc 1 84 0
+ 148 002c 5B8A     		ldrh	r3, [r3, #18]
+ 149 002e 2B80     		strh	r3, [r5]	@ movhi
+ 150 0030 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 151              	.LVL4:
+ 152              	.L12:
+ 153 0032 00BF     		.align	2
+ 154              	.L11:
+ 155 0034 00000000 		.word	.LANCHOR0
+ 156 0038 00000000 		.word	.LANCHOR1
+ 157              		.cfi_endproc
+ 158              	.LFE66:
+ 159              		.size	effectSensor_calibrate, .-effectSensor_calibrate
+ 160              		.global	__aeabi_ui2d
+ 161              		.global	__aeabi_dmul
+ 162              		.global	__aeabi_d2uiz
+ 163              		.global	__aeabi_uldivmod
+ 164              		.section	.text.effectSensor_getValue,"ax",%progbits
+ 165              		.align	2
+ 166              		.global	effectSensor_getValue
+ 167              		.thumb
+ 168              		.thumb_func
+ 169              		.type	effectSensor_getValue, %function
+ 170              	effectSensor_getValue:
+ 171              	.LFB67:
+  85:.\effectSensor.c ****     //VDACSetOffset(ADC_A_CountsTo_mVolts(Current_offset)-effect_sensor_OFFSET);
+  86:.\effectSensor.c **** }
+  87:.\effectSensor.c **** 
+  88:.\effectSensor.c **** /*
+  89:.\effectSensor.c **** 
+  90:.\effectSensor.c **** void VDACSetOffset(int16 Current)
+  91:.\effectSensor.c **** {
+  92:.\effectSensor.c ****     uint8 calc = (uint8)(200+(int8)(Current>>4)); // 200 => 3200mV
+  93:.\effectSensor.c ****     //VDAC8_1_SetValue(calc); 
+  94:.\effectSensor.c ****     Control_Reg_motor_reset_Write(1u);
+  95:.\effectSensor.c **** }
+  96:.\effectSensor.c **** */
+  97:.\effectSensor.c **** 
+  98:.\effectSensor.c **** 
+  99:.\effectSensor.c **** 
+ 100:.\effectSensor.c **** uint16 effectSensor_getValue()
+ 101:.\effectSensor.c **** {
+ 172              		.loc 1 101 0
+ 173              		.cfi_startproc
+ 174              		@ args = 0, pretend = 0, frame = 0
+ 175              		@ frame_needed = 0, uses_anonymous_args = 0
+ 176 0000 38B5     		push	{r3, r4, r5, lr}
+ 177              		.cfi_def_cfa_offset 16
+ 178              		.cfi_offset 3, -16
+ 179              		.cfi_offset 4, -12
+ 180              		.cfi_offset 5, -8
+ 181              		.cfi_offset 14, -4
+ 102:.\effectSensor.c ****     int16 rawVolt = ADC_V_CountsTo_mVolts((int16)(y_Volt>>8)-Volt_offset); // mangler validering
+ 182              		.loc 1 102 0
+ 183 0002 1D4C     		ldr	r4, .L19+8
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 6
+
+
+ 184 0004 E068     		ldr	r0, [r4, #12]
+ 185 0006 238A     		ldrh	r3, [r4, #16]
+ 186 0008 C3EB2020 		rsb	r0, r3, r0, asr #8
+ 187 000c 00B2     		sxth	r0, r0
+ 188 000e FFF7FEFF 		bl	ADC_V_CountsTo_mVolts
+ 189              	.LVL5:
+ 190 0012 0546     		mov	r5, r0
+ 191              	.LVL6:
+ 103:.\effectSensor.c ****     int16 rawCurrent = ADC_A_CountsTo_mVolts((int16)(y_Current>>8)-Current_offset);
+ 192              		.loc 1 103 0
+ 193 0014 6068     		ldr	r0, [r4, #4]
+ 194 0016 638A     		ldrh	r3, [r4, #18]
+ 195 0018 C3EB2020 		rsb	r0, r3, r0, asr #8
+ 196 001c 00B2     		sxth	r0, r0
+ 197 001e FFF7FEFF 		bl	ADC_A_CountsTo_mVolts
+ 198              	.LVL7:
+ 199 0022 0446     		mov	r4, r0
+ 200              	.LVL8:
+ 104:.\effectSensor.c ****     
+ 105:.\effectSensor.c ****     /*
+ 106:.\effectSensor.c ****     uint32 volt = (rawVolt <= (int16)effect_sensor_OFFSET ? 0u : rawVolt - (uint32)effect_sensor_OF
+ 107:.\effectSensor.c ****     uint32 current = (rawCurrent <= (int16)effect_sensor_OFFSET ? 0u : rawCurrent - (uint32)effect_
+ 108:.\effectSensor.c ****     */
+ 109:.\effectSensor.c ****     uint32 volt = (rawVolt <= 0 ? 0u : rawVolt)*15.625;
+ 201              		.loc 1 109 0
+ 202 0024 002D     		cmp	r5, #0
+ 203 0026 0ADD     		ble	.L16
+ 204              		.loc 1 109 0 is_stmt 0 discriminator 1
+ 205 0028 2846     		mov	r0, r5
+ 206 002a FFF7FEFF 		bl	__aeabi_ui2d
+ 207              	.LVL9:
+ 208 002e 0022     		movs	r2, #0
+ 209 0030 124B     		ldr	r3, .L19+12
+ 210 0032 FFF7FEFF 		bl	__aeabi_dmul
+ 211              	.LVL10:
+ 212 0036 FFF7FEFF 		bl	__aeabi_d2uiz
+ 213              	.LVL11:
+ 214 003a 0546     		mov	r5, r0
+ 215              	.LVL12:
+ 216 003c 00E0     		b	.L14
+ 217              	.LVL13:
+ 218              	.L16:
+ 219              		.loc 1 109 0
+ 220 003e 0025     		movs	r5, #0
+ 221              	.LVL14:
+ 222              	.L14:
+ 110:.\effectSensor.c ****     uint32 current = (rawCurrent <= 0 ? 0u : rawCurrent)*5.21;
+ 223              		.loc 1 110 0 is_stmt 1 discriminator 4
+ 224 0040 002C     		cmp	r4, #0
+ 225 0042 0ADD     		ble	.L17
+ 226              		.loc 1 110 0 is_stmt 0 discriminator 1
+ 227 0044 2046     		mov	r0, r4
+ 228 0046 FFF7FEFF 		bl	__aeabi_ui2d
+ 229              	.LVL15:
+ 230 004a 09A3     		adr	r3, .L19
+ 231 004c D3E90023 		ldrd	r2, [r3]
+ 232 0050 FFF7FEFF 		bl	__aeabi_dmul
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 7
+
+
+ 233              	.LVL16:
+ 234 0054 FFF7FEFF 		bl	__aeabi_d2uiz
+ 235              	.LVL17:
+ 236 0058 00E0     		b	.L15
+ 237              	.L17:
+ 238              		.loc 1 110 0
+ 239 005a 0020     		movs	r0, #0
+ 240              	.L15:
+ 241              	.LVL18:
+ 111:.\effectSensor.c ****     
+ 112:.\effectSensor.c ****     return ((uint16)(((uint64)volt*(uint64)current)/100000));
+ 242              		.loc 1 112 0 is_stmt 1 discriminator 4
+ 243 005c A5FB0001 		umull	r0, r1, r5, r0
+ 244              	.LVL19:
+ 245 0060 074A     		ldr	r2, .L19+16
+ 246 0062 0023     		movs	r3, #0
+ 247 0064 FFF7FEFF 		bl	__aeabi_uldivmod
+ 248              	.LVL20:
+ 113:.\effectSensor.c **** }
+ 249              		.loc 1 113 0 discriminator 4
+ 250 0068 80B2     		uxth	r0, r0
+ 251 006a 38BD     		pop	{r3, r4, r5, pc}
+ 252              	.LVL21:
+ 253              	.L20:
+ 254 006c AFF30080 		.align	3
+ 255              	.L19:
+ 256 0070 D7A3703D 		.word	1030792151
+ 257 0074 0AD71440 		.word	1075107594
+ 258 0078 00000000 		.word	.LANCHOR1
+ 259 007c 00402F40 		.word	1076838400
+ 260 0080 A0860100 		.word	100000
+ 261              		.cfi_endproc
+ 262              	.LFE67:
+ 263              		.size	effectSensor_getValue, .-effectSensor_getValue
+ 264 0084 AFF30080 		.section	.text.DMA_ADC_A_V_init,"ax",%progbits
+ 265              		.align	2
+ 266              		.global	DMA_ADC_A_V_init
+ 267              		.thumb
+ 268              		.thumb_func
+ 269              		.type	DMA_ADC_A_V_init, %function
+ 270              	DMA_ADC_A_V_init:
+ 271              	.LFB68:
+ 114:.\effectSensor.c **** 
+ 115:.\effectSensor.c **** 
+ 116:.\effectSensor.c **** 
+ 117:.\effectSensor.c **** void DMA_ADC_A_V_init()
+ 118:.\effectSensor.c **** {
+ 272              		.loc 1 118 0
+ 273              		.cfi_startproc
+ 274              		@ args = 0, pretend = 0, frame = 0
+ 275              		@ frame_needed = 0, uses_anonymous_args = 0
+ 276 0000 70B5     		push	{r4, r5, r6, lr}
+ 277              		.cfi_def_cfa_offset 16
+ 278              		.cfi_offset 4, -16
+ 279              		.cfi_offset 5, -12
+ 280              		.cfi_offset 6, -8
+ 281              		.cfi_offset 14, -4
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 8
+
+
+ 119:.\effectSensor.c ****     
+ 120:.\effectSensor.c ****     
+ 121:.\effectSensor.c ****     /* Defines for DMA_A */
+ 122:.\effectSensor.c ****     #define DMA_A_BYTES_PER_BURST 2
+ 123:.\effectSensor.c ****     #define DMA_A_REQUEST_PER_BURST 1
+ 124:.\effectSensor.c ****     #define DMA_A_SRC_BASE (CYDEV_PERIPH_BASE)
+ 125:.\effectSensor.c ****     #define DMA_A_DST_BASE (CYDEV_SRAM_BASE)
+ 126:.\effectSensor.c **** 
+ 127:.\effectSensor.c ****     /* Variable declarations for DMA_A */
+ 128:.\effectSensor.c ****     /* Move these variable declarations to the top of the function */
+ 129:.\effectSensor.c ****     uint8 DMA_A_Chan;
+ 130:.\effectSensor.c ****     uint8 DMA_A_TD[1];
+ 131:.\effectSensor.c **** 
+ 132:.\effectSensor.c ****     /* DMA Configuration for DMA_A */
+ 133:.\effectSensor.c ****     DMA_A_Chan = DMA_A_DmaInitialize(DMA_A_BYTES_PER_BURST, DMA_A_REQUEST_PER_BURST, 
+ 282              		.loc 1 133 0
+ 283 0002 0220     		movs	r0, #2
+ 284 0004 0121     		movs	r1, #1
+ 285 0006 4FF48042 		mov	r2, #16384
+ 286 000a 41F6FF73 		movw	r3, #8191
+ 287 000e FFF7FEFF 		bl	DMA_A_DmaInitialize
+ 288              	.LVL22:
+ 289 0012 0546     		mov	r5, r0
+ 290              	.LVL23:
+ 134:.\effectSensor.c ****         HI16(DMA_A_SRC_BASE), HI16(DMA_A_DST_BASE));
+ 135:.\effectSensor.c ****     DMA_A_TD[0] = CyDmaTdAllocate();
+ 291              		.loc 1 135 0
+ 292 0014 FFF7FEFF 		bl	CyDmaTdAllocate
+ 293              	.LVL24:
+ 294 0018 0646     		mov	r6, r0
+ 136:.\effectSensor.c ****     CyDmaTdSetConfiguration(DMA_A_TD[0], 2, DMA_INVALID_TD, DMA_A__TD_TERMOUT_EN | TD_INC_DST_ADR);
+ 295              		.loc 1 136 0
+ 296 001a 0221     		movs	r1, #2
+ 297 001c FF22     		movs	r2, #255
+ 298 001e 0623     		movs	r3, #6
+ 299 0020 FFF7FEFF 		bl	CyDmaTdSetConfiguration
+ 300              	.LVL25:
+ 137:.\effectSensor.c ****     CyDmaTdSetAddress(DMA_A_TD[0], LO16((uint32)ADC_A_SAR_WRK0_PTR), LO16((uint32)&Current_temp));
+ 301              		.loc 1 137 0
+ 302 0024 184C     		ldr	r4, .L23
+ 303 0026 3046     		mov	r0, r6
+ 304 0028 45F6A031 		movw	r1, #23456
+ 305 002c A2B2     		uxth	r2, r4
+ 306 002e FFF7FEFF 		bl	CyDmaTdSetAddress
+ 307              	.LVL26:
+ 138:.\effectSensor.c ****     CyDmaChSetInitialTd(DMA_A_Chan, DMA_A_TD[0]);
+ 308              		.loc 1 138 0
+ 309 0032 2846     		mov	r0, r5
+ 310 0034 3146     		mov	r1, r6
+ 311 0036 FFF7FEFF 		bl	CyDmaChSetInitialTd
+ 312              	.LVL27:
+ 139:.\effectSensor.c ****     CyDmaChEnable(DMA_A_Chan, 1);
+ 313              		.loc 1 139 0
+ 314 003a 2846     		mov	r0, r5
+ 315 003c 0121     		movs	r1, #1
+ 316 003e FFF7FEFF 		bl	CyDmaChEnable
+ 317              	.LVL28:
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 9
+
+
+ 140:.\effectSensor.c **** 
+ 141:.\effectSensor.c ****     
+ 142:.\effectSensor.c ****     // --------------------------------------------------------------------------------------------
+ 143:.\effectSensor.c ****     
+ 144:.\effectSensor.c ****     /* Defines for DMA_V */
+ 145:.\effectSensor.c ****     #define DMA_V_BYTES_PER_BURST 2
+ 146:.\effectSensor.c ****     #define DMA_V_REQUEST_PER_BURST 1
+ 147:.\effectSensor.c ****     #define DMA_V_SRC_BASE (CYDEV_PERIPH_BASE)
+ 148:.\effectSensor.c ****     #define DMA_V_DST_BASE (CYDEV_SRAM_BASE)
+ 149:.\effectSensor.c **** 
+ 150:.\effectSensor.c ****     /* Variable declarations for DMA_V */
+ 151:.\effectSensor.c ****     /* Move these variable declarations to the top of the function */
+ 152:.\effectSensor.c ****     uint8 DMA_V_Chan;
+ 153:.\effectSensor.c ****     uint8 DMA_V_TD[1];
+ 154:.\effectSensor.c **** 
+ 155:.\effectSensor.c ****     /* DMA Configuration for DMA_V */
+ 156:.\effectSensor.c ****     DMA_V_Chan = DMA_V_DmaInitialize(DMA_V_BYTES_PER_BURST, DMA_V_REQUEST_PER_BURST, 
+ 318              		.loc 1 156 0
+ 319 0042 0220     		movs	r0, #2
+ 320 0044 0121     		movs	r1, #1
+ 321 0046 4FF48042 		mov	r2, #16384
+ 322 004a 41F6FF73 		movw	r3, #8191
+ 323 004e FFF7FEFF 		bl	DMA_V_DmaInitialize
+ 324              	.LVL29:
+ 325 0052 0546     		mov	r5, r0
+ 326              	.LVL30:
+ 157:.\effectSensor.c ****         HI16(DMA_V_SRC_BASE), HI16(DMA_V_DST_BASE));
+ 158:.\effectSensor.c ****     DMA_V_TD[0] = CyDmaTdAllocate();
+ 327              		.loc 1 158 0
+ 328 0054 FFF7FEFF 		bl	CyDmaTdAllocate
+ 329              	.LVL31:
+ 330 0058 0646     		mov	r6, r0
+ 159:.\effectSensor.c ****     CyDmaTdSetConfiguration(DMA_V_TD[0], 2, DMA_INVALID_TD, DMA_V__TD_TERMOUT_EN | TD_INC_DST_ADR);
+ 331              		.loc 1 159 0
+ 332 005a 0221     		movs	r1, #2
+ 333 005c FF22     		movs	r2, #255
+ 334 005e 0623     		movs	r3, #6
+ 335 0060 FFF7FEFF 		bl	CyDmaTdSetConfiguration
+ 336              	.LVL32:
+ 160:.\effectSensor.c ****     CyDmaTdSetAddress(DMA_V_TD[0], LO16((uint32)ADC_V_SAR_WRK0_PTR), LO16((uint32)&Volt_temp));
+ 337              		.loc 1 160 0
+ 338 0064 04F10802 		add	r2, r4, #8
+ 339 0068 3046     		mov	r0, r6
+ 340 006a 45F6A231 		movw	r1, #23458
+ 341 006e 92B2     		uxth	r2, r2
+ 342 0070 FFF7FEFF 		bl	CyDmaTdSetAddress
+ 343              	.LVL33:
+ 161:.\effectSensor.c ****     CyDmaChSetInitialTd(DMA_V_Chan, DMA_V_TD[0]);
+ 344              		.loc 1 161 0
+ 345 0074 2846     		mov	r0, r5
+ 346 0076 3146     		mov	r1, r6
+ 347 0078 FFF7FEFF 		bl	CyDmaChSetInitialTd
+ 348              	.LVL34:
+ 162:.\effectSensor.c ****     CyDmaChEnable(DMA_V_Chan, 1);
+ 349              		.loc 1 162 0
+ 350 007c 2846     		mov	r0, r5
+ 351 007e 0121     		movs	r1, #1
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 10
+
+
+ 352 0080 FFF7FEFF 		bl	CyDmaChEnable
+ 353              	.LVL35:
+ 354 0084 70BD     		pop	{r4, r5, r6, pc}
+ 355              	.LVL36:
+ 356              	.L24:
+ 357 0086 00BF     		.align	2
+ 358              	.L23:
+ 359 0088 00000000 		.word	.LANCHOR1
+ 360              		.cfi_endproc
+ 361              	.LFE68:
+ 362              		.size	DMA_ADC_A_V_init, .-DMA_ADC_A_V_init
+ 363              		.section	.text.effectSensor_init,"ax",%progbits
+ 364              		.align	2
+ 365              		.global	effectSensor_init
+ 366              		.thumb
+ 367              		.thumb_func
+ 368              		.type	effectSensor_init, %function
+ 369              	effectSensor_init:
+ 370              	.LFB65:
+  48:.\effectSensor.c ****     Volt_offset = Volt;
+ 371              		.loc 1 48 0
+ 372              		.cfi_startproc
+ 373              		@ args = 0, pretend = 0, frame = 0
+ 374              		@ frame_needed = 0, uses_anonymous_args = 0
+ 375              	.LVL37:
+ 376 0000 08B5     		push	{r3, lr}
+ 377              		.cfi_def_cfa_offset 8
+ 378              		.cfi_offset 3, -8
+ 379              		.cfi_offset 14, -4
+  49:.\effectSensor.c ****     Current_offset = Current;
+ 380              		.loc 1 49 0
+ 381 0002 0F4B     		ldr	r3, .L27
+ 382 0004 1882     		strh	r0, [r3, #16]	@ movhi
+  50:.\effectSensor.c ****     
+ 383              		.loc 1 50 0
+ 384 0006 5982     		strh	r1, [r3, #18]	@ movhi
+  53:.\effectSensor.c ****     PGA_2_Start();
+ 385              		.loc 1 53 0
+ 386 0008 FFF7FEFF 		bl	PGA_1_Start
+ 387              	.LVL38:
+  54:.\effectSensor.c ****    // Opamp_1_Start();
+ 388              		.loc 1 54 0
+ 389 000c FFF7FEFF 		bl	PGA_2_Start
+ 390              	.LVL39:
+  57:.\effectSensor.c ****     ADC_V_Start();
+ 391              		.loc 1 57 0
+ 392 0010 FFF7FEFF 		bl	ADC_A_Start
+ 393              	.LVL40:
+  58:.\effectSensor.c ****     ADC_A_StartConvert();
+ 394              		.loc 1 58 0
+ 395 0014 FFF7FEFF 		bl	ADC_V_Start
+ 396              	.LVL41:
+  59:.\effectSensor.c ****     ADC_V_StartConvert();
+ 397              		.loc 1 59 0
+ 398 0018 FFF7FEFF 		bl	ADC_A_StartConvert
+ 399              	.LVL42:
+  60:.\effectSensor.c ****     
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 11
+
+
+ 400              		.loc 1 60 0
+ 401 001c FFF7FEFF 		bl	ADC_V_StartConvert
+ 402              	.LVL43:
+  62:.\effectSensor.c ****     isr_V_StartEx(ISR_VOLT);
+ 403              		.loc 1 62 0
+ 404 0020 0848     		ldr	r0, .L27+4
+ 405 0022 FFF7FEFF 		bl	isr_A_StartEx
+ 406              	.LVL44:
+  63:.\effectSensor.c ****     
+ 407              		.loc 1 63 0
+ 408 0026 0848     		ldr	r0, .L27+8
+ 409 0028 FFF7FEFF 		bl	isr_V_StartEx
+ 410              	.LVL45:
+  65:.\effectSensor.c ****     
+ 411              		.loc 1 65 0
+ 412 002c FFF7FEFF 		bl	DMA_ADC_A_V_init
+ 413              	.LVL46:
+  68:.\effectSensor.c ****     CyDelay(100);
+ 414              		.loc 1 68 0
+ 415 0030 FFF7FEFF 		bl	VDAC8_1_Start
+ 416              	.LVL47:
+  69:.\effectSensor.c ****     Comp_1_Start();
+ 417              		.loc 1 69 0
+ 418 0034 6420     		movs	r0, #100
+ 419 0036 FFF7FEFF 		bl	CyDelay
+ 420              	.LVL48:
+  70:.\effectSensor.c **** }
+ 421              		.loc 1 70 0
+ 422 003a FFF7FEFF 		bl	Comp_1_Start
+ 423              	.LVL49:
+ 424 003e 08BD     		pop	{r3, pc}
+ 425              	.L28:
+ 426              		.align	2
+ 427              	.L27:
+ 428 0040 00000000 		.word	.LANCHOR1
+ 429 0044 00000000 		.word	ISR_AMP
+ 430 0048 00000000 		.word	ISR_VOLT
+ 431              		.cfi_endproc
+ 432              	.LFE65:
+ 433              		.size	effectSensor_init, .-effectSensor_init
+ 434              		.global	a
+ 435              		.global	y_Volt
+ 436              		.global	y_Current
+ 437              		.global	Current_offset
+ 438              		.global	Volt_offset
+ 439              		.global	Volt_temp
+ 440              		.global	Current_temp
+ 441              		.data
+ 442              		.set	.LANCHOR0,. + 0
+ 443              		.type	a, %object
+ 444              		.size	a, 1
+ 445              	a:
+ 446 0000 03       		.byte	3
+ 447              		.bss
+ 448              		.align	2
+ 449              		.set	.LANCHOR1,. + 0
+ 450              		.type	Current_temp, %object
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 12
+
+
+ 451              		.size	Current_temp, 2
+ 452              	Current_temp:
+ 453 0000 0000     		.space	2
+ 454 0002 0000     		.space	2
+ 455              		.type	y_Current, %object
+ 456              		.size	y_Current, 4
+ 457              	y_Current:
+ 458 0004 00000000 		.space	4
+ 459              		.type	Volt_temp, %object
+ 460              		.size	Volt_temp, 2
+ 461              	Volt_temp:
+ 462 0008 0000     		.space	2
+ 463 000a 0000     		.space	2
+ 464              		.type	y_Volt, %object
+ 465              		.size	y_Volt, 4
+ 466              	y_Volt:
+ 467 000c 00000000 		.space	4
+ 468              		.type	Volt_offset, %object
+ 469              		.size	Volt_offset, 2
+ 470              	Volt_offset:
+ 471 0010 0000     		.space	2
+ 472              		.type	Current_offset, %object
+ 473              		.size	Current_offset, 2
+ 474              	Current_offset:
+ 475 0012 0000     		.space	2
+ 476              		.text
+ 477              	.Letext0:
+ 478              		.file 2 "c:\\program files (x86)\\cypress\\psoc creator\\3.3\\psoc creator\\import\\gnu\\arm\\4.9.
+ 479              		.file 3 "c:\\program files (x86)\\cypress\\psoc creator\\3.3\\psoc creator\\import\\gnu\\arm\\4.9.
+ 480              		.file 4 "Generated_Source\\PSoC5/cytypes.h"
+ 481              		.file 5 "Generated_Source\\PSoC5/core_cm3.h"
+ 482              		.file 6 "Generated_Source\\PSoC5/ADC_V.h"
+ 483              		.file 7 "Generated_Source\\PSoC5/ADC_A.h"
+ 484              		.file 8 "Generated_Source\\PSoC5/DMA_A_dma.h"
+ 485              		.file 9 "Generated_Source\\PSoC5/CYDMAC.H"
+ 486              		.file 10 "Generated_Source\\PSoC5/DMA_V_dma.h"
+ 487              		.file 11 "Generated_Source\\PSoC5/PGA_1.h"
+ 488              		.file 12 "Generated_Source\\PSoC5/PGA_2.h"
+ 489              		.file 13 "Generated_Source\\PSoC5/CyLib.h"
+ 490              		.file 14 "Generated_Source\\PSoC5/isr_A.h"
+ 491              		.file 15 "Generated_Source\\PSoC5/isr_V.h"
+ 492              		.file 16 "Generated_Source\\PSoC5/VDAC8_1.h"
+ 493              		.file 17 "Generated_Source\\PSoC5/Comp_1.h"
+ 494              		.section	.debug_info,"",%progbits
+ 495              	.Ldebug_info0:
+ 496 0000 46060000 		.4byte	0x646
+ 497 0004 0400     		.2byte	0x4
+ 498 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 499 000a 04       		.byte	0x4
+ 500 000b 01       		.uleb128 0x1
+ 501 000c F8020000 		.4byte	.LASF66
+ 502 0010 01       		.byte	0x1
+ 503 0011 C1010000 		.4byte	.LASF67
+ 504 0015 A4030000 		.4byte	.LASF68
+ 505 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 506 001d 00000000 		.4byte	0
+ 507 0021 00000000 		.4byte	.Ldebug_line0
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 13
+
+
+ 508 0025 02       		.uleb128 0x2
+ 509 0026 01       		.byte	0x1
+ 510 0027 06       		.byte	0x6
+ 511 0028 E8010000 		.4byte	.LASF0
+ 512 002c 02       		.uleb128 0x2
+ 513 002d 01       		.byte	0x1
+ 514 002e 08       		.byte	0x8
+ 515 002f 99010000 		.4byte	.LASF1
+ 516 0033 02       		.uleb128 0x2
+ 517 0034 02       		.byte	0x2
+ 518 0035 05       		.byte	0x5
+ 519 0036 35010000 		.4byte	.LASF2
+ 520 003a 02       		.uleb128 0x2
+ 521 003b 02       		.byte	0x2
+ 522 003c 07       		.byte	0x7
+ 523 003d 32020000 		.4byte	.LASF3
+ 524 0041 03       		.uleb128 0x3
+ 525 0042 EE020000 		.4byte	.LASF9
+ 526 0046 02       		.byte	0x2
+ 527 0047 3F       		.byte	0x3f
+ 528 0048 4C000000 		.4byte	0x4c
+ 529 004c 02       		.uleb128 0x2
+ 530 004d 04       		.byte	0x4
+ 531 004e 05       		.byte	0x5
+ 532 004f 6E010000 		.4byte	.LASF4
+ 533 0053 02       		.uleb128 0x2
+ 534 0054 04       		.byte	0x4
+ 535 0055 07       		.byte	0x7
+ 536 0056 B4020000 		.4byte	.LASF5
+ 537 005a 02       		.uleb128 0x2
+ 538 005b 08       		.byte	0x8
+ 539 005c 05       		.byte	0x5
+ 540 005d 60010000 		.4byte	.LASF6
+ 541 0061 02       		.uleb128 0x2
+ 542 0062 08       		.byte	0x8
+ 543 0063 07       		.byte	0x7
+ 544 0064 F4010000 		.4byte	.LASF7
+ 545 0068 04       		.uleb128 0x4
+ 546 0069 04       		.byte	0x4
+ 547 006a 05       		.byte	0x5
+ 548 006b 696E7400 		.ascii	"int\000"
+ 549 006f 02       		.uleb128 0x2
+ 550 0070 04       		.byte	0x4
+ 551 0071 07       		.byte	0x7
+ 552 0072 12020000 		.4byte	.LASF8
+ 553 0076 03       		.uleb128 0x3
+ 554 0077 5E020000 		.4byte	.LASF10
+ 555 007b 03       		.byte	0x3
+ 556 007c 2C       		.byte	0x2c
+ 557 007d 41000000 		.4byte	0x41
+ 558 0081 05       		.uleb128 0x5
+ 559 0082 10010000 		.4byte	.LASF11
+ 560 0086 04       		.byte	0x4
+ 561 0087 3801     		.2byte	0x138
+ 562 0089 2C000000 		.4byte	0x2c
+ 563 008d 05       		.uleb128 0x5
+ 564 008e 96020000 		.4byte	.LASF12
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 14
+
+
+ 565 0092 04       		.byte	0x4
+ 566 0093 3901     		.2byte	0x139
+ 567 0095 3A000000 		.4byte	0x3a
+ 568 0099 05       		.uleb128 0x5
+ 569 009a A8020000 		.4byte	.LASF13
+ 570 009e 04       		.byte	0x4
+ 571 009f 3A01     		.2byte	0x13a
+ 572 00a1 53000000 		.4byte	0x53
+ 573 00a5 05       		.uleb128 0x5
+ 574 00a6 0A010000 		.4byte	.LASF14
+ 575 00aa 04       		.byte	0x4
+ 576 00ab 3C01     		.2byte	0x13c
+ 577 00ad 33000000 		.4byte	0x33
+ 578 00b1 05       		.uleb128 0x5
+ 579 00b2 C6020000 		.4byte	.LASF15
+ 580 00b6 04       		.byte	0x4
+ 581 00b7 3D01     		.2byte	0x13d
+ 582 00b9 4C000000 		.4byte	0x4c
+ 583 00bd 02       		.uleb128 0x2
+ 584 00be 04       		.byte	0x4
+ 585 00bf 04       		.byte	0x4
+ 586 00c0 50010000 		.4byte	.LASF16
+ 587 00c4 02       		.uleb128 0x2
+ 588 00c5 08       		.byte	0x8
+ 589 00c6 04       		.byte	0x4
+ 590 00c7 CC020000 		.4byte	.LASF17
+ 591 00cb 05       		.uleb128 0x5
+ 592 00cc 77010000 		.4byte	.LASF18
+ 593 00d0 04       		.byte	0x4
+ 594 00d1 4401     		.2byte	0x144
+ 595 00d3 61000000 		.4byte	0x61
+ 596 00d7 02       		.uleb128 0x2
+ 597 00d8 01       		.byte	0x1
+ 598 00d9 08       		.byte	0x8
+ 599 00da 50020000 		.4byte	.LASF19
+ 600 00de 05       		.uleb128 0x5
+ 601 00df 55020000 		.4byte	.LASF20
+ 602 00e3 04       		.byte	0x4
+ 603 00e4 DA01     		.2byte	0x1da
+ 604 00e6 53000000 		.4byte	0x53
+ 605 00ea 05       		.uleb128 0x5
+ 606 00eb AF020000 		.4byte	.LASF21
+ 607 00ef 04       		.byte	0x4
+ 608 00f0 E201     		.2byte	0x1e2
+ 609 00f2 F6000000 		.4byte	0xf6
+ 610 00f6 06       		.uleb128 0x6
+ 611 00f7 81000000 		.4byte	0x81
+ 612 00fb 05       		.uleb128 0x5
+ 613 00fc A7010000 		.4byte	.LASF22
+ 614 0100 04       		.byte	0x4
+ 615 0101 F401     		.2byte	0x1f4
+ 616 0103 07010000 		.4byte	0x107
+ 617 0107 07       		.uleb128 0x7
+ 618 0108 04       		.byte	0x4
+ 619 0109 0D010000 		.4byte	0x10d
+ 620 010d 08       		.uleb128 0x8
+ 621 010e 02       		.uleb128 0x2
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 15
+
+
+ 622 010f 04       		.byte	0x4
+ 623 0110 07       		.byte	0x7
+ 624 0111 76000000 		.4byte	.LASF23
+ 625 0115 09       		.uleb128 0x9
+ 626 0116 16010000 		.4byte	.LASF24
+ 627 011a 01       		.byte	0x1
+ 628 011b 24       		.byte	0x24
+ 629 011c 00000000 		.4byte	.LFB63
+ 630 0120 2C000000 		.4byte	.LFE63-.LFB63
+ 631 0124 01       		.uleb128 0x1
+ 632 0125 9C       		.byte	0x9c
+ 633 0126 09       		.uleb128 0x9
+ 634 0127 E5020000 		.4byte	.LASF25
+ 635 012b 01       		.byte	0x1
+ 636 012c 2A       		.byte	0x2a
+ 637 012d 00000000 		.4byte	.LFB64
+ 638 0131 2C000000 		.4byte	.LFE64-.LFB64
+ 639 0135 01       		.uleb128 0x1
+ 640 0136 9C       		.byte	0x9c
+ 641 0137 0A       		.uleb128 0xa
+ 642 0138 1E010000 		.4byte	.LASF28
+ 643 013c 01       		.byte	0x1
+ 644 013d 49       		.byte	0x49
+ 645 013e 00000000 		.4byte	.LFB66
+ 646 0142 3C000000 		.4byte	.LFE66-.LFB66
+ 647 0146 01       		.uleb128 0x1
+ 648 0147 9C       		.byte	0x9c
+ 649 0148 8B010000 		.4byte	0x18b
+ 650 014c 0B       		.uleb128 0xb
+ 651 014d 7E010000 		.4byte	.LASF26
+ 652 0151 01       		.byte	0x1
+ 653 0152 49       		.byte	0x49
+ 654 0153 8B010000 		.4byte	0x18b
+ 655 0157 00000000 		.4byte	.LLST0
+ 656 015b 0B       		.uleb128 0xb
+ 657 015c E8000000 		.4byte	.LASF27
+ 658 0160 01       		.byte	0x1
+ 659 0161 49       		.byte	0x49
+ 660 0162 8B010000 		.4byte	0x18b
+ 661 0166 2C000000 		.4byte	.LLST1
+ 662 016a 0C       		.uleb128 0xc
+ 663 016b DF020000 		.4byte	.LASF30
+ 664 016f 01       		.byte	0x1
+ 665 0170 4B       		.byte	0x4b
+ 666 0171 81000000 		.4byte	0x81
+ 667 0175 58000000 		.4byte	.LLST2
+ 668 0179 0D       		.uleb128 0xd
+ 669 017a 16000000 		.4byte	.LVL3
+ 670 017e EA040000 		.4byte	0x4ea
+ 671 0182 0E       		.uleb128 0xe
+ 672 0183 01       		.uleb128 0x1
+ 673 0184 50       		.byte	0x50
+ 674 0185 03       		.uleb128 0x3
+ 675 0186 0A       		.byte	0xa
+ 676 0187 1027     		.2byte	0x2710
+ 677 0189 00       		.byte	0
+ 678 018a 00       		.byte	0
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 16
+
+
+ 679 018b 07       		.uleb128 0x7
+ 680 018c 04       		.byte	0x4
+ 681 018d A5000000 		.4byte	0xa5
+ 682 0191 0F       		.uleb128 0xf
+ 683 0192 BE000000 		.4byte	.LASF29
+ 684 0196 01       		.byte	0x1
+ 685 0197 64       		.byte	0x64
+ 686 0198 8D000000 		.4byte	0x8d
+ 687 019c 00000000 		.4byte	.LFB67
+ 688 01a0 84000000 		.4byte	.LFE67-.LFB67
+ 689 01a4 01       		.uleb128 0x1
+ 690 01a5 9C       		.byte	0x9c
+ 691 01a6 F9010000 		.4byte	0x1f9
+ 692 01aa 0C       		.uleb128 0xc
+ 693 01ab 92000000 		.4byte	.LASF31
+ 694 01af 01       		.byte	0x1
+ 695 01b0 66       		.byte	0x66
+ 696 01b1 A5000000 		.4byte	0xa5
+ 697 01b5 6B000000 		.4byte	.LLST3
+ 698 01b9 0C       		.uleb128 0xc
+ 699 01ba 45020000 		.4byte	.LASF32
+ 700 01be 01       		.byte	0x1
+ 701 01bf 67       		.byte	0x67
+ 702 01c0 A5000000 		.4byte	0xa5
+ 703 01c4 89000000 		.4byte	.LLST4
+ 704 01c8 0C       		.uleb128 0xc
+ 705 01c9 B9000000 		.4byte	.LASF33
+ 706 01cd 01       		.byte	0x1
+ 707 01ce 6D       		.byte	0x6d
+ 708 01cf 99000000 		.4byte	0x99
+ 709 01d3 9C000000 		.4byte	.LLST5
+ 710 01d7 0C       		.uleb128 0xc
+ 711 01d8 1F020000 		.4byte	.LASF34
+ 712 01dc 01       		.byte	0x1
+ 713 01dd 6E       		.byte	0x6e
+ 714 01de 99000000 		.4byte	0x99
+ 715 01e2 AF000000 		.4byte	.LLST6
+ 716 01e6 10       		.uleb128 0x10
+ 717 01e7 12000000 		.4byte	.LVL5
+ 718 01eb FB040000 		.4byte	0x4fb
+ 719 01ef 10       		.uleb128 0x10
+ 720 01f0 22000000 		.4byte	.LVL7
+ 721 01f4 10050000 		.4byte	0x510
+ 722 01f8 00       		.byte	0
+ 723 01f9 11       		.uleb128 0x11
+ 724 01fa 3F010000 		.4byte	.LASF69
+ 725 01fe 01       		.byte	0x1
+ 726 01ff 75       		.byte	0x75
+ 727 0200 00000000 		.4byte	.LFB68
+ 728 0204 8C000000 		.4byte	.LFE68-.LFB68
+ 729 0208 01       		.uleb128 0x1
+ 730 0209 9C       		.byte	0x9c
+ 731 020a 8D030000 		.4byte	0x38d
+ 732 020e 0C       		.uleb128 0xc
+ 733 020f 9D020000 		.4byte	.LASF35
+ 734 0213 01       		.byte	0x1
+ 735 0214 81       		.byte	0x81
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 17
+
+
+ 736 0215 81000000 		.4byte	0x81
+ 737 0219 C2000000 		.4byte	.LLST7
+ 738 021d 12       		.uleb128 0x12
+ 739 021e 8D020000 		.4byte	.LASF37
+ 740 0222 01       		.byte	0x1
+ 741 0223 82       		.byte	0x82
+ 742 0224 8D030000 		.4byte	0x38d
+ 743 0228 0C       		.uleb128 0xc
+ 744 0229 27020000 		.4byte	.LASF36
+ 745 022d 01       		.byte	0x1
+ 746 022e 98       		.byte	0x98
+ 747 022f 81000000 		.4byte	0x81
+ 748 0233 D5000000 		.4byte	.LLST8
+ 749 0237 12       		.uleb128 0x12
+ 750 0238 66020000 		.4byte	.LASF38
+ 751 023c 01       		.byte	0x1
+ 752 023d 99       		.byte	0x99
+ 753 023e 8D030000 		.4byte	0x38d
+ 754 0242 13       		.uleb128 0x13
+ 755 0243 12000000 		.4byte	.LVL22
+ 756 0247 25050000 		.4byte	0x525
+ 757 024b 68020000 		.4byte	0x268
+ 758 024f 0E       		.uleb128 0xe
+ 759 0250 01       		.uleb128 0x1
+ 760 0251 53       		.byte	0x53
+ 761 0252 03       		.uleb128 0x3
+ 762 0253 0A       		.byte	0xa
+ 763 0254 FF1F     		.2byte	0x1fff
+ 764 0256 0E       		.uleb128 0xe
+ 765 0257 01       		.uleb128 0x1
+ 766 0258 52       		.byte	0x52
+ 767 0259 03       		.uleb128 0x3
+ 768 025a 0A       		.byte	0xa
+ 769 025b 0040     		.2byte	0x4000
+ 770 025d 0E       		.uleb128 0xe
+ 771 025e 01       		.uleb128 0x1
+ 772 025f 51       		.byte	0x51
+ 773 0260 01       		.uleb128 0x1
+ 774 0261 31       		.byte	0x31
+ 775 0262 0E       		.uleb128 0xe
+ 776 0263 01       		.uleb128 0x1
+ 777 0264 50       		.byte	0x50
+ 778 0265 01       		.uleb128 0x1
+ 779 0266 32       		.byte	0x32
+ 780 0267 00       		.byte	0
+ 781 0268 10       		.uleb128 0x10
+ 782 0269 18000000 		.4byte	.LVL24
+ 783 026d 49050000 		.4byte	0x549
+ 784 0271 13       		.uleb128 0x13
+ 785 0272 24000000 		.4byte	.LVL25
+ 786 0276 54050000 		.4byte	0x554
+ 787 027a 95020000 		.4byte	0x295
+ 788 027e 0E       		.uleb128 0xe
+ 789 027f 01       		.uleb128 0x1
+ 790 0280 53       		.byte	0x53
+ 791 0281 01       		.uleb128 0x1
+ 792 0282 36       		.byte	0x36
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 18
+
+
+ 793 0283 0E       		.uleb128 0xe
+ 794 0284 01       		.uleb128 0x1
+ 795 0285 52       		.byte	0x52
+ 796 0286 02       		.uleb128 0x2
+ 797 0287 09       		.byte	0x9
+ 798 0288 FF       		.byte	0xff
+ 799 0289 0E       		.uleb128 0xe
+ 800 028a 01       		.uleb128 0x1
+ 801 028b 51       		.byte	0x51
+ 802 028c 01       		.uleb128 0x1
+ 803 028d 32       		.byte	0x32
+ 804 028e 0E       		.uleb128 0xe
+ 805 028f 01       		.uleb128 0x1
+ 806 0290 50       		.byte	0x50
+ 807 0291 02       		.uleb128 0x2
+ 808 0292 76       		.byte	0x76
+ 809 0293 00       		.sleb128 0
+ 810 0294 00       		.byte	0
+ 811 0295 13       		.uleb128 0x13
+ 812 0296 32000000 		.4byte	.LVL26
+ 813 029a 78050000 		.4byte	0x578
+ 814 029e B6020000 		.4byte	0x2b6
+ 815 02a2 0E       		.uleb128 0xe
+ 816 02a3 01       		.uleb128 0x1
+ 817 02a4 52       		.byte	0x52
+ 818 02a5 02       		.uleb128 0x2
+ 819 02a6 74       		.byte	0x74
+ 820 02a7 00       		.sleb128 0
+ 821 02a8 0E       		.uleb128 0xe
+ 822 02a9 01       		.uleb128 0x1
+ 823 02aa 51       		.byte	0x51
+ 824 02ab 03       		.uleb128 0x3
+ 825 02ac 0A       		.byte	0xa
+ 826 02ad A05B     		.2byte	0x5ba0
+ 827 02af 0E       		.uleb128 0xe
+ 828 02b0 01       		.uleb128 0x1
+ 829 02b1 50       		.byte	0x50
+ 830 02b2 02       		.uleb128 0x2
+ 831 02b3 76       		.byte	0x76
+ 832 02b4 00       		.sleb128 0
+ 833 02b5 00       		.byte	0
+ 834 02b6 13       		.uleb128 0x13
+ 835 02b7 3A000000 		.4byte	.LVL27
+ 836 02bb 97050000 		.4byte	0x597
+ 837 02bf D0020000 		.4byte	0x2d0
+ 838 02c3 0E       		.uleb128 0xe
+ 839 02c4 01       		.uleb128 0x1
+ 840 02c5 51       		.byte	0x51
+ 841 02c6 02       		.uleb128 0x2
+ 842 02c7 76       		.byte	0x76
+ 843 02c8 00       		.sleb128 0
+ 844 02c9 0E       		.uleb128 0xe
+ 845 02ca 01       		.uleb128 0x1
+ 846 02cb 50       		.byte	0x50
+ 847 02cc 02       		.uleb128 0x2
+ 848 02cd 75       		.byte	0x75
+ 849 02ce 00       		.sleb128 0
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 19
+
+
+ 850 02cf 00       		.byte	0
+ 851 02d0 13       		.uleb128 0x13
+ 852 02d1 42000000 		.4byte	.LVL28
+ 853 02d5 B1050000 		.4byte	0x5b1
+ 854 02d9 E9020000 		.4byte	0x2e9
+ 855 02dd 0E       		.uleb128 0xe
+ 856 02de 01       		.uleb128 0x1
+ 857 02df 51       		.byte	0x51
+ 858 02e0 01       		.uleb128 0x1
+ 859 02e1 31       		.byte	0x31
+ 860 02e2 0E       		.uleb128 0xe
+ 861 02e3 01       		.uleb128 0x1
+ 862 02e4 50       		.byte	0x50
+ 863 02e5 02       		.uleb128 0x2
+ 864 02e6 75       		.byte	0x75
+ 865 02e7 00       		.sleb128 0
+ 866 02e8 00       		.byte	0
+ 867 02e9 13       		.uleb128 0x13
+ 868 02ea 52000000 		.4byte	.LVL29
+ 869 02ee CB050000 		.4byte	0x5cb
+ 870 02f2 0F030000 		.4byte	0x30f
+ 871 02f6 0E       		.uleb128 0xe
+ 872 02f7 01       		.uleb128 0x1
+ 873 02f8 53       		.byte	0x53
+ 874 02f9 03       		.uleb128 0x3
+ 875 02fa 0A       		.byte	0xa
+ 876 02fb FF1F     		.2byte	0x1fff
+ 877 02fd 0E       		.uleb128 0xe
+ 878 02fe 01       		.uleb128 0x1
+ 879 02ff 52       		.byte	0x52
+ 880 0300 03       		.uleb128 0x3
+ 881 0301 0A       		.byte	0xa
+ 882 0302 0040     		.2byte	0x4000
+ 883 0304 0E       		.uleb128 0xe
+ 884 0305 01       		.uleb128 0x1
+ 885 0306 51       		.byte	0x51
+ 886 0307 01       		.uleb128 0x1
+ 887 0308 31       		.byte	0x31
+ 888 0309 0E       		.uleb128 0xe
+ 889 030a 01       		.uleb128 0x1
+ 890 030b 50       		.byte	0x50
+ 891 030c 01       		.uleb128 0x1
+ 892 030d 32       		.byte	0x32
+ 893 030e 00       		.byte	0
+ 894 030f 10       		.uleb128 0x10
+ 895 0310 58000000 		.4byte	.LVL31
+ 896 0314 49050000 		.4byte	0x549
+ 897 0318 13       		.uleb128 0x13
+ 898 0319 64000000 		.4byte	.LVL32
+ 899 031d 54050000 		.4byte	0x554
+ 900 0321 3C030000 		.4byte	0x33c
+ 901 0325 0E       		.uleb128 0xe
+ 902 0326 01       		.uleb128 0x1
+ 903 0327 53       		.byte	0x53
+ 904 0328 01       		.uleb128 0x1
+ 905 0329 36       		.byte	0x36
+ 906 032a 0E       		.uleb128 0xe
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 20
+
+
+ 907 032b 01       		.uleb128 0x1
+ 908 032c 52       		.byte	0x52
+ 909 032d 02       		.uleb128 0x2
+ 910 032e 09       		.byte	0x9
+ 911 032f FF       		.byte	0xff
+ 912 0330 0E       		.uleb128 0xe
+ 913 0331 01       		.uleb128 0x1
+ 914 0332 51       		.byte	0x51
+ 915 0333 01       		.uleb128 0x1
+ 916 0334 32       		.byte	0x32
+ 917 0335 0E       		.uleb128 0xe
+ 918 0336 01       		.uleb128 0x1
+ 919 0337 50       		.byte	0x50
+ 920 0338 02       		.uleb128 0x2
+ 921 0339 76       		.byte	0x76
+ 922 033a 00       		.sleb128 0
+ 923 033b 00       		.byte	0
+ 924 033c 13       		.uleb128 0x13
+ 925 033d 74000000 		.4byte	.LVL33
+ 926 0341 78050000 		.4byte	0x578
+ 927 0345 5D030000 		.4byte	0x35d
+ 928 0349 0E       		.uleb128 0xe
+ 929 034a 01       		.uleb128 0x1
+ 930 034b 52       		.byte	0x52
+ 931 034c 02       		.uleb128 0x2
+ 932 034d 74       		.byte	0x74
+ 933 034e 08       		.sleb128 8
+ 934 034f 0E       		.uleb128 0xe
+ 935 0350 01       		.uleb128 0x1
+ 936 0351 51       		.byte	0x51
+ 937 0352 03       		.uleb128 0x3
+ 938 0353 0A       		.byte	0xa
+ 939 0354 A25B     		.2byte	0x5ba2
+ 940 0356 0E       		.uleb128 0xe
+ 941 0357 01       		.uleb128 0x1
+ 942 0358 50       		.byte	0x50
+ 943 0359 02       		.uleb128 0x2
+ 944 035a 76       		.byte	0x76
+ 945 035b 00       		.sleb128 0
+ 946 035c 00       		.byte	0
+ 947 035d 13       		.uleb128 0x13
+ 948 035e 7C000000 		.4byte	.LVL34
+ 949 0362 97050000 		.4byte	0x597
+ 950 0366 77030000 		.4byte	0x377
+ 951 036a 0E       		.uleb128 0xe
+ 952 036b 01       		.uleb128 0x1
+ 953 036c 51       		.byte	0x51
+ 954 036d 02       		.uleb128 0x2
+ 955 036e 76       		.byte	0x76
+ 956 036f 00       		.sleb128 0
+ 957 0370 0E       		.uleb128 0xe
+ 958 0371 01       		.uleb128 0x1
+ 959 0372 50       		.byte	0x50
+ 960 0373 02       		.uleb128 0x2
+ 961 0374 75       		.byte	0x75
+ 962 0375 00       		.sleb128 0
+ 963 0376 00       		.byte	0
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 21
+
+
+ 964 0377 0D       		.uleb128 0xd
+ 965 0378 84000000 		.4byte	.LVL35
+ 966 037c B1050000 		.4byte	0x5b1
+ 967 0380 0E       		.uleb128 0xe
+ 968 0381 01       		.uleb128 0x1
+ 969 0382 51       		.byte	0x51
+ 970 0383 01       		.uleb128 0x1
+ 971 0384 31       		.byte	0x31
+ 972 0385 0E       		.uleb128 0xe
+ 973 0386 01       		.uleb128 0x1
+ 974 0387 50       		.byte	0x50
+ 975 0388 02       		.uleb128 0x2
+ 976 0389 75       		.byte	0x75
+ 977 038a 00       		.sleb128 0
+ 978 038b 00       		.byte	0
+ 979 038c 00       		.byte	0
+ 980 038d 14       		.uleb128 0x14
+ 981 038e 81000000 		.4byte	0x81
+ 982 0392 9D030000 		.4byte	0x39d
+ 983 0396 15       		.uleb128 0x15
+ 984 0397 0E010000 		.4byte	0x10e
+ 985 039b 00       		.byte	0
+ 986 039c 00       		.byte	0
+ 987 039d 0A       		.uleb128 0xa
+ 988 039e 6F020000 		.4byte	.LASF39
+ 989 03a2 01       		.byte	0x1
+ 990 03a3 2F       		.byte	0x2f
+ 991 03a4 00000000 		.4byte	.LFB65
+ 992 03a8 4C000000 		.4byte	.LFE65-.LFB65
+ 993 03ac 01       		.uleb128 0x1
+ 994 03ad 9C       		.byte	0x9c
+ 995 03ae 64040000 		.4byte	0x464
+ 996 03b2 0B       		.uleb128 0xb
+ 997 03b3 7E010000 		.4byte	.LASF26
+ 998 03b7 01       		.byte	0x1
+ 999 03b8 2F       		.byte	0x2f
+ 1000 03b9 A5000000 		.4byte	0xa5
+ 1001 03bd E8000000 		.4byte	.LLST9
+ 1002 03c1 0B       		.uleb128 0xb
+ 1003 03c2 E8000000 		.4byte	.LASF27
+ 1004 03c6 01       		.byte	0x1
+ 1005 03c7 2F       		.byte	0x2f
+ 1006 03c8 A5000000 		.4byte	0xa5
+ 1007 03cc 09010000 		.4byte	.LLST10
+ 1008 03d0 10       		.uleb128 0x10
+ 1009 03d1 0C000000 		.4byte	.LVL38
+ 1010 03d5 EF050000 		.4byte	0x5ef
+ 1011 03d9 10       		.uleb128 0x10
+ 1012 03da 10000000 		.4byte	.LVL39
+ 1013 03de F6050000 		.4byte	0x5f6
+ 1014 03e2 10       		.uleb128 0x10
+ 1015 03e3 14000000 		.4byte	.LVL40
+ 1016 03e7 FD050000 		.4byte	0x5fd
+ 1017 03eb 10       		.uleb128 0x10
+ 1018 03ec 18000000 		.4byte	.LVL41
+ 1019 03f0 04060000 		.4byte	0x604
+ 1020 03f4 10       		.uleb128 0x10
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 22
+
+
+ 1021 03f5 1C000000 		.4byte	.LVL42
+ 1022 03f9 0B060000 		.4byte	0x60b
+ 1023 03fd 10       		.uleb128 0x10
+ 1024 03fe 20000000 		.4byte	.LVL43
+ 1025 0402 12060000 		.4byte	0x612
+ 1026 0406 13       		.uleb128 0x13
+ 1027 0407 26000000 		.4byte	.LVL44
+ 1028 040b 19060000 		.4byte	0x619
+ 1029 040f 1D040000 		.4byte	0x41d
+ 1030 0413 0E       		.uleb128 0xe
+ 1031 0414 01       		.uleb128 0x1
+ 1032 0415 50       		.byte	0x50
+ 1033 0416 05       		.uleb128 0x5
+ 1034 0417 03       		.byte	0x3
+ 1035 0418 00000000 		.4byte	ISR_AMP
+ 1036 041c 00       		.byte	0
+ 1037 041d 13       		.uleb128 0x13
+ 1038 041e 2C000000 		.4byte	.LVL45
+ 1039 0422 2A060000 		.4byte	0x62a
+ 1040 0426 34040000 		.4byte	0x434
+ 1041 042a 0E       		.uleb128 0xe
+ 1042 042b 01       		.uleb128 0x1
+ 1043 042c 50       		.byte	0x50
+ 1044 042d 05       		.uleb128 0x5
+ 1045 042e 03       		.byte	0x3
+ 1046 042f 00000000 		.4byte	ISR_VOLT
+ 1047 0433 00       		.byte	0
+ 1048 0434 10       		.uleb128 0x10
+ 1049 0435 30000000 		.4byte	.LVL46
+ 1050 0439 F9010000 		.4byte	0x1f9
+ 1051 043d 10       		.uleb128 0x10
+ 1052 043e 34000000 		.4byte	.LVL47
+ 1053 0442 3B060000 		.4byte	0x63b
+ 1054 0446 13       		.uleb128 0x13
+ 1055 0447 3A000000 		.4byte	.LVL48
+ 1056 044b EA040000 		.4byte	0x4ea
+ 1057 044f 5A040000 		.4byte	0x45a
+ 1058 0453 0E       		.uleb128 0xe
+ 1059 0454 01       		.uleb128 0x1
+ 1060 0455 50       		.byte	0x50
+ 1061 0456 02       		.uleb128 0x2
+ 1062 0457 08       		.byte	0x8
+ 1063 0458 64       		.byte	0x64
+ 1064 0459 00       		.byte	0
+ 1065 045a 10       		.uleb128 0x10
+ 1066 045b 3E000000 		.4byte	.LVL49
+ 1067 045f 42060000 		.4byte	0x642
+ 1068 0463 00       		.byte	0
+ 1069 0464 16       		.uleb128 0x16
+ 1070 0465 FA030000 		.4byte	.LASF40
+ 1071 0469 05       		.byte	0x5
+ 1072 046a 5506     		.2byte	0x655
+ 1073 046c 70040000 		.4byte	0x470
+ 1074 0470 06       		.uleb128 0x6
+ 1075 0471 76000000 		.4byte	0x76
+ 1076 0475 17       		.uleb128 0x17
+ 1077 0476 B4010000 		.4byte	.LASF41
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 23
+
+
+ 1078 047a 01       		.byte	0x1
+ 1079 047b 0E       		.byte	0xe
+ 1080 047c A5000000 		.4byte	0xa5
+ 1081 0480 05       		.uleb128 0x5
+ 1082 0481 03       		.byte	0x3
+ 1083 0482 00000000 		.4byte	Current_temp
+ 1084 0486 17       		.uleb128 0x17
+ 1085 0487 9A030000 		.4byte	.LASF42
+ 1086 048b 01       		.byte	0x1
+ 1087 048c 0F       		.byte	0xf
+ 1088 048d A5000000 		.4byte	0xa5
+ 1089 0491 05       		.uleb128 0x5
+ 1090 0492 03       		.byte	0x3
+ 1091 0493 00000000 		.4byte	Volt_temp
+ 1092 0497 17       		.uleb128 0x17
+ 1093 0498 D3020000 		.4byte	.LASF43
+ 1094 049c 01       		.byte	0x1
+ 1095 049d 11       		.byte	0x11
+ 1096 049e A5000000 		.4byte	0xa5
+ 1097 04a2 05       		.uleb128 0x5
+ 1098 04a3 03       		.byte	0x3
+ 1099 04a4 00000000 		.4byte	Volt_offset
+ 1100 04a8 17       		.uleb128 0x17
+ 1101 04a9 EB030000 		.4byte	.LASF44
+ 1102 04ad 01       		.byte	0x1
+ 1103 04ae 12       		.byte	0x12
+ 1104 04af A5000000 		.4byte	0xa5
+ 1105 04b3 05       		.uleb128 0x5
+ 1106 04b4 03       		.byte	0x3
+ 1107 04b5 00000000 		.4byte	Current_offset
+ 1108 04b9 17       		.uleb128 0x17
+ 1109 04ba 56010000 		.4byte	.LASF45
+ 1110 04be 01       		.byte	0x1
+ 1111 04bf 15       		.byte	0x15
+ 1112 04c0 B1000000 		.4byte	0xb1
+ 1113 04c4 05       		.uleb128 0x5
+ 1114 04c5 03       		.byte	0x3
+ 1115 04c6 00000000 		.4byte	y_Current
+ 1116 04ca 17       		.uleb128 0x17
+ 1117 04cb 0B020000 		.4byte	.LASF46
+ 1118 04cf 01       		.byte	0x1
+ 1119 04d0 16       		.byte	0x16
+ 1120 04d1 B1000000 		.4byte	0xb1
+ 1121 04d5 05       		.uleb128 0x5
+ 1122 04d6 03       		.byte	0x3
+ 1123 04d7 00000000 		.4byte	y_Volt
+ 1124 04db 18       		.uleb128 0x18
+ 1125 04dc 6100     		.ascii	"a\000"
+ 1126 04de 01       		.byte	0x1
+ 1127 04df 18       		.byte	0x18
+ 1128 04e0 81000000 		.4byte	0x81
+ 1129 04e4 05       		.uleb128 0x5
+ 1130 04e5 03       		.byte	0x3
+ 1131 04e6 00000000 		.4byte	a
+ 1132 04ea 19       		.uleb128 0x19
+ 1133 04eb 07040000 		.4byte	.LASF61
+ 1134 04ef 0D       		.byte	0xd
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 24
+
+
+ 1135 04f0 77       		.byte	0x77
+ 1136 04f1 FB040000 		.4byte	0x4fb
+ 1137 04f5 1A       		.uleb128 0x1a
+ 1138 04f6 99000000 		.4byte	0x99
+ 1139 04fa 00       		.byte	0
+ 1140 04fb 1B       		.uleb128 0x1b
+ 1141 04fc 83010000 		.4byte	.LASF47
+ 1142 0500 06       		.byte	0x6
+ 1143 0501 3F       		.byte	0x3f
+ 1144 0502 A5000000 		.4byte	0xa5
+ 1145 0506 10050000 		.4byte	0x510
+ 1146 050a 1A       		.uleb128 0x1a
+ 1147 050b A5000000 		.4byte	0xa5
+ 1148 050f 00       		.byte	0
+ 1149 0510 1B       		.uleb128 0x1b
+ 1150 0511 D2010000 		.4byte	.LASF48
+ 1151 0515 07       		.byte	0x7
+ 1152 0516 3F       		.byte	0x3f
+ 1153 0517 A5000000 		.4byte	0xa5
+ 1154 051b 25050000 		.4byte	0x525
+ 1155 051f 1A       		.uleb128 0x1a
+ 1156 0520 A5000000 		.4byte	0xa5
+ 1157 0524 00       		.byte	0
+ 1158 0525 1B       		.uleb128 0x1b
+ 1159 0526 10000000 		.4byte	.LASF49
+ 1160 052a 08       		.byte	0x8
+ 1161 052b 1E       		.byte	0x1e
+ 1162 052c 81000000 		.4byte	0x81
+ 1163 0530 49050000 		.4byte	0x549
+ 1164 0534 1A       		.uleb128 0x1a
+ 1165 0535 81000000 		.4byte	0x81
+ 1166 0539 1A       		.uleb128 0x1a
+ 1167 053a 81000000 		.4byte	0x81
+ 1168 053e 1A       		.uleb128 0x1a
+ 1169 053f 8D000000 		.4byte	0x8d
+ 1170 0543 1A       		.uleb128 0x1a
+ 1171 0544 8D000000 		.4byte	0x8d
+ 1172 0548 00       		.byte	0
+ 1173 0549 1C       		.uleb128 0x1c
+ 1174 054a 00000000 		.4byte	.LASF70
+ 1175 054e 09       		.byte	0x9
+ 1176 054f 39       		.byte	0x39
+ 1177 0550 81000000 		.4byte	0x81
+ 1178 0554 1B       		.uleb128 0x1b
+ 1179 0555 50000000 		.4byte	.LASF50
+ 1180 0559 09       		.byte	0x9
+ 1181 055a 3C       		.byte	0x3c
+ 1182 055b DE000000 		.4byte	0xde
+ 1183 055f 78050000 		.4byte	0x578
+ 1184 0563 1A       		.uleb128 0x1a
+ 1185 0564 81000000 		.4byte	0x81
+ 1186 0568 1A       		.uleb128 0x1a
+ 1187 0569 8D000000 		.4byte	0x8d
+ 1188 056d 1A       		.uleb128 0x1a
+ 1189 056e 81000000 		.4byte	0x81
+ 1190 0572 1A       		.uleb128 0x1a
+ 1191 0573 81000000 		.4byte	0x81
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 25
+
+
+ 1192 0577 00       		.byte	0
+ 1193 0578 1B       		.uleb128 0x1b
+ 1194 0579 24000000 		.4byte	.LASF51
+ 1195 057d 09       		.byte	0x9
+ 1196 057e 40       		.byte	0x40
+ 1197 057f DE000000 		.4byte	0xde
+ 1198 0583 97050000 		.4byte	0x597
+ 1199 0587 1A       		.uleb128 0x1a
+ 1200 0588 81000000 		.4byte	0x81
+ 1201 058c 1A       		.uleb128 0x1a
+ 1202 058d 8D000000 		.4byte	0x8d
+ 1203 0591 1A       		.uleb128 0x1a
+ 1204 0592 8D000000 		.4byte	0x8d
+ 1205 0596 00       		.byte	0
+ 1206 0597 1B       		.uleb128 0x1b
+ 1207 0598 D4000000 		.4byte	.LASF52
+ 1208 059c 09       		.byte	0x9
+ 1209 059d 30       		.byte	0x30
+ 1210 059e DE000000 		.4byte	0xde
+ 1211 05a2 B1050000 		.4byte	0x5b1
+ 1212 05a6 1A       		.uleb128 0x1a
+ 1213 05a7 81000000 		.4byte	0x81
+ 1214 05ab 1A       		.uleb128 0x1a
+ 1215 05ac 81000000 		.4byte	0x81
+ 1216 05b0 00       		.byte	0
+ 1217 05b1 1B       		.uleb128 0x1b
+ 1218 05b2 68000000 		.4byte	.LASF53
+ 1219 05b6 09       		.byte	0x9
+ 1220 05b7 2A       		.byte	0x2a
+ 1221 05b8 DE000000 		.4byte	0xde
+ 1222 05bc CB050000 		.4byte	0x5cb
+ 1223 05c0 1A       		.uleb128 0x1a
+ 1224 05c1 81000000 		.4byte	0x81
+ 1225 05c5 1A       		.uleb128 0x1a
+ 1226 05c6 81000000 		.4byte	0x81
+ 1227 05ca 00       		.byte	0
+ 1228 05cb 1B       		.uleb128 0x1b
+ 1229 05cc 86030000 		.4byte	.LASF54
+ 1230 05d0 0A       		.byte	0xa
+ 1231 05d1 1E       		.byte	0x1e
+ 1232 05d2 81000000 		.4byte	0x81
+ 1233 05d6 EF050000 		.4byte	0x5ef
+ 1234 05da 1A       		.uleb128 0x1a
+ 1235 05db 81000000 		.4byte	0x81
+ 1236 05df 1A       		.uleb128 0x1a
+ 1237 05e0 81000000 		.4byte	0x81
+ 1238 05e4 1A       		.uleb128 0x1a
+ 1239 05e5 8D000000 		.4byte	0x8d
+ 1240 05e9 1A       		.uleb128 0x1a
+ 1241 05ea 8D000000 		.4byte	0x8d
+ 1242 05ee 00       		.byte	0
+ 1243 05ef 1D       		.uleb128 0x1d
+ 1244 05f0 81020000 		.4byte	.LASF55
+ 1245 05f4 0B       		.byte	0xb
+ 1246 05f5 3E       		.byte	0x3e
+ 1247 05f6 1D       		.uleb128 0x1d
+ 1248 05f7 FE000000 		.4byte	.LASF56
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 26
+
+
+ 1249 05fb 0C       		.byte	0xc
+ 1250 05fc 3E       		.byte	0x3e
+ 1251 05fd 1D       		.uleb128 0x1d
+ 1252 05fe 9A000000 		.4byte	.LASF57
+ 1253 0602 07       		.byte	0x7
+ 1254 0603 34       		.byte	0x34
+ 1255 0604 1D       		.uleb128 0x1d
+ 1256 0605 36000000 		.4byte	.LASF58
+ 1257 0609 06       		.byte	0x6
+ 1258 060a 34       		.byte	0x34
+ 1259 060b 1D       		.uleb128 0x1d
+ 1260 060c A6000000 		.4byte	.LASF59
+ 1261 0610 07       		.byte	0x7
+ 1262 0611 D1       		.byte	0xd1
+ 1263 0612 1D       		.uleb128 0x1d
+ 1264 0613 7F000000 		.4byte	.LASF60
+ 1265 0617 06       		.byte	0x6
+ 1266 0618 D1       		.byte	0xd1
+ 1267 0619 19       		.uleb128 0x19
+ 1268 061a 0F040000 		.4byte	.LASF62
+ 1269 061e 0E       		.byte	0xe
+ 1270 061f 18       		.byte	0x18
+ 1271 0620 2A060000 		.4byte	0x62a
+ 1272 0624 1A       		.uleb128 0x1a
+ 1273 0625 FB000000 		.4byte	0xfb
+ 1274 0629 00       		.byte	0
+ 1275 062a 19       		.uleb128 0x19
+ 1276 062b 42000000 		.4byte	.LASF63
+ 1277 062f 0F       		.byte	0xf
+ 1278 0630 18       		.byte	0x18
+ 1279 0631 3B060000 		.4byte	0x63b
+ 1280 0635 1A       		.uleb128 0x1a
+ 1281 0636 FB000000 		.4byte	0xfb
+ 1282 063a 00       		.byte	0
+ 1283 063b 1D       		.uleb128 0x1d
+ 1284 063c F0000000 		.4byte	.LASF64
+ 1285 0640 10       		.byte	0x10
+ 1286 0641 33       		.byte	0x33
+ 1287 0642 1D       		.uleb128 0x1d
+ 1288 0643 1D040000 		.4byte	.LASF65
+ 1289 0647 11       		.byte	0x11
+ 1290 0648 3F       		.byte	0x3f
+ 1291 0649 00       		.byte	0
+ 1292              		.section	.debug_abbrev,"",%progbits
+ 1293              	.Ldebug_abbrev0:
+ 1294 0000 01       		.uleb128 0x1
+ 1295 0001 11       		.uleb128 0x11
+ 1296 0002 01       		.byte	0x1
+ 1297 0003 25       		.uleb128 0x25
+ 1298 0004 0E       		.uleb128 0xe
+ 1299 0005 13       		.uleb128 0x13
+ 1300 0006 0B       		.uleb128 0xb
+ 1301 0007 03       		.uleb128 0x3
+ 1302 0008 0E       		.uleb128 0xe
+ 1303 0009 1B       		.uleb128 0x1b
+ 1304 000a 0E       		.uleb128 0xe
+ 1305 000b 55       		.uleb128 0x55
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 27
+
+
+ 1306 000c 17       		.uleb128 0x17
+ 1307 000d 11       		.uleb128 0x11
+ 1308 000e 01       		.uleb128 0x1
+ 1309 000f 10       		.uleb128 0x10
+ 1310 0010 17       		.uleb128 0x17
+ 1311 0011 00       		.byte	0
+ 1312 0012 00       		.byte	0
+ 1313 0013 02       		.uleb128 0x2
+ 1314 0014 24       		.uleb128 0x24
+ 1315 0015 00       		.byte	0
+ 1316 0016 0B       		.uleb128 0xb
+ 1317 0017 0B       		.uleb128 0xb
+ 1318 0018 3E       		.uleb128 0x3e
+ 1319 0019 0B       		.uleb128 0xb
+ 1320 001a 03       		.uleb128 0x3
+ 1321 001b 0E       		.uleb128 0xe
+ 1322 001c 00       		.byte	0
+ 1323 001d 00       		.byte	0
+ 1324 001e 03       		.uleb128 0x3
+ 1325 001f 16       		.uleb128 0x16
+ 1326 0020 00       		.byte	0
+ 1327 0021 03       		.uleb128 0x3
+ 1328 0022 0E       		.uleb128 0xe
+ 1329 0023 3A       		.uleb128 0x3a
+ 1330 0024 0B       		.uleb128 0xb
+ 1331 0025 3B       		.uleb128 0x3b
+ 1332 0026 0B       		.uleb128 0xb
+ 1333 0027 49       		.uleb128 0x49
+ 1334 0028 13       		.uleb128 0x13
+ 1335 0029 00       		.byte	0
+ 1336 002a 00       		.byte	0
+ 1337 002b 04       		.uleb128 0x4
+ 1338 002c 24       		.uleb128 0x24
+ 1339 002d 00       		.byte	0
+ 1340 002e 0B       		.uleb128 0xb
+ 1341 002f 0B       		.uleb128 0xb
+ 1342 0030 3E       		.uleb128 0x3e
+ 1343 0031 0B       		.uleb128 0xb
+ 1344 0032 03       		.uleb128 0x3
+ 1345 0033 08       		.uleb128 0x8
+ 1346 0034 00       		.byte	0
+ 1347 0035 00       		.byte	0
+ 1348 0036 05       		.uleb128 0x5
+ 1349 0037 16       		.uleb128 0x16
+ 1350 0038 00       		.byte	0
+ 1351 0039 03       		.uleb128 0x3
+ 1352 003a 0E       		.uleb128 0xe
+ 1353 003b 3A       		.uleb128 0x3a
+ 1354 003c 0B       		.uleb128 0xb
+ 1355 003d 3B       		.uleb128 0x3b
+ 1356 003e 05       		.uleb128 0x5
+ 1357 003f 49       		.uleb128 0x49
+ 1358 0040 13       		.uleb128 0x13
+ 1359 0041 00       		.byte	0
+ 1360 0042 00       		.byte	0
+ 1361 0043 06       		.uleb128 0x6
+ 1362 0044 35       		.uleb128 0x35
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 28
+
+
+ 1363 0045 00       		.byte	0
+ 1364 0046 49       		.uleb128 0x49
+ 1365 0047 13       		.uleb128 0x13
+ 1366 0048 00       		.byte	0
+ 1367 0049 00       		.byte	0
+ 1368 004a 07       		.uleb128 0x7
+ 1369 004b 0F       		.uleb128 0xf
+ 1370 004c 00       		.byte	0
+ 1371 004d 0B       		.uleb128 0xb
+ 1372 004e 0B       		.uleb128 0xb
+ 1373 004f 49       		.uleb128 0x49
+ 1374 0050 13       		.uleb128 0x13
+ 1375 0051 00       		.byte	0
+ 1376 0052 00       		.byte	0
+ 1377 0053 08       		.uleb128 0x8
+ 1378 0054 15       		.uleb128 0x15
+ 1379 0055 00       		.byte	0
+ 1380 0056 27       		.uleb128 0x27
+ 1381 0057 19       		.uleb128 0x19
+ 1382 0058 00       		.byte	0
+ 1383 0059 00       		.byte	0
+ 1384 005a 09       		.uleb128 0x9
+ 1385 005b 2E       		.uleb128 0x2e
+ 1386 005c 00       		.byte	0
+ 1387 005d 3F       		.uleb128 0x3f
+ 1388 005e 19       		.uleb128 0x19
+ 1389 005f 03       		.uleb128 0x3
+ 1390 0060 0E       		.uleb128 0xe
+ 1391 0061 3A       		.uleb128 0x3a
+ 1392 0062 0B       		.uleb128 0xb
+ 1393 0063 3B       		.uleb128 0x3b
+ 1394 0064 0B       		.uleb128 0xb
+ 1395 0065 27       		.uleb128 0x27
+ 1396 0066 19       		.uleb128 0x19
+ 1397 0067 11       		.uleb128 0x11
+ 1398 0068 01       		.uleb128 0x1
+ 1399 0069 12       		.uleb128 0x12
+ 1400 006a 06       		.uleb128 0x6
+ 1401 006b 40       		.uleb128 0x40
+ 1402 006c 18       		.uleb128 0x18
+ 1403 006d 9742     		.uleb128 0x2117
+ 1404 006f 19       		.uleb128 0x19
+ 1405 0070 00       		.byte	0
+ 1406 0071 00       		.byte	0
+ 1407 0072 0A       		.uleb128 0xa
+ 1408 0073 2E       		.uleb128 0x2e
+ 1409 0074 01       		.byte	0x1
+ 1410 0075 3F       		.uleb128 0x3f
+ 1411 0076 19       		.uleb128 0x19
+ 1412 0077 03       		.uleb128 0x3
+ 1413 0078 0E       		.uleb128 0xe
+ 1414 0079 3A       		.uleb128 0x3a
+ 1415 007a 0B       		.uleb128 0xb
+ 1416 007b 3B       		.uleb128 0x3b
+ 1417 007c 0B       		.uleb128 0xb
+ 1418 007d 27       		.uleb128 0x27
+ 1419 007e 19       		.uleb128 0x19
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 29
+
+
+ 1420 007f 11       		.uleb128 0x11
+ 1421 0080 01       		.uleb128 0x1
+ 1422 0081 12       		.uleb128 0x12
+ 1423 0082 06       		.uleb128 0x6
+ 1424 0083 40       		.uleb128 0x40
+ 1425 0084 18       		.uleb128 0x18
+ 1426 0085 9742     		.uleb128 0x2117
+ 1427 0087 19       		.uleb128 0x19
+ 1428 0088 01       		.uleb128 0x1
+ 1429 0089 13       		.uleb128 0x13
+ 1430 008a 00       		.byte	0
+ 1431 008b 00       		.byte	0
+ 1432 008c 0B       		.uleb128 0xb
+ 1433 008d 05       		.uleb128 0x5
+ 1434 008e 00       		.byte	0
+ 1435 008f 03       		.uleb128 0x3
+ 1436 0090 0E       		.uleb128 0xe
+ 1437 0091 3A       		.uleb128 0x3a
+ 1438 0092 0B       		.uleb128 0xb
+ 1439 0093 3B       		.uleb128 0x3b
+ 1440 0094 0B       		.uleb128 0xb
+ 1441 0095 49       		.uleb128 0x49
+ 1442 0096 13       		.uleb128 0x13
+ 1443 0097 02       		.uleb128 0x2
+ 1444 0098 17       		.uleb128 0x17
+ 1445 0099 00       		.byte	0
+ 1446 009a 00       		.byte	0
+ 1447 009b 0C       		.uleb128 0xc
+ 1448 009c 34       		.uleb128 0x34
+ 1449 009d 00       		.byte	0
+ 1450 009e 03       		.uleb128 0x3
+ 1451 009f 0E       		.uleb128 0xe
+ 1452 00a0 3A       		.uleb128 0x3a
+ 1453 00a1 0B       		.uleb128 0xb
+ 1454 00a2 3B       		.uleb128 0x3b
+ 1455 00a3 0B       		.uleb128 0xb
+ 1456 00a4 49       		.uleb128 0x49
+ 1457 00a5 13       		.uleb128 0x13
+ 1458 00a6 02       		.uleb128 0x2
+ 1459 00a7 17       		.uleb128 0x17
+ 1460 00a8 00       		.byte	0
+ 1461 00a9 00       		.byte	0
+ 1462 00aa 0D       		.uleb128 0xd
+ 1463 00ab 898201   		.uleb128 0x4109
+ 1464 00ae 01       		.byte	0x1
+ 1465 00af 11       		.uleb128 0x11
+ 1466 00b0 01       		.uleb128 0x1
+ 1467 00b1 31       		.uleb128 0x31
+ 1468 00b2 13       		.uleb128 0x13
+ 1469 00b3 00       		.byte	0
+ 1470 00b4 00       		.byte	0
+ 1471 00b5 0E       		.uleb128 0xe
+ 1472 00b6 8A8201   		.uleb128 0x410a
+ 1473 00b9 00       		.byte	0
+ 1474 00ba 02       		.uleb128 0x2
+ 1475 00bb 18       		.uleb128 0x18
+ 1476 00bc 9142     		.uleb128 0x2111
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 30
+
+
+ 1477 00be 18       		.uleb128 0x18
+ 1478 00bf 00       		.byte	0
+ 1479 00c0 00       		.byte	0
+ 1480 00c1 0F       		.uleb128 0xf
+ 1481 00c2 2E       		.uleb128 0x2e
+ 1482 00c3 01       		.byte	0x1
+ 1483 00c4 3F       		.uleb128 0x3f
+ 1484 00c5 19       		.uleb128 0x19
+ 1485 00c6 03       		.uleb128 0x3
+ 1486 00c7 0E       		.uleb128 0xe
+ 1487 00c8 3A       		.uleb128 0x3a
+ 1488 00c9 0B       		.uleb128 0xb
+ 1489 00ca 3B       		.uleb128 0x3b
+ 1490 00cb 0B       		.uleb128 0xb
+ 1491 00cc 49       		.uleb128 0x49
+ 1492 00cd 13       		.uleb128 0x13
+ 1493 00ce 11       		.uleb128 0x11
+ 1494 00cf 01       		.uleb128 0x1
+ 1495 00d0 12       		.uleb128 0x12
+ 1496 00d1 06       		.uleb128 0x6
+ 1497 00d2 40       		.uleb128 0x40
+ 1498 00d3 18       		.uleb128 0x18
+ 1499 00d4 9642     		.uleb128 0x2116
+ 1500 00d6 19       		.uleb128 0x19
+ 1501 00d7 01       		.uleb128 0x1
+ 1502 00d8 13       		.uleb128 0x13
+ 1503 00d9 00       		.byte	0
+ 1504 00da 00       		.byte	0
+ 1505 00db 10       		.uleb128 0x10
+ 1506 00dc 898201   		.uleb128 0x4109
+ 1507 00df 00       		.byte	0
+ 1508 00e0 11       		.uleb128 0x11
+ 1509 00e1 01       		.uleb128 0x1
+ 1510 00e2 31       		.uleb128 0x31
+ 1511 00e3 13       		.uleb128 0x13
+ 1512 00e4 00       		.byte	0
+ 1513 00e5 00       		.byte	0
+ 1514 00e6 11       		.uleb128 0x11
+ 1515 00e7 2E       		.uleb128 0x2e
+ 1516 00e8 01       		.byte	0x1
+ 1517 00e9 3F       		.uleb128 0x3f
+ 1518 00ea 19       		.uleb128 0x19
+ 1519 00eb 03       		.uleb128 0x3
+ 1520 00ec 0E       		.uleb128 0xe
+ 1521 00ed 3A       		.uleb128 0x3a
+ 1522 00ee 0B       		.uleb128 0xb
+ 1523 00ef 3B       		.uleb128 0x3b
+ 1524 00f0 0B       		.uleb128 0xb
+ 1525 00f1 11       		.uleb128 0x11
+ 1526 00f2 01       		.uleb128 0x1
+ 1527 00f3 12       		.uleb128 0x12
+ 1528 00f4 06       		.uleb128 0x6
+ 1529 00f5 40       		.uleb128 0x40
+ 1530 00f6 18       		.uleb128 0x18
+ 1531 00f7 9742     		.uleb128 0x2117
+ 1532 00f9 19       		.uleb128 0x19
+ 1533 00fa 01       		.uleb128 0x1
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 31
+
+
+ 1534 00fb 13       		.uleb128 0x13
+ 1535 00fc 00       		.byte	0
+ 1536 00fd 00       		.byte	0
+ 1537 00fe 12       		.uleb128 0x12
+ 1538 00ff 34       		.uleb128 0x34
+ 1539 0100 00       		.byte	0
+ 1540 0101 03       		.uleb128 0x3
+ 1541 0102 0E       		.uleb128 0xe
+ 1542 0103 3A       		.uleb128 0x3a
+ 1543 0104 0B       		.uleb128 0xb
+ 1544 0105 3B       		.uleb128 0x3b
+ 1545 0106 0B       		.uleb128 0xb
+ 1546 0107 49       		.uleb128 0x49
+ 1547 0108 13       		.uleb128 0x13
+ 1548 0109 00       		.byte	0
+ 1549 010a 00       		.byte	0
+ 1550 010b 13       		.uleb128 0x13
+ 1551 010c 898201   		.uleb128 0x4109
+ 1552 010f 01       		.byte	0x1
+ 1553 0110 11       		.uleb128 0x11
+ 1554 0111 01       		.uleb128 0x1
+ 1555 0112 31       		.uleb128 0x31
+ 1556 0113 13       		.uleb128 0x13
+ 1557 0114 01       		.uleb128 0x1
+ 1558 0115 13       		.uleb128 0x13
+ 1559 0116 00       		.byte	0
+ 1560 0117 00       		.byte	0
+ 1561 0118 14       		.uleb128 0x14
+ 1562 0119 01       		.uleb128 0x1
+ 1563 011a 01       		.byte	0x1
+ 1564 011b 49       		.uleb128 0x49
+ 1565 011c 13       		.uleb128 0x13
+ 1566 011d 01       		.uleb128 0x1
+ 1567 011e 13       		.uleb128 0x13
+ 1568 011f 00       		.byte	0
+ 1569 0120 00       		.byte	0
+ 1570 0121 15       		.uleb128 0x15
+ 1571 0122 21       		.uleb128 0x21
+ 1572 0123 00       		.byte	0
+ 1573 0124 49       		.uleb128 0x49
+ 1574 0125 13       		.uleb128 0x13
+ 1575 0126 2F       		.uleb128 0x2f
+ 1576 0127 0B       		.uleb128 0xb
+ 1577 0128 00       		.byte	0
+ 1578 0129 00       		.byte	0
+ 1579 012a 16       		.uleb128 0x16
+ 1580 012b 34       		.uleb128 0x34
+ 1581 012c 00       		.byte	0
+ 1582 012d 03       		.uleb128 0x3
+ 1583 012e 0E       		.uleb128 0xe
+ 1584 012f 3A       		.uleb128 0x3a
+ 1585 0130 0B       		.uleb128 0xb
+ 1586 0131 3B       		.uleb128 0x3b
+ 1587 0132 05       		.uleb128 0x5
+ 1588 0133 49       		.uleb128 0x49
+ 1589 0134 13       		.uleb128 0x13
+ 1590 0135 3F       		.uleb128 0x3f
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 32
+
+
+ 1591 0136 19       		.uleb128 0x19
+ 1592 0137 3C       		.uleb128 0x3c
+ 1593 0138 19       		.uleb128 0x19
+ 1594 0139 00       		.byte	0
+ 1595 013a 00       		.byte	0
+ 1596 013b 17       		.uleb128 0x17
+ 1597 013c 34       		.uleb128 0x34
+ 1598 013d 00       		.byte	0
+ 1599 013e 03       		.uleb128 0x3
+ 1600 013f 0E       		.uleb128 0xe
+ 1601 0140 3A       		.uleb128 0x3a
+ 1602 0141 0B       		.uleb128 0xb
+ 1603 0142 3B       		.uleb128 0x3b
+ 1604 0143 0B       		.uleb128 0xb
+ 1605 0144 49       		.uleb128 0x49
+ 1606 0145 13       		.uleb128 0x13
+ 1607 0146 3F       		.uleb128 0x3f
+ 1608 0147 19       		.uleb128 0x19
+ 1609 0148 02       		.uleb128 0x2
+ 1610 0149 18       		.uleb128 0x18
+ 1611 014a 00       		.byte	0
+ 1612 014b 00       		.byte	0
+ 1613 014c 18       		.uleb128 0x18
+ 1614 014d 34       		.uleb128 0x34
+ 1615 014e 00       		.byte	0
+ 1616 014f 03       		.uleb128 0x3
+ 1617 0150 08       		.uleb128 0x8
+ 1618 0151 3A       		.uleb128 0x3a
+ 1619 0152 0B       		.uleb128 0xb
+ 1620 0153 3B       		.uleb128 0x3b
+ 1621 0154 0B       		.uleb128 0xb
+ 1622 0155 49       		.uleb128 0x49
+ 1623 0156 13       		.uleb128 0x13
+ 1624 0157 3F       		.uleb128 0x3f
+ 1625 0158 19       		.uleb128 0x19
+ 1626 0159 02       		.uleb128 0x2
+ 1627 015a 18       		.uleb128 0x18
+ 1628 015b 00       		.byte	0
+ 1629 015c 00       		.byte	0
+ 1630 015d 19       		.uleb128 0x19
+ 1631 015e 2E       		.uleb128 0x2e
+ 1632 015f 01       		.byte	0x1
+ 1633 0160 3F       		.uleb128 0x3f
+ 1634 0161 19       		.uleb128 0x19
+ 1635 0162 03       		.uleb128 0x3
+ 1636 0163 0E       		.uleb128 0xe
+ 1637 0164 3A       		.uleb128 0x3a
+ 1638 0165 0B       		.uleb128 0xb
+ 1639 0166 3B       		.uleb128 0x3b
+ 1640 0167 0B       		.uleb128 0xb
+ 1641 0168 27       		.uleb128 0x27
+ 1642 0169 19       		.uleb128 0x19
+ 1643 016a 3C       		.uleb128 0x3c
+ 1644 016b 19       		.uleb128 0x19
+ 1645 016c 01       		.uleb128 0x1
+ 1646 016d 13       		.uleb128 0x13
+ 1647 016e 00       		.byte	0
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 33
+
+
+ 1648 016f 00       		.byte	0
+ 1649 0170 1A       		.uleb128 0x1a
+ 1650 0171 05       		.uleb128 0x5
+ 1651 0172 00       		.byte	0
+ 1652 0173 49       		.uleb128 0x49
+ 1653 0174 13       		.uleb128 0x13
+ 1654 0175 00       		.byte	0
+ 1655 0176 00       		.byte	0
+ 1656 0177 1B       		.uleb128 0x1b
+ 1657 0178 2E       		.uleb128 0x2e
+ 1658 0179 01       		.byte	0x1
+ 1659 017a 3F       		.uleb128 0x3f
+ 1660 017b 19       		.uleb128 0x19
+ 1661 017c 03       		.uleb128 0x3
+ 1662 017d 0E       		.uleb128 0xe
+ 1663 017e 3A       		.uleb128 0x3a
+ 1664 017f 0B       		.uleb128 0xb
+ 1665 0180 3B       		.uleb128 0x3b
+ 1666 0181 0B       		.uleb128 0xb
+ 1667 0182 27       		.uleb128 0x27
+ 1668 0183 19       		.uleb128 0x19
+ 1669 0184 49       		.uleb128 0x49
+ 1670 0185 13       		.uleb128 0x13
+ 1671 0186 3C       		.uleb128 0x3c
+ 1672 0187 19       		.uleb128 0x19
+ 1673 0188 01       		.uleb128 0x1
+ 1674 0189 13       		.uleb128 0x13
+ 1675 018a 00       		.byte	0
+ 1676 018b 00       		.byte	0
+ 1677 018c 1C       		.uleb128 0x1c
+ 1678 018d 2E       		.uleb128 0x2e
+ 1679 018e 00       		.byte	0
+ 1680 018f 3F       		.uleb128 0x3f
+ 1681 0190 19       		.uleb128 0x19
+ 1682 0191 03       		.uleb128 0x3
+ 1683 0192 0E       		.uleb128 0xe
+ 1684 0193 3A       		.uleb128 0x3a
+ 1685 0194 0B       		.uleb128 0xb
+ 1686 0195 3B       		.uleb128 0x3b
+ 1687 0196 0B       		.uleb128 0xb
+ 1688 0197 27       		.uleb128 0x27
+ 1689 0198 19       		.uleb128 0x19
+ 1690 0199 49       		.uleb128 0x49
+ 1691 019a 13       		.uleb128 0x13
+ 1692 019b 3C       		.uleb128 0x3c
+ 1693 019c 19       		.uleb128 0x19
+ 1694 019d 00       		.byte	0
+ 1695 019e 00       		.byte	0
+ 1696 019f 1D       		.uleb128 0x1d
+ 1697 01a0 2E       		.uleb128 0x2e
+ 1698 01a1 00       		.byte	0
+ 1699 01a2 3F       		.uleb128 0x3f
+ 1700 01a3 19       		.uleb128 0x19
+ 1701 01a4 03       		.uleb128 0x3
+ 1702 01a5 0E       		.uleb128 0xe
+ 1703 01a6 3A       		.uleb128 0x3a
+ 1704 01a7 0B       		.uleb128 0xb
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 34
+
+
+ 1705 01a8 3B       		.uleb128 0x3b
+ 1706 01a9 0B       		.uleb128 0xb
+ 1707 01aa 27       		.uleb128 0x27
+ 1708 01ab 19       		.uleb128 0x19
+ 1709 01ac 3C       		.uleb128 0x3c
+ 1710 01ad 19       		.uleb128 0x19
+ 1711 01ae 00       		.byte	0
+ 1712 01af 00       		.byte	0
+ 1713 01b0 00       		.byte	0
+ 1714              		.section	.debug_loc,"",%progbits
+ 1715              	.Ldebug_loc0:
+ 1716              	.LLST0:
+ 1717 0000 00000000 		.4byte	.LVL0
+ 1718 0004 12000000 		.4byte	.LVL2
+ 1719 0008 0100     		.2byte	0x1
+ 1720 000a 50       		.byte	0x50
+ 1721 000b 12000000 		.4byte	.LVL2
+ 1722 000f 32000000 		.4byte	.LVL4
+ 1723 0013 0100     		.2byte	0x1
+ 1724 0015 56       		.byte	0x56
+ 1725 0016 32000000 		.4byte	.LVL4
+ 1726 001a 3C000000 		.4byte	.LFE66
+ 1727 001e 0400     		.2byte	0x4
+ 1728 0020 F3       		.byte	0xf3
+ 1729 0021 01       		.uleb128 0x1
+ 1730 0022 50       		.byte	0x50
+ 1731 0023 9F       		.byte	0x9f
+ 1732 0024 00000000 		.4byte	0
+ 1733 0028 00000000 		.4byte	0
+ 1734              	.LLST1:
+ 1735 002c 00000000 		.4byte	.LVL0
+ 1736 0030 15000000 		.4byte	.LVL3-1
+ 1737 0034 0100     		.2byte	0x1
+ 1738 0036 51       		.byte	0x51
+ 1739 0037 15000000 		.4byte	.LVL3-1
+ 1740 003b 32000000 		.4byte	.LVL4
+ 1741 003f 0100     		.2byte	0x1
+ 1742 0041 55       		.byte	0x55
+ 1743 0042 32000000 		.4byte	.LVL4
+ 1744 0046 3C000000 		.4byte	.LFE66
+ 1745 004a 0400     		.2byte	0x4
+ 1746 004c F3       		.byte	0xf3
+ 1747 004d 01       		.uleb128 0x1
+ 1748 004e 51       		.byte	0x51
+ 1749 004f 9F       		.byte	0x9f
+ 1750 0050 00000000 		.4byte	0
+ 1751 0054 00000000 		.4byte	0
+ 1752              	.LLST2:
+ 1753 0058 0A000000 		.4byte	.LVL1
+ 1754 005c 32000000 		.4byte	.LVL4
+ 1755 0060 0100     		.2byte	0x1
+ 1756 0062 57       		.byte	0x57
+ 1757 0063 00000000 		.4byte	0
+ 1758 0067 00000000 		.4byte	0
+ 1759              	.LLST3:
+ 1760 006b 14000000 		.4byte	.LVL6
+ 1761 006f 3C000000 		.4byte	.LVL12
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 35
+
+
+ 1762 0073 0100     		.2byte	0x1
+ 1763 0075 55       		.byte	0x55
+ 1764 0076 3E000000 		.4byte	.LVL13
+ 1765 007a 40000000 		.4byte	.LVL14
+ 1766 007e 0100     		.2byte	0x1
+ 1767 0080 55       		.byte	0x55
+ 1768 0081 00000000 		.4byte	0
+ 1769 0085 00000000 		.4byte	0
+ 1770              	.LLST4:
+ 1771 0089 24000000 		.4byte	.LVL8
+ 1772 008d 6C000000 		.4byte	.LVL21
+ 1773 0091 0100     		.2byte	0x1
+ 1774 0093 54       		.byte	0x54
+ 1775 0094 00000000 		.4byte	0
+ 1776 0098 00000000 		.4byte	0
+ 1777              	.LLST5:
+ 1778 009c 40000000 		.4byte	.LVL14
+ 1779 00a0 6C000000 		.4byte	.LVL21
+ 1780 00a4 0100     		.2byte	0x1
+ 1781 00a6 55       		.byte	0x55
+ 1782 00a7 00000000 		.4byte	0
+ 1783 00ab 00000000 		.4byte	0
+ 1784              	.LLST6:
+ 1785 00af 5C000000 		.4byte	.LVL18
+ 1786 00b3 60000000 		.4byte	.LVL19
+ 1787 00b7 0100     		.2byte	0x1
+ 1788 00b9 50       		.byte	0x50
+ 1789 00ba 00000000 		.4byte	0
+ 1790 00be 00000000 		.4byte	0
+ 1791              	.LLST7:
+ 1792 00c2 14000000 		.4byte	.LVL23
+ 1793 00c6 54000000 		.4byte	.LVL30
+ 1794 00ca 0100     		.2byte	0x1
+ 1795 00cc 55       		.byte	0x55
+ 1796 00cd 00000000 		.4byte	0
+ 1797 00d1 00000000 		.4byte	0
+ 1798              	.LLST8:
+ 1799 00d5 54000000 		.4byte	.LVL30
+ 1800 00d9 86000000 		.4byte	.LVL36
+ 1801 00dd 0100     		.2byte	0x1
+ 1802 00df 55       		.byte	0x55
+ 1803 00e0 00000000 		.4byte	0
+ 1804 00e4 00000000 		.4byte	0
+ 1805              	.LLST9:
+ 1806 00e8 00000000 		.4byte	.LVL37
+ 1807 00ec 0B000000 		.4byte	.LVL38-1
+ 1808 00f0 0100     		.2byte	0x1
+ 1809 00f2 50       		.byte	0x50
+ 1810 00f3 0B000000 		.4byte	.LVL38-1
+ 1811 00f7 4C000000 		.4byte	.LFE65
+ 1812 00fb 0400     		.2byte	0x4
+ 1813 00fd F3       		.byte	0xf3
+ 1814 00fe 01       		.uleb128 0x1
+ 1815 00ff 50       		.byte	0x50
+ 1816 0100 9F       		.byte	0x9f
+ 1817 0101 00000000 		.4byte	0
+ 1818 0105 00000000 		.4byte	0
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 36
+
+
+ 1819              	.LLST10:
+ 1820 0109 00000000 		.4byte	.LVL37
+ 1821 010d 0B000000 		.4byte	.LVL38-1
+ 1822 0111 0100     		.2byte	0x1
+ 1823 0113 51       		.byte	0x51
+ 1824 0114 0B000000 		.4byte	.LVL38-1
+ 1825 0118 4C000000 		.4byte	.LFE65
+ 1826 011c 0400     		.2byte	0x4
+ 1827 011e F3       		.byte	0xf3
+ 1828 011f 01       		.uleb128 0x1
+ 1829 0120 51       		.byte	0x51
+ 1830 0121 9F       		.byte	0x9f
+ 1831 0122 00000000 		.4byte	0
+ 1832 0126 00000000 		.4byte	0
+ 1833              		.section	.debug_aranges,"",%progbits
+ 1834 0000 44000000 		.4byte	0x44
+ 1835 0004 0200     		.2byte	0x2
+ 1836 0006 00000000 		.4byte	.Ldebug_info0
+ 1837 000a 04       		.byte	0x4
+ 1838 000b 00       		.byte	0
+ 1839 000c 0000     		.2byte	0
+ 1840 000e 0000     		.2byte	0
+ 1841 0010 00000000 		.4byte	.LFB63
+ 1842 0014 2C000000 		.4byte	.LFE63-.LFB63
+ 1843 0018 00000000 		.4byte	.LFB64
+ 1844 001c 2C000000 		.4byte	.LFE64-.LFB64
+ 1845 0020 00000000 		.4byte	.LFB66
+ 1846 0024 3C000000 		.4byte	.LFE66-.LFB66
+ 1847 0028 00000000 		.4byte	.LFB67
+ 1848 002c 84000000 		.4byte	.LFE67-.LFB67
+ 1849 0030 00000000 		.4byte	.LFB68
+ 1850 0034 8C000000 		.4byte	.LFE68-.LFB68
+ 1851 0038 00000000 		.4byte	.LFB65
+ 1852 003c 4C000000 		.4byte	.LFE65-.LFB65
+ 1853 0040 00000000 		.4byte	0
+ 1854 0044 00000000 		.4byte	0
+ 1855              		.section	.debug_ranges,"",%progbits
+ 1856              	.Ldebug_ranges0:
+ 1857 0000 00000000 		.4byte	.LFB63
+ 1858 0004 2C000000 		.4byte	.LFE63
+ 1859 0008 00000000 		.4byte	.LFB64
+ 1860 000c 2C000000 		.4byte	.LFE64
+ 1861 0010 00000000 		.4byte	.LFB66
+ 1862 0014 3C000000 		.4byte	.LFE66
+ 1863 0018 00000000 		.4byte	.LFB67
+ 1864 001c 84000000 		.4byte	.LFE67
+ 1865 0020 00000000 		.4byte	.LFB68
+ 1866 0024 8C000000 		.4byte	.LFE68
+ 1867 0028 00000000 		.4byte	.LFB65
+ 1868 002c 4C000000 		.4byte	.LFE65
+ 1869 0030 00000000 		.4byte	0
+ 1870 0034 00000000 		.4byte	0
+ 1871              		.section	.debug_line,"",%progbits
+ 1872              	.Ldebug_line0:
+ 1873 0000 90020000 		.section	.debug_str,"MS",%progbits,1
+ 1873      0200E101 
+ 1873      00000201 
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 37
+
+
+ 1873      FB0E0D00 
+ 1873      01010101 
+ 1874              	.LASF70:
+ 1875 0000 4379446D 		.ascii	"CyDmaTdAllocate\000"
+ 1875      61546441 
+ 1875      6C6C6F63 
+ 1875      61746500 
+ 1876              	.LASF49:
+ 1877 0010 444D415F 		.ascii	"DMA_A_DmaInitialize\000"
+ 1877      415F446D 
+ 1877      61496E69 
+ 1877      7469616C 
+ 1877      697A6500 
+ 1878              	.LASF51:
+ 1879 0024 4379446D 		.ascii	"CyDmaTdSetAddress\000"
+ 1879      61546453 
+ 1879      65744164 
+ 1879      64726573 
+ 1879      7300
+ 1880              	.LASF58:
+ 1881 0036 4144435F 		.ascii	"ADC_V_Start\000"
+ 1881      565F5374 
+ 1881      61727400 
+ 1882              	.LASF63:
+ 1883 0042 6973725F 		.ascii	"isr_V_StartEx\000"
+ 1883      565F5374 
+ 1883      61727445 
+ 1883      7800
+ 1884              	.LASF50:
+ 1885 0050 4379446D 		.ascii	"CyDmaTdSetConfiguration\000"
+ 1885      61546453 
+ 1885      6574436F 
+ 1885      6E666967 
+ 1885      75726174 
+ 1886              	.LASF53:
+ 1887 0068 4379446D 		.ascii	"CyDmaChEnable\000"
+ 1887      61436845 
+ 1887      6E61626C 
+ 1887      6500
+ 1888              	.LASF23:
+ 1889 0076 73697A65 		.ascii	"sizetype\000"
+ 1889      74797065 
+ 1889      00
+ 1890              	.LASF60:
+ 1891 007f 4144435F 		.ascii	"ADC_V_StartConvert\000"
+ 1891      565F5374 
+ 1891      61727443 
+ 1891      6F6E7665 
+ 1891      727400
+ 1892              	.LASF31:
+ 1893 0092 72617756 		.ascii	"rawVolt\000"
+ 1893      6F6C7400 
+ 1894              	.LASF57:
+ 1895 009a 4144435F 		.ascii	"ADC_A_Start\000"
+ 1895      415F5374 
+ 1895      61727400 
+ 1896              	.LASF59:
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 38
+
+
+ 1897 00a6 4144435F 		.ascii	"ADC_A_StartConvert\000"
+ 1897      415F5374 
+ 1897      61727443 
+ 1897      6F6E7665 
+ 1897      727400
+ 1898              	.LASF33:
+ 1899 00b9 766F6C74 		.ascii	"volt\000"
+ 1899      00
+ 1900              	.LASF29:
+ 1901 00be 65666665 		.ascii	"effectSensor_getValue\000"
+ 1901      63745365 
+ 1901      6E736F72 
+ 1901      5F676574 
+ 1901      56616C75 
+ 1902              	.LASF52:
+ 1903 00d4 4379446D 		.ascii	"CyDmaChSetInitialTd\000"
+ 1903      61436853 
+ 1903      6574496E 
+ 1903      69746961 
+ 1903      6C546400 
+ 1904              	.LASF27:
+ 1905 00e8 43757272 		.ascii	"Current\000"
+ 1905      656E7400 
+ 1906              	.LASF64:
+ 1907 00f0 56444143 		.ascii	"VDAC8_1_Start\000"
+ 1907      385F315F 
+ 1907      53746172 
+ 1907      7400
+ 1908              	.LASF56:
+ 1909 00fe 5047415F 		.ascii	"PGA_2_Start\000"
+ 1909      325F5374 
+ 1909      61727400 
+ 1910              	.LASF14:
+ 1911 010a 696E7431 		.ascii	"int16\000"
+ 1911      3600
+ 1912              	.LASF11:
+ 1913 0110 75696E74 		.ascii	"uint8\000"
+ 1913      3800
+ 1914              	.LASF24:
+ 1915 0116 4953525F 		.ascii	"ISR_AMP\000"
+ 1915      414D5000 
+ 1916              	.LASF28:
+ 1917 011e 65666665 		.ascii	"effectSensor_calibrate\000"
+ 1917      63745365 
+ 1917      6E736F72 
+ 1917      5F63616C 
+ 1917      69627261 
+ 1918              	.LASF2:
+ 1919 0135 73686F72 		.ascii	"short int\000"
+ 1919      7420696E 
+ 1919      7400
+ 1920              	.LASF69:
+ 1921 013f 444D415F 		.ascii	"DMA_ADC_A_V_init\000"
+ 1921      4144435F 
+ 1921      415F565F 
+ 1921      696E6974 
+ 1921      00
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 39
+
+
+ 1922              	.LASF16:
+ 1923 0150 666C6F61 		.ascii	"float\000"
+ 1923      7400
+ 1924              	.LASF45:
+ 1925 0156 795F4375 		.ascii	"y_Current\000"
+ 1925      7272656E 
+ 1925      7400
+ 1926              	.LASF6:
+ 1927 0160 6C6F6E67 		.ascii	"long long int\000"
+ 1927      206C6F6E 
+ 1927      6720696E 
+ 1927      7400
+ 1928              	.LASF4:
+ 1929 016e 6C6F6E67 		.ascii	"long int\000"
+ 1929      20696E74 
+ 1929      00
+ 1930              	.LASF18:
+ 1931 0177 75696E74 		.ascii	"uint64\000"
+ 1931      363400
+ 1932              	.LASF26:
+ 1933 017e 566F6C74 		.ascii	"Volt\000"
+ 1933      00
+ 1934              	.LASF47:
+ 1935 0183 4144435F 		.ascii	"ADC_V_CountsTo_mVolts\000"
+ 1935      565F436F 
+ 1935      756E7473 
+ 1935      546F5F6D 
+ 1935      566F6C74 
+ 1936              	.LASF1:
+ 1937 0199 756E7369 		.ascii	"unsigned char\000"
+ 1937      676E6564 
+ 1937      20636861 
+ 1937      7200
+ 1938              	.LASF22:
+ 1939 01a7 63796973 		.ascii	"cyisraddress\000"
+ 1939      72616464 
+ 1939      72657373 
+ 1939      00
+ 1940              	.LASF41:
+ 1941 01b4 43757272 		.ascii	"Current_temp\000"
+ 1941      656E745F 
+ 1941      74656D70 
+ 1941      00
+ 1942              	.LASF67:
+ 1943 01c1 2E5C6566 		.ascii	".\\effectSensor.c\000"
+ 1943      66656374 
+ 1943      53656E73 
+ 1943      6F722E63 
+ 1943      00
+ 1944              	.LASF48:
+ 1945 01d2 4144435F 		.ascii	"ADC_A_CountsTo_mVolts\000"
+ 1945      415F436F 
+ 1945      756E7473 
+ 1945      546F5F6D 
+ 1945      566F6C74 
+ 1946              	.LASF0:
+ 1947 01e8 7369676E 		.ascii	"signed char\000"
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 40
+
+
+ 1947      65642063 
+ 1947      68617200 
+ 1948              	.LASF7:
+ 1949 01f4 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 1949      206C6F6E 
+ 1949      6720756E 
+ 1949      7369676E 
+ 1949      65642069 
+ 1950              	.LASF46:
+ 1951 020b 795F566F 		.ascii	"y_Volt\000"
+ 1951      6C7400
+ 1952              	.LASF8:
+ 1953 0212 756E7369 		.ascii	"unsigned int\000"
+ 1953      676E6564 
+ 1953      20696E74 
+ 1953      00
+ 1954              	.LASF34:
+ 1955 021f 63757272 		.ascii	"current\000"
+ 1955      656E7400 
+ 1956              	.LASF36:
+ 1957 0227 444D415F 		.ascii	"DMA_V_Chan\000"
+ 1957      565F4368 
+ 1957      616E00
+ 1958              	.LASF3:
+ 1959 0232 73686F72 		.ascii	"short unsigned int\000"
+ 1959      7420756E 
+ 1959      7369676E 
+ 1959      65642069 
+ 1959      6E7400
+ 1960              	.LASF32:
+ 1961 0245 72617743 		.ascii	"rawCurrent\000"
+ 1961      75727265 
+ 1961      6E7400
+ 1962              	.LASF19:
+ 1963 0250 63686172 		.ascii	"char\000"
+ 1963      00
+ 1964              	.LASF20:
+ 1965 0255 63797374 		.ascii	"cystatus\000"
+ 1965      61747573 
+ 1965      00
+ 1966              	.LASF10:
+ 1967 025e 696E7433 		.ascii	"int32_t\000"
+ 1967      325F7400 
+ 1968              	.LASF38:
+ 1969 0266 444D415F 		.ascii	"DMA_V_TD\000"
+ 1969      565F5444 
+ 1969      00
+ 1970              	.LASF39:
+ 1971 026f 65666665 		.ascii	"effectSensor_init\000"
+ 1971      63745365 
+ 1971      6E736F72 
+ 1971      5F696E69 
+ 1971      7400
+ 1972              	.LASF55:
+ 1973 0281 5047415F 		.ascii	"PGA_1_Start\000"
+ 1973      315F5374 
+ 1973      61727400 
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 41
+
+
+ 1974              	.LASF37:
+ 1975 028d 444D415F 		.ascii	"DMA_A_TD\000"
+ 1975      415F5444 
+ 1975      00
+ 1976              	.LASF12:
+ 1977 0296 75696E74 		.ascii	"uint16\000"
+ 1977      313600
+ 1978              	.LASF35:
+ 1979 029d 444D415F 		.ascii	"DMA_A_Chan\000"
+ 1979      415F4368 
+ 1979      616E00
+ 1980              	.LASF13:
+ 1981 02a8 75696E74 		.ascii	"uint32\000"
+ 1981      333200
+ 1982              	.LASF21:
+ 1983 02af 72656738 		.ascii	"reg8\000"
+ 1983      00
+ 1984              	.LASF5:
+ 1985 02b4 6C6F6E67 		.ascii	"long unsigned int\000"
+ 1985      20756E73 
+ 1985      69676E65 
+ 1985      6420696E 
+ 1985      7400
+ 1986              	.LASF15:
+ 1987 02c6 696E7433 		.ascii	"int32\000"
+ 1987      3200
+ 1988              	.LASF17:
+ 1989 02cc 646F7562 		.ascii	"double\000"
+ 1989      6C6500
+ 1990              	.LASF43:
+ 1991 02d3 566F6C74 		.ascii	"Volt_offset\000"
+ 1991      5F6F6666 
+ 1991      73657400 
+ 1992              	.LASF30:
+ 1993 02df 615F746D 		.ascii	"a_tmp\000"
+ 1993      7000
+ 1994              	.LASF25:
+ 1995 02e5 4953525F 		.ascii	"ISR_VOLT\000"
+ 1995      564F4C54 
+ 1995      00
+ 1996              	.LASF9:
+ 1997 02ee 5F5F696E 		.ascii	"__int32_t\000"
+ 1997      7433325F 
+ 1997      7400
+ 1998              	.LASF66:
+ 1999 02f8 474E5520 		.ascii	"GNU C 4.9.3 20150303 (release) [ARM/embedded-4_9-br"
+ 1999      4320342E 
+ 1999      392E3320 
+ 1999      32303135 
+ 1999      30333033 
+ 2000 032b 616E6368 		.ascii	"anch revision 221220] -mcpu=cortex-m3 -mthumb -g -O"
+ 2000      20726576 
+ 2000      6973696F 
+ 2000      6E203232 
+ 2000      31323230 
+ 2001 035e 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 2001      66756E63 
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\cc5AWIlU.s 			page 42
+
+
+ 2001      74696F6E 
+ 2001      2D736563 
+ 2001      74696F6E 
+ 2002              	.LASF54:
+ 2003 0386 444D415F 		.ascii	"DMA_V_DmaInitialize\000"
+ 2003      565F446D 
+ 2003      61496E69 
+ 2003      7469616C 
+ 2003      697A6500 
+ 2004              	.LASF42:
+ 2005 039a 566F6C74 		.ascii	"Volt_temp\000"
+ 2005      5F74656D 
+ 2005      7000
+ 2006              	.LASF68:
+ 2007 03a4 433A5C55 		.ascii	"C:\\Users\\Thomas\\Documents\\GitHub\\MotorControll"
+ 2007      73657273 
+ 2007      5C54686F 
+ 2007      6D61735C 
+ 2007      446F6375 
+ 2008 03d2 65725C4D 		.ascii	"er\\MotorController.cydsn\000"
+ 2008      6F746F72 
+ 2008      436F6E74 
+ 2008      726F6C6C 
+ 2008      65722E63 
+ 2009              	.LASF44:
+ 2010 03eb 43757272 		.ascii	"Current_offset\000"
+ 2010      656E745F 
+ 2010      6F666673 
+ 2010      657400
+ 2011              	.LASF40:
+ 2012 03fa 49544D5F 		.ascii	"ITM_RxBuffer\000"
+ 2012      52784275 
+ 2012      66666572 
+ 2012      00
+ 2013              	.LASF61:
+ 2014 0407 43794465 		.ascii	"CyDelay\000"
+ 2014      6C617900 
+ 2015              	.LASF62:
+ 2016 040f 6973725F 		.ascii	"isr_A_StartEx\000"
+ 2016      415F5374 
+ 2016      61727445 
+ 2016      7800
+ 2017              	.LASF65:
+ 2018 041d 436F6D70 		.ascii	"Comp_1_Start\000"
+ 2018      5F315F53 
+ 2018      74617274 
+ 2018      00
+ 2019              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 4.9.3 20150303 (release) [ARM/embedded-4_9-br

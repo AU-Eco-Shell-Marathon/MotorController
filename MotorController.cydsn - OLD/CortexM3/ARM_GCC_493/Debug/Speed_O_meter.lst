@@ -1,0 +1,874 @@
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccwbeTmj.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"Speed_O_meter.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.Speedo_Init,"ax",%progbits
+  19              		.align	2
+  20              		.global	Speedo_Init
+  21              		.thumb
+  22              		.thumb_func
+  23              		.type	Speedo_Init, %function
+  24              	Speedo_Init:
+  25              	.LFB63:
+  26              		.file 1 ".\\Speed_O_meter.c"
+   1:.\Speed_O_meter.c **** #include "Speed_O_meter.h"
+   2:.\Speed_O_meter.c **** 
+   3:.\Speed_O_meter.c **** // The following constant is the distance between 
+   4:.\Speed_O_meter.c **** // the spokes of the wheel (measured in mm)
+   5:.\Speed_O_meter.c **** #define DISTANCE 1000
+   6:.\Speed_O_meter.c **** 
+   7:.\Speed_O_meter.c **** float speed = 0;
+   8:.\Speed_O_meter.c **** 
+   9:.\Speed_O_meter.c **** // A 32-bit timer measures the amount of ticks since the
+  10:.\Speed_O_meter.c **** // last rising-edge from the sensor (1 tick = 1 ms)
+  11:.\Speed_O_meter.c **** 
+  12:.\Speed_O_meter.c **** 
+  13:.\Speed_O_meter.c **** void Speedo_Init()
+  14:.\Speed_O_meter.c **** {
+  27              		.loc 1 14 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31 0000 08B5     		push	{r3, lr}
+  32              		.cfi_def_cfa_offset 8
+  33              		.cfi_offset 3, -8
+  34              		.cfi_offset 14, -4
+  15:.\Speed_O_meter.c ****     Timer_Speedometer_Start();
+  35              		.loc 1 15 0
+  36 0002 FFF7FEFF 		bl	Timer_Speedometer_Start
+  37              	.LVL0:
+  16:.\Speed_O_meter.c ****     Speedometer_isr_Enable();
+  38              		.loc 1 16 0
+  39 0006 FFF7FEFF 		bl	Speedometer_isr_Enable
+  40              	.LVL1:
+  41 000a 08BD     		pop	{r3, pc}
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccwbeTmj.s 			page 2
+
+
+  42              		.cfi_endproc
+  43              	.LFE63:
+  44              		.size	Speedo_Init, .-Speedo_Init
+  45              		.section	.text.Speedo_GetSpeed,"ax",%progbits
+  46              		.align	2
+  47              		.global	Speedo_GetSpeed
+  48              		.thumb
+  49              		.thumb_func
+  50              		.type	Speedo_GetSpeed, %function
+  51              	Speedo_GetSpeed:
+  52              	.LFB64:
+  17:.\Speed_O_meter.c **** }
+  18:.\Speed_O_meter.c **** 
+  19:.\Speed_O_meter.c **** float Speedo_GetSpeed()
+  20:.\Speed_O_meter.c **** {
+  53              		.loc 1 20 0
+  54              		.cfi_startproc
+  55              		@ args = 0, pretend = 0, frame = 0
+  56              		@ frame_needed = 0, uses_anonymous_args = 0
+  57              		@ link register save eliminated.
+  21:.\Speed_O_meter.c ****     return speed;   
+  22:.\Speed_O_meter.c **** }
+  58              		.loc 1 22 0
+  59 0000 014B     		ldr	r3, .L4
+  60 0002 1868     		ldr	r0, [r3]	@ float
+  61 0004 7047     		bx	lr
+  62              	.L5:
+  63 0006 00BF     		.align	2
+  64              	.L4:
+  65 0008 00000000 		.word	.LANCHOR0
+  66              		.cfi_endproc
+  67              	.LFE64:
+  68              		.size	Speedo_GetSpeed, .-Speedo_GetSpeed
+  69              		.global	__aeabi_i2f
+  70              		.section	.text.RPM_isr,"ax",%progbits
+  71              		.align	2
+  72              		.global	RPM_isr
+  73              		.thumb
+  74              		.thumb_func
+  75              		.type	RPM_isr, %function
+  76              	RPM_isr:
+  77              	.LFB65:
+  23:.\Speed_O_meter.c **** 
+  24:.\Speed_O_meter.c **** CY_ISR(RPM_isr)
+  25:.\Speed_O_meter.c **** {
+  78              		.loc 1 25 0
+  79              		.cfi_startproc
+  80              		@ args = 0, pretend = 0, frame = 0
+  81              		@ frame_needed = 0, uses_anonymous_args = 0
+  82 0000 08B5     		push	{r3, lr}
+  83              		.cfi_def_cfa_offset 8
+  84              		.cfi_offset 3, -8
+  85              		.cfi_offset 14, -4
+  26:.\Speed_O_meter.c ****     uint16 time;
+  27:.\Speed_O_meter.c ****     
+  28:.\Speed_O_meter.c ****     time = Timer_Speedometer_ReadCapture();
+  86              		.loc 1 28 0
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccwbeTmj.s 			page 3
+
+
+  87 0002 FFF7FEFF 		bl	Timer_Speedometer_ReadCapture
+  88              	.LVL2:
+  29:.\Speed_O_meter.c ****     speed = DISTANCE/time;
+  89              		.loc 1 29 0
+  90 0006 4FF47A73 		mov	r3, #1000
+  91 000a 93FBF0F0 		sdiv	r0, r3, r0
+  92              	.LVL3:
+  93 000e FFF7FEFF 		bl	__aeabi_i2f
+  94              	.LVL4:
+  95 0012 044B     		ldr	r3, .L8
+  96 0014 1860     		str	r0, [r3]	@ float
+  30:.\Speed_O_meter.c ****     
+  31:.\Speed_O_meter.c ****     Timer_Speedometer_WriteCounter(0);
+  97              		.loc 1 31 0
+  98 0016 0020     		movs	r0, #0
+  99 0018 FFF7FEFF 		bl	Timer_Speedometer_WriteCounter
+ 100              	.LVL5:
+  32:.\Speed_O_meter.c ****     Timer_Speedometer_ClearFIFO();
+ 101              		.loc 1 32 0
+ 102 001c FFF7FEFF 		bl	Timer_Speedometer_ClearFIFO
+ 103              	.LVL6:
+ 104 0020 08BD     		pop	{r3, pc}
+ 105              	.L9:
+ 106 0022 00BF     		.align	2
+ 107              	.L8:
+ 108 0024 00000000 		.word	.LANCHOR0
+ 109              		.cfi_endproc
+ 110              	.LFE65:
+ 111              		.size	RPM_isr, .-RPM_isr
+ 112              		.global	speed
+ 113              		.bss
+ 114              		.align	2
+ 115              		.set	.LANCHOR0,. + 0
+ 116              		.type	speed, %object
+ 117              		.size	speed, 4
+ 118              	speed:
+ 119 0000 00000000 		.space	4
+ 120              		.text
+ 121              	.Letext0:
+ 122              		.file 2 "c:\\program files (x86)\\cypress\\psoc creator\\3.3\\psoc creator\\import\\gnu\\arm\\4.9.
+ 123              		.file 3 "c:\\program files (x86)\\cypress\\psoc creator\\3.3\\psoc creator\\import\\gnu\\arm\\4.9.
+ 124              		.file 4 "Generated_Source\\PSoC5/cytypes.h"
+ 125              		.file 5 "Generated_Source\\PSoC5/core_cm3.h"
+ 126              		.file 6 "Generated_Source\\PSoC5/Timer_Speedometer.h"
+ 127              		.file 7 "Generated_Source\\PSoC5/Speedometer_isr.h"
+ 128              		.section	.debug_info,"",%progbits
+ 129              	.Ldebug_info0:
+ 130 0000 80010000 		.4byte	0x180
+ 131 0004 0400     		.2byte	0x4
+ 132 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 133 000a 04       		.byte	0x4
+ 134 000b 01       		.uleb128 0x1
+ 135 000c 3B010000 		.4byte	.LASF21
+ 136 0010 01       		.byte	0x1
+ 137 0011 AA000000 		.4byte	.LASF22
+ 138 0015 51000000 		.4byte	.LASF23
+ 139 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccwbeTmj.s 			page 4
+
+
+ 140 001d 00000000 		.4byte	0
+ 141 0021 00000000 		.4byte	.Ldebug_line0
+ 142 0025 02       		.uleb128 0x2
+ 143 0026 01       		.byte	0x1
+ 144 0027 06       		.byte	0x6
+ 145 0028 3F020000 		.4byte	.LASF0
+ 146 002c 02       		.uleb128 0x2
+ 147 002d 01       		.byte	0x1
+ 148 002e 08       		.byte	0x8
+ 149 002f 43000000 		.4byte	.LASF1
+ 150 0033 02       		.uleb128 0x2
+ 151 0034 02       		.byte	0x2
+ 152 0035 05       		.byte	0x5
+ 153 0036 2C020000 		.4byte	.LASF2
+ 154 003a 02       		.uleb128 0x2
+ 155 003b 02       		.byte	0x2
+ 156 003c 07       		.byte	0x7
+ 157 003d BC000000 		.4byte	.LASF3
+ 158 0041 03       		.uleb128 0x3
+ 159 0042 00000000 		.4byte	.LASF9
+ 160 0046 02       		.byte	0x2
+ 161 0047 3F       		.byte	0x3f
+ 162 0048 4C000000 		.4byte	0x4c
+ 163 004c 02       		.uleb128 0x2
+ 164 004d 04       		.byte	0x4
+ 165 004e 05       		.byte	0x5
+ 166 004f 36020000 		.4byte	.LASF4
+ 167 0053 02       		.uleb128 0x2
+ 168 0054 04       		.byte	0x4
+ 169 0055 07       		.byte	0x7
+ 170 0056 98000000 		.4byte	.LASF5
+ 171 005a 02       		.uleb128 0x2
+ 172 005b 08       		.byte	0x8
+ 173 005c 05       		.byte	0x5
+ 174 005d 19020000 		.4byte	.LASF6
+ 175 0061 02       		.uleb128 0x2
+ 176 0062 08       		.byte	0x8
+ 177 0063 07       		.byte	0x7
+ 178 0064 EE010000 		.4byte	.LASF7
+ 179 0068 04       		.uleb128 0x4
+ 180 0069 04       		.byte	0x4
+ 181 006a 05       		.byte	0x5
+ 182 006b 696E7400 		.ascii	"int\000"
+ 183 006f 02       		.uleb128 0x2
+ 184 0070 04       		.byte	0x4
+ 185 0071 07       		.byte	0x7
+ 186 0072 E1010000 		.4byte	.LASF8
+ 187 0076 03       		.uleb128 0x3
+ 188 0077 35000000 		.4byte	.LASF10
+ 189 007b 03       		.byte	0x3
+ 190 007c 2C       		.byte	0x2c
+ 191 007d 41000000 		.4byte	0x41
+ 192 0081 05       		.uleb128 0x5
+ 193 0082 34010000 		.4byte	.LASF11
+ 194 0086 04       		.byte	0x4
+ 195 0087 3901     		.2byte	0x139
+ 196 0089 3A000000 		.4byte	0x3a
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccwbeTmj.s 			page 5
+
+
+ 197 008d 02       		.uleb128 0x2
+ 198 008e 04       		.byte	0x4
+ 199 008f 04       		.byte	0x4
+ 200 0090 3D000000 		.4byte	.LASF12
+ 201 0094 02       		.uleb128 0x2
+ 202 0095 08       		.byte	0x8
+ 203 0096 04       		.byte	0x4
+ 204 0097 2D010000 		.4byte	.LASF13
+ 205 009b 02       		.uleb128 0x2
+ 206 009c 01       		.byte	0x1
+ 207 009d 08       		.byte	0x8
+ 208 009e 27020000 		.4byte	.LASF14
+ 209 00a2 02       		.uleb128 0x2
+ 210 00a3 04       		.byte	0x4
+ 211 00a4 07       		.byte	0x7
+ 212 00a5 10020000 		.4byte	.LASF15
+ 213 00a9 06       		.uleb128 0x6
+ 214 00aa 29000000 		.4byte	.LASF24
+ 215 00ae 01       		.byte	0x1
+ 216 00af 0D       		.byte	0xd
+ 217 00b0 00000000 		.4byte	.LFB63
+ 218 00b4 0C000000 		.4byte	.LFE63-.LFB63
+ 219 00b8 01       		.uleb128 0x1
+ 220 00b9 9C       		.byte	0x9c
+ 221 00ba D1000000 		.4byte	0xd1
+ 222 00be 07       		.uleb128 0x7
+ 223 00bf 06000000 		.4byte	.LVL0
+ 224 00c3 52010000 		.4byte	0x152
+ 225 00c7 07       		.uleb128 0x7
+ 226 00c8 0A000000 		.4byte	.LVL1
+ 227 00cc 59010000 		.4byte	0x159
+ 228 00d0 00       		.byte	0
+ 229 00d1 08       		.uleb128 0x8
+ 230 00d2 4B020000 		.4byte	.LASF25
+ 231 00d6 01       		.byte	0x1
+ 232 00d7 13       		.byte	0x13
+ 233 00d8 8D000000 		.4byte	0x8d
+ 234 00dc 00000000 		.4byte	.LFB64
+ 235 00e0 0C000000 		.4byte	.LFE64-.LFB64
+ 236 00e4 01       		.uleb128 0x1
+ 237 00e5 9C       		.byte	0x9c
+ 238 00e6 09       		.uleb128 0x9
+ 239 00e7 5B020000 		.4byte	.LASF26
+ 240 00eb 01       		.byte	0x1
+ 241 00ec 18       		.byte	0x18
+ 242 00ed 00000000 		.4byte	.LFB65
+ 243 00f1 28000000 		.4byte	.LFE65-.LFB65
+ 244 00f5 01       		.uleb128 0x1
+ 245 00f6 9C       		.byte	0x9c
+ 246 00f7 30010000 		.4byte	0x130
+ 247 00fb 0A       		.uleb128 0xa
+ 248 00fc 05020000 		.4byte	.LASF27
+ 249 0100 01       		.byte	0x1
+ 250 0101 1A       		.byte	0x1a
+ 251 0102 81000000 		.4byte	0x81
+ 252 0106 00000000 		.4byte	.LLST0
+ 253 010a 07       		.uleb128 0x7
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccwbeTmj.s 			page 6
+
+
+ 254 010b 06000000 		.4byte	.LVL2
+ 255 010f 60010000 		.4byte	0x160
+ 256 0113 0B       		.uleb128 0xb
+ 257 0114 1C000000 		.4byte	.LVL5
+ 258 0118 6B010000 		.4byte	0x16b
+ 259 011c 26010000 		.4byte	0x126
+ 260 0120 0C       		.uleb128 0xc
+ 261 0121 01       		.uleb128 0x1
+ 262 0122 50       		.byte	0x50
+ 263 0123 01       		.uleb128 0x1
+ 264 0124 30       		.byte	0x30
+ 265 0125 00       		.byte	0
+ 266 0126 07       		.uleb128 0x7
+ 267 0127 20000000 		.4byte	.LVL6
+ 268 012b 7C010000 		.4byte	0x17c
+ 269 012f 00       		.byte	0
+ 270 0130 0D       		.uleb128 0xd
+ 271 0131 E6000000 		.4byte	.LASF16
+ 272 0135 05       		.byte	0x5
+ 273 0136 5506     		.2byte	0x655
+ 274 0138 3C010000 		.4byte	0x13c
+ 275 013c 0E       		.uleb128 0xe
+ 276 013d 76000000 		.4byte	0x76
+ 277 0141 0F       		.uleb128 0xf
+ 278 0142 0A020000 		.4byte	.LASF17
+ 279 0146 01       		.byte	0x1
+ 280 0147 07       		.byte	0x7
+ 281 0148 8D000000 		.4byte	0x8d
+ 282 014c 05       		.uleb128 0x5
+ 283 014d 03       		.byte	0x3
+ 284 014e 00000000 		.4byte	speed
+ 285 0152 10       		.uleb128 0x10
+ 286 0153 C9010000 		.4byte	.LASF18
+ 287 0157 06       		.byte	0x6
+ 288 0158 5A       		.byte	0x5a
+ 289 0159 10       		.uleb128 0x10
+ 290 015a CF000000 		.4byte	.LASF19
+ 291 015e 07       		.byte	0x7
+ 292 015f 23       		.byte	0x23
+ 293 0160 11       		.uleb128 0x11
+ 294 0161 F3000000 		.4byte	.LASF28
+ 295 0165 06       		.byte	0x6
+ 296 0166 6B       		.byte	0x6b
+ 297 0167 81000000 		.4byte	0x81
+ 298 016b 12       		.uleb128 0x12
+ 299 016c 0A000000 		.4byte	.LASF29
+ 300 0170 06       		.byte	0x6
+ 301 0171 6A       		.byte	0x6a
+ 302 0172 7C010000 		.4byte	0x17c
+ 303 0176 13       		.uleb128 0x13
+ 304 0177 81000000 		.4byte	0x81
+ 305 017b 00       		.byte	0
+ 306 017c 10       		.uleb128 0x10
+ 307 017d 11010000 		.4byte	.LASF20
+ 308 0181 06       		.byte	0x6
+ 309 0182 86       		.byte	0x86
+ 310 0183 00       		.byte	0
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccwbeTmj.s 			page 7
+
+
+ 311              		.section	.debug_abbrev,"",%progbits
+ 312              	.Ldebug_abbrev0:
+ 313 0000 01       		.uleb128 0x1
+ 314 0001 11       		.uleb128 0x11
+ 315 0002 01       		.byte	0x1
+ 316 0003 25       		.uleb128 0x25
+ 317 0004 0E       		.uleb128 0xe
+ 318 0005 13       		.uleb128 0x13
+ 319 0006 0B       		.uleb128 0xb
+ 320 0007 03       		.uleb128 0x3
+ 321 0008 0E       		.uleb128 0xe
+ 322 0009 1B       		.uleb128 0x1b
+ 323 000a 0E       		.uleb128 0xe
+ 324 000b 55       		.uleb128 0x55
+ 325 000c 17       		.uleb128 0x17
+ 326 000d 11       		.uleb128 0x11
+ 327 000e 01       		.uleb128 0x1
+ 328 000f 10       		.uleb128 0x10
+ 329 0010 17       		.uleb128 0x17
+ 330 0011 00       		.byte	0
+ 331 0012 00       		.byte	0
+ 332 0013 02       		.uleb128 0x2
+ 333 0014 24       		.uleb128 0x24
+ 334 0015 00       		.byte	0
+ 335 0016 0B       		.uleb128 0xb
+ 336 0017 0B       		.uleb128 0xb
+ 337 0018 3E       		.uleb128 0x3e
+ 338 0019 0B       		.uleb128 0xb
+ 339 001a 03       		.uleb128 0x3
+ 340 001b 0E       		.uleb128 0xe
+ 341 001c 00       		.byte	0
+ 342 001d 00       		.byte	0
+ 343 001e 03       		.uleb128 0x3
+ 344 001f 16       		.uleb128 0x16
+ 345 0020 00       		.byte	0
+ 346 0021 03       		.uleb128 0x3
+ 347 0022 0E       		.uleb128 0xe
+ 348 0023 3A       		.uleb128 0x3a
+ 349 0024 0B       		.uleb128 0xb
+ 350 0025 3B       		.uleb128 0x3b
+ 351 0026 0B       		.uleb128 0xb
+ 352 0027 49       		.uleb128 0x49
+ 353 0028 13       		.uleb128 0x13
+ 354 0029 00       		.byte	0
+ 355 002a 00       		.byte	0
+ 356 002b 04       		.uleb128 0x4
+ 357 002c 24       		.uleb128 0x24
+ 358 002d 00       		.byte	0
+ 359 002e 0B       		.uleb128 0xb
+ 360 002f 0B       		.uleb128 0xb
+ 361 0030 3E       		.uleb128 0x3e
+ 362 0031 0B       		.uleb128 0xb
+ 363 0032 03       		.uleb128 0x3
+ 364 0033 08       		.uleb128 0x8
+ 365 0034 00       		.byte	0
+ 366 0035 00       		.byte	0
+ 367 0036 05       		.uleb128 0x5
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccwbeTmj.s 			page 8
+
+
+ 368 0037 16       		.uleb128 0x16
+ 369 0038 00       		.byte	0
+ 370 0039 03       		.uleb128 0x3
+ 371 003a 0E       		.uleb128 0xe
+ 372 003b 3A       		.uleb128 0x3a
+ 373 003c 0B       		.uleb128 0xb
+ 374 003d 3B       		.uleb128 0x3b
+ 375 003e 05       		.uleb128 0x5
+ 376 003f 49       		.uleb128 0x49
+ 377 0040 13       		.uleb128 0x13
+ 378 0041 00       		.byte	0
+ 379 0042 00       		.byte	0
+ 380 0043 06       		.uleb128 0x6
+ 381 0044 2E       		.uleb128 0x2e
+ 382 0045 01       		.byte	0x1
+ 383 0046 3F       		.uleb128 0x3f
+ 384 0047 19       		.uleb128 0x19
+ 385 0048 03       		.uleb128 0x3
+ 386 0049 0E       		.uleb128 0xe
+ 387 004a 3A       		.uleb128 0x3a
+ 388 004b 0B       		.uleb128 0xb
+ 389 004c 3B       		.uleb128 0x3b
+ 390 004d 0B       		.uleb128 0xb
+ 391 004e 11       		.uleb128 0x11
+ 392 004f 01       		.uleb128 0x1
+ 393 0050 12       		.uleb128 0x12
+ 394 0051 06       		.uleb128 0x6
+ 395 0052 40       		.uleb128 0x40
+ 396 0053 18       		.uleb128 0x18
+ 397 0054 9742     		.uleb128 0x2117
+ 398 0056 19       		.uleb128 0x19
+ 399 0057 01       		.uleb128 0x1
+ 400 0058 13       		.uleb128 0x13
+ 401 0059 00       		.byte	0
+ 402 005a 00       		.byte	0
+ 403 005b 07       		.uleb128 0x7
+ 404 005c 898201   		.uleb128 0x4109
+ 405 005f 00       		.byte	0
+ 406 0060 11       		.uleb128 0x11
+ 407 0061 01       		.uleb128 0x1
+ 408 0062 31       		.uleb128 0x31
+ 409 0063 13       		.uleb128 0x13
+ 410 0064 00       		.byte	0
+ 411 0065 00       		.byte	0
+ 412 0066 08       		.uleb128 0x8
+ 413 0067 2E       		.uleb128 0x2e
+ 414 0068 00       		.byte	0
+ 415 0069 3F       		.uleb128 0x3f
+ 416 006a 19       		.uleb128 0x19
+ 417 006b 03       		.uleb128 0x3
+ 418 006c 0E       		.uleb128 0xe
+ 419 006d 3A       		.uleb128 0x3a
+ 420 006e 0B       		.uleb128 0xb
+ 421 006f 3B       		.uleb128 0x3b
+ 422 0070 0B       		.uleb128 0xb
+ 423 0071 27       		.uleb128 0x27
+ 424 0072 19       		.uleb128 0x19
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccwbeTmj.s 			page 9
+
+
+ 425 0073 49       		.uleb128 0x49
+ 426 0074 13       		.uleb128 0x13
+ 427 0075 11       		.uleb128 0x11
+ 428 0076 01       		.uleb128 0x1
+ 429 0077 12       		.uleb128 0x12
+ 430 0078 06       		.uleb128 0x6
+ 431 0079 40       		.uleb128 0x40
+ 432 007a 18       		.uleb128 0x18
+ 433 007b 9742     		.uleb128 0x2117
+ 434 007d 19       		.uleb128 0x19
+ 435 007e 00       		.byte	0
+ 436 007f 00       		.byte	0
+ 437 0080 09       		.uleb128 0x9
+ 438 0081 2E       		.uleb128 0x2e
+ 439 0082 01       		.byte	0x1
+ 440 0083 3F       		.uleb128 0x3f
+ 441 0084 19       		.uleb128 0x19
+ 442 0085 03       		.uleb128 0x3
+ 443 0086 0E       		.uleb128 0xe
+ 444 0087 3A       		.uleb128 0x3a
+ 445 0088 0B       		.uleb128 0xb
+ 446 0089 3B       		.uleb128 0x3b
+ 447 008a 0B       		.uleb128 0xb
+ 448 008b 27       		.uleb128 0x27
+ 449 008c 19       		.uleb128 0x19
+ 450 008d 11       		.uleb128 0x11
+ 451 008e 01       		.uleb128 0x1
+ 452 008f 12       		.uleb128 0x12
+ 453 0090 06       		.uleb128 0x6
+ 454 0091 40       		.uleb128 0x40
+ 455 0092 18       		.uleb128 0x18
+ 456 0093 9642     		.uleb128 0x2116
+ 457 0095 19       		.uleb128 0x19
+ 458 0096 01       		.uleb128 0x1
+ 459 0097 13       		.uleb128 0x13
+ 460 0098 00       		.byte	0
+ 461 0099 00       		.byte	0
+ 462 009a 0A       		.uleb128 0xa
+ 463 009b 34       		.uleb128 0x34
+ 464 009c 00       		.byte	0
+ 465 009d 03       		.uleb128 0x3
+ 466 009e 0E       		.uleb128 0xe
+ 467 009f 3A       		.uleb128 0x3a
+ 468 00a0 0B       		.uleb128 0xb
+ 469 00a1 3B       		.uleb128 0x3b
+ 470 00a2 0B       		.uleb128 0xb
+ 471 00a3 49       		.uleb128 0x49
+ 472 00a4 13       		.uleb128 0x13
+ 473 00a5 02       		.uleb128 0x2
+ 474 00a6 17       		.uleb128 0x17
+ 475 00a7 00       		.byte	0
+ 476 00a8 00       		.byte	0
+ 477 00a9 0B       		.uleb128 0xb
+ 478 00aa 898201   		.uleb128 0x4109
+ 479 00ad 01       		.byte	0x1
+ 480 00ae 11       		.uleb128 0x11
+ 481 00af 01       		.uleb128 0x1
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccwbeTmj.s 			page 10
+
+
+ 482 00b0 31       		.uleb128 0x31
+ 483 00b1 13       		.uleb128 0x13
+ 484 00b2 01       		.uleb128 0x1
+ 485 00b3 13       		.uleb128 0x13
+ 486 00b4 00       		.byte	0
+ 487 00b5 00       		.byte	0
+ 488 00b6 0C       		.uleb128 0xc
+ 489 00b7 8A8201   		.uleb128 0x410a
+ 490 00ba 00       		.byte	0
+ 491 00bb 02       		.uleb128 0x2
+ 492 00bc 18       		.uleb128 0x18
+ 493 00bd 9142     		.uleb128 0x2111
+ 494 00bf 18       		.uleb128 0x18
+ 495 00c0 00       		.byte	0
+ 496 00c1 00       		.byte	0
+ 497 00c2 0D       		.uleb128 0xd
+ 498 00c3 34       		.uleb128 0x34
+ 499 00c4 00       		.byte	0
+ 500 00c5 03       		.uleb128 0x3
+ 501 00c6 0E       		.uleb128 0xe
+ 502 00c7 3A       		.uleb128 0x3a
+ 503 00c8 0B       		.uleb128 0xb
+ 504 00c9 3B       		.uleb128 0x3b
+ 505 00ca 05       		.uleb128 0x5
+ 506 00cb 49       		.uleb128 0x49
+ 507 00cc 13       		.uleb128 0x13
+ 508 00cd 3F       		.uleb128 0x3f
+ 509 00ce 19       		.uleb128 0x19
+ 510 00cf 3C       		.uleb128 0x3c
+ 511 00d0 19       		.uleb128 0x19
+ 512 00d1 00       		.byte	0
+ 513 00d2 00       		.byte	0
+ 514 00d3 0E       		.uleb128 0xe
+ 515 00d4 35       		.uleb128 0x35
+ 516 00d5 00       		.byte	0
+ 517 00d6 49       		.uleb128 0x49
+ 518 00d7 13       		.uleb128 0x13
+ 519 00d8 00       		.byte	0
+ 520 00d9 00       		.byte	0
+ 521 00da 0F       		.uleb128 0xf
+ 522 00db 34       		.uleb128 0x34
+ 523 00dc 00       		.byte	0
+ 524 00dd 03       		.uleb128 0x3
+ 525 00de 0E       		.uleb128 0xe
+ 526 00df 3A       		.uleb128 0x3a
+ 527 00e0 0B       		.uleb128 0xb
+ 528 00e1 3B       		.uleb128 0x3b
+ 529 00e2 0B       		.uleb128 0xb
+ 530 00e3 49       		.uleb128 0x49
+ 531 00e4 13       		.uleb128 0x13
+ 532 00e5 3F       		.uleb128 0x3f
+ 533 00e6 19       		.uleb128 0x19
+ 534 00e7 02       		.uleb128 0x2
+ 535 00e8 18       		.uleb128 0x18
+ 536 00e9 00       		.byte	0
+ 537 00ea 00       		.byte	0
+ 538 00eb 10       		.uleb128 0x10
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccwbeTmj.s 			page 11
+
+
+ 539 00ec 2E       		.uleb128 0x2e
+ 540 00ed 00       		.byte	0
+ 541 00ee 3F       		.uleb128 0x3f
+ 542 00ef 19       		.uleb128 0x19
+ 543 00f0 03       		.uleb128 0x3
+ 544 00f1 0E       		.uleb128 0xe
+ 545 00f2 3A       		.uleb128 0x3a
+ 546 00f3 0B       		.uleb128 0xb
+ 547 00f4 3B       		.uleb128 0x3b
+ 548 00f5 0B       		.uleb128 0xb
+ 549 00f6 27       		.uleb128 0x27
+ 550 00f7 19       		.uleb128 0x19
+ 551 00f8 3C       		.uleb128 0x3c
+ 552 00f9 19       		.uleb128 0x19
+ 553 00fa 00       		.byte	0
+ 554 00fb 00       		.byte	0
+ 555 00fc 11       		.uleb128 0x11
+ 556 00fd 2E       		.uleb128 0x2e
+ 557 00fe 00       		.byte	0
+ 558 00ff 3F       		.uleb128 0x3f
+ 559 0100 19       		.uleb128 0x19
+ 560 0101 03       		.uleb128 0x3
+ 561 0102 0E       		.uleb128 0xe
+ 562 0103 3A       		.uleb128 0x3a
+ 563 0104 0B       		.uleb128 0xb
+ 564 0105 3B       		.uleb128 0x3b
+ 565 0106 0B       		.uleb128 0xb
+ 566 0107 27       		.uleb128 0x27
+ 567 0108 19       		.uleb128 0x19
+ 568 0109 49       		.uleb128 0x49
+ 569 010a 13       		.uleb128 0x13
+ 570 010b 3C       		.uleb128 0x3c
+ 571 010c 19       		.uleb128 0x19
+ 572 010d 00       		.byte	0
+ 573 010e 00       		.byte	0
+ 574 010f 12       		.uleb128 0x12
+ 575 0110 2E       		.uleb128 0x2e
+ 576 0111 01       		.byte	0x1
+ 577 0112 3F       		.uleb128 0x3f
+ 578 0113 19       		.uleb128 0x19
+ 579 0114 03       		.uleb128 0x3
+ 580 0115 0E       		.uleb128 0xe
+ 581 0116 3A       		.uleb128 0x3a
+ 582 0117 0B       		.uleb128 0xb
+ 583 0118 3B       		.uleb128 0x3b
+ 584 0119 0B       		.uleb128 0xb
+ 585 011a 27       		.uleb128 0x27
+ 586 011b 19       		.uleb128 0x19
+ 587 011c 3C       		.uleb128 0x3c
+ 588 011d 19       		.uleb128 0x19
+ 589 011e 01       		.uleb128 0x1
+ 590 011f 13       		.uleb128 0x13
+ 591 0120 00       		.byte	0
+ 592 0121 00       		.byte	0
+ 593 0122 13       		.uleb128 0x13
+ 594 0123 05       		.uleb128 0x5
+ 595 0124 00       		.byte	0
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccwbeTmj.s 			page 12
+
+
+ 596 0125 49       		.uleb128 0x49
+ 597 0126 13       		.uleb128 0x13
+ 598 0127 00       		.byte	0
+ 599 0128 00       		.byte	0
+ 600 0129 00       		.byte	0
+ 601              		.section	.debug_loc,"",%progbits
+ 602              	.Ldebug_loc0:
+ 603              	.LLST0:
+ 604 0000 06000000 		.4byte	.LVL2
+ 605 0004 0E000000 		.4byte	.LVL3
+ 606 0008 0100     		.2byte	0x1
+ 607 000a 50       		.byte	0x50
+ 608 000b 00000000 		.4byte	0
+ 609 000f 00000000 		.4byte	0
+ 610              		.section	.debug_aranges,"",%progbits
+ 611 0000 2C000000 		.4byte	0x2c
+ 612 0004 0200     		.2byte	0x2
+ 613 0006 00000000 		.4byte	.Ldebug_info0
+ 614 000a 04       		.byte	0x4
+ 615 000b 00       		.byte	0
+ 616 000c 0000     		.2byte	0
+ 617 000e 0000     		.2byte	0
+ 618 0010 00000000 		.4byte	.LFB63
+ 619 0014 0C000000 		.4byte	.LFE63-.LFB63
+ 620 0018 00000000 		.4byte	.LFB64
+ 621 001c 0C000000 		.4byte	.LFE64-.LFB64
+ 622 0020 00000000 		.4byte	.LFB65
+ 623 0024 28000000 		.4byte	.LFE65-.LFB65
+ 624 0028 00000000 		.4byte	0
+ 625 002c 00000000 		.4byte	0
+ 626              		.section	.debug_ranges,"",%progbits
+ 627              	.Ldebug_ranges0:
+ 628 0000 00000000 		.4byte	.LFB63
+ 629 0004 0C000000 		.4byte	.LFE63
+ 630 0008 00000000 		.4byte	.LFB64
+ 631 000c 0C000000 		.4byte	.LFE64
+ 632 0010 00000000 		.4byte	.LFB65
+ 633 0014 28000000 		.4byte	.LFE65
+ 634 0018 00000000 		.4byte	0
+ 635 001c 00000000 		.4byte	0
+ 636              		.section	.debug_line,"",%progbits
+ 637              	.Ldebug_line0:
+ 638 0000 B8010000 		.section	.debug_str,"MS",%progbits,1
+ 638      02007E01 
+ 638      00000201 
+ 638      FB0E0D00 
+ 638      01010101 
+ 639              	.LASF9:
+ 640 0000 5F5F696E 		.ascii	"__int32_t\000"
+ 640      7433325F 
+ 640      7400
+ 641              	.LASF29:
+ 642 000a 54696D65 		.ascii	"Timer_Speedometer_WriteCounter\000"
+ 642      725F5370 
+ 642      6565646F 
+ 642      6D657465 
+ 642      725F5772 
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccwbeTmj.s 			page 13
+
+
+ 643              	.LASF24:
+ 644 0029 53706565 		.ascii	"Speedo_Init\000"
+ 644      646F5F49 
+ 644      6E697400 
+ 645              	.LASF10:
+ 646 0035 696E7433 		.ascii	"int32_t\000"
+ 646      325F7400 
+ 647              	.LASF12:
+ 648 003d 666C6F61 		.ascii	"float\000"
+ 648      7400
+ 649              	.LASF1:
+ 650 0043 756E7369 		.ascii	"unsigned char\000"
+ 650      676E6564 
+ 650      20636861 
+ 650      7200
+ 651              	.LASF23:
+ 652 0051 433A5C55 		.ascii	"C:\\Users\\Thomas\\Documents\\GitHub\\MotorControll"
+ 652      73657273 
+ 652      5C54686F 
+ 652      6D61735C 
+ 652      446F6375 
+ 653 007f 65725C4D 		.ascii	"er\\MotorController.cydsn\000"
+ 653      6F746F72 
+ 653      436F6E74 
+ 653      726F6C6C 
+ 653      65722E63 
+ 654              	.LASF5:
+ 655 0098 6C6F6E67 		.ascii	"long unsigned int\000"
+ 655      20756E73 
+ 655      69676E65 
+ 655      6420696E 
+ 655      7400
+ 656              	.LASF22:
+ 657 00aa 2E5C5370 		.ascii	".\\Speed_O_meter.c\000"
+ 657      6565645F 
+ 657      4F5F6D65 
+ 657      7465722E 
+ 657      6300
+ 658              	.LASF3:
+ 659 00bc 73686F72 		.ascii	"short unsigned int\000"
+ 659      7420756E 
+ 659      7369676E 
+ 659      65642069 
+ 659      6E7400
+ 660              	.LASF19:
+ 661 00cf 53706565 		.ascii	"Speedometer_isr_Enable\000"
+ 661      646F6D65 
+ 661      7465725F 
+ 661      6973725F 
+ 661      456E6162 
+ 662              	.LASF16:
+ 663 00e6 49544D5F 		.ascii	"ITM_RxBuffer\000"
+ 663      52784275 
+ 663      66666572 
+ 663      00
+ 664              	.LASF28:
+ 665 00f3 54696D65 		.ascii	"Timer_Speedometer_ReadCapture\000"
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccwbeTmj.s 			page 14
+
+
+ 665      725F5370 
+ 665      6565646F 
+ 665      6D657465 
+ 665      725F5265 
+ 666              	.LASF20:
+ 667 0111 54696D65 		.ascii	"Timer_Speedometer_ClearFIFO\000"
+ 667      725F5370 
+ 667      6565646F 
+ 667      6D657465 
+ 667      725F436C 
+ 668              	.LASF13:
+ 669 012d 646F7562 		.ascii	"double\000"
+ 669      6C6500
+ 670              	.LASF11:
+ 671 0134 75696E74 		.ascii	"uint16\000"
+ 671      313600
+ 672              	.LASF21:
+ 673 013b 474E5520 		.ascii	"GNU C 4.9.3 20150303 (release) [ARM/embedded-4_9-br"
+ 673      4320342E 
+ 673      392E3320 
+ 673      32303135 
+ 673      30333033 
+ 674 016e 616E6368 		.ascii	"anch revision 221220] -mcpu=cortex-m3 -mthumb -g -O"
+ 674      20726576 
+ 674      6973696F 
+ 674      6E203232 
+ 674      31323230 
+ 675 01a1 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 675      66756E63 
+ 675      74696F6E 
+ 675      2D736563 
+ 675      74696F6E 
+ 676              	.LASF18:
+ 677 01c9 54696D65 		.ascii	"Timer_Speedometer_Start\000"
+ 677      725F5370 
+ 677      6565646F 
+ 677      6D657465 
+ 677      725F5374 
+ 678              	.LASF8:
+ 679 01e1 756E7369 		.ascii	"unsigned int\000"
+ 679      676E6564 
+ 679      20696E74 
+ 679      00
+ 680              	.LASF7:
+ 681 01ee 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 681      206C6F6E 
+ 681      6720756E 
+ 681      7369676E 
+ 681      65642069 
+ 682              	.LASF27:
+ 683 0205 74696D65 		.ascii	"time\000"
+ 683      00
+ 684              	.LASF17:
+ 685 020a 73706565 		.ascii	"speed\000"
+ 685      6400
+ 686              	.LASF15:
+ 687 0210 73697A65 		.ascii	"sizetype\000"
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccwbeTmj.s 			page 15
+
+
+ 687      74797065 
+ 687      00
+ 688              	.LASF6:
+ 689 0219 6C6F6E67 		.ascii	"long long int\000"
+ 689      206C6F6E 
+ 689      6720696E 
+ 689      7400
+ 690              	.LASF14:
+ 691 0227 63686172 		.ascii	"char\000"
+ 691      00
+ 692              	.LASF2:
+ 693 022c 73686F72 		.ascii	"short int\000"
+ 693      7420696E 
+ 693      7400
+ 694              	.LASF4:
+ 695 0236 6C6F6E67 		.ascii	"long int\000"
+ 695      20696E74 
+ 695      00
+ 696              	.LASF0:
+ 697 023f 7369676E 		.ascii	"signed char\000"
+ 697      65642063 
+ 697      68617200 
+ 698              	.LASF25:
+ 699 024b 53706565 		.ascii	"Speedo_GetSpeed\000"
+ 699      646F5F47 
+ 699      65745370 
+ 699      65656400 
+ 700              	.LASF26:
+ 701 025b 52504D5F 		.ascii	"RPM_isr\000"
+ 701      69737200 
+ 702              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 4.9.3 20150303 (release) [ARM/embedded-4_9-br

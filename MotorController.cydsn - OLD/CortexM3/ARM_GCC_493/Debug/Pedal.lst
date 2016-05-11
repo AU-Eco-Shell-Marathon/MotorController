@@ -1,0 +1,683 @@
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccHZTi2e.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"Pedal.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.Pedal_init,"ax",%progbits
+  19              		.align	2
+  20              		.global	Pedal_init
+  21              		.thumb
+  22              		.thumb_func
+  23              		.type	Pedal_init, %function
+  24              	Pedal_init:
+  25              	.LFB63:
+  26              		.file 1 ".\\Pedal.c"
+   1:.\Pedal.c     **** /* ========================================
+   2:.\Pedal.c     ****  *
+   3:.\Pedal.c     ****  * Copyright YOUR COMPANY, THE YEAR
+   4:.\Pedal.c     ****  * All Rights Reserved
+   5:.\Pedal.c     ****  * UNPUBLISHED, LICENSED SOFTWARE.
+   6:.\Pedal.c     ****  *
+   7:.\Pedal.c     ****  * CONFIDENTIAL AND PROPRIETARY INFORMATION
+   8:.\Pedal.c     ****  * WHICH IS THE PROPERTY OF your company.
+   9:.\Pedal.c     ****  *
+  10:.\Pedal.c     ****  * ========================================
+  11:.\Pedal.c     **** */
+  12:.\Pedal.c     **** #include "Pedal.h"
+  13:.\Pedal.c     **** 
+  14:.\Pedal.c     **** uint16 set_ = 0;
+  15:.\Pedal.c     **** 
+  16:.\Pedal.c     **** void Pedal_init()
+  17:.\Pedal.c     **** {
+  27              		.loc 1 17 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  32 0000 7047     		bx	lr
+  33              		.cfi_endproc
+  34              	.LFE63:
+  35              		.size	Pedal_init, .-Pedal_init
+  36 0002 00BF     		.section	.text.Pedal_getValue,"ax",%progbits
+  37              		.align	2
+  38              		.global	Pedal_getValue
+  39              		.thumb
+  40              		.thumb_func
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccHZTi2e.s 			page 2
+
+
+  41              		.type	Pedal_getValue, %function
+  42              	Pedal_getValue:
+  43              	.LFB64:
+  18:.\Pedal.c     ****     //return &set_;
+  19:.\Pedal.c     **** }
+  20:.\Pedal.c     **** 
+  21:.\Pedal.c     **** uint16 Pedal_getValue()
+  22:.\Pedal.c     **** {
+  44              		.loc 1 22 0
+  45              		.cfi_startproc
+  46              		@ args = 0, pretend = 0, frame = 0
+  47              		@ frame_needed = 0, uses_anonymous_args = 0
+  48              		@ link register save eliminated.
+  23:.\Pedal.c     ****     return set_;
+  24:.\Pedal.c     **** }
+  49              		.loc 1 24 0
+  50 0000 014B     		ldr	r3, .L3
+  51 0002 1888     		ldrh	r0, [r3]
+  52 0004 7047     		bx	lr
+  53              	.L4:
+  54 0006 00BF     		.align	2
+  55              	.L3:
+  56 0008 00000000 		.word	.LANCHOR0
+  57              		.cfi_endproc
+  58              	.LFE64:
+  59              		.size	Pedal_getValue, .-Pedal_getValue
+  60              		.section	.text.Pedal_update,"ax",%progbits
+  61              		.align	2
+  62              		.global	Pedal_update
+  63              		.thumb
+  64              		.thumb_func
+  65              		.type	Pedal_update, %function
+  66              	Pedal_update:
+  67              	.LFB65:
+  25:.\Pedal.c     **** 
+  26:.\Pedal.c     **** void Pedal_update()
+  27:.\Pedal.c     **** {
+  68              		.loc 1 27 0
+  69              		.cfi_startproc
+  70              		@ args = 0, pretend = 0, frame = 0
+  71              		@ frame_needed = 0, uses_anonymous_args = 0
+  72 0000 08B5     		push	{r3, lr}
+  73              		.cfi_def_cfa_offset 8
+  74              		.cfi_offset 3, -8
+  75              		.cfi_offset 14, -4
+  28:.\Pedal.c     ****     set_ = (uint16)275u * (uint16)(Status_Reg_1_Read()&0b1);
+  76              		.loc 1 28 0
+  77 0002 FFF7FEFF 		bl	Status_Reg_1_Read
+  78              	.LVL0:
+  79 0006 00F00100 		and	r0, r0, #1
+  80 000a C300     		lsls	r3, r0, #3
+  81 000c 1B1A     		subs	r3, r3, r0
+  82 000e C0EBC300 		rsb	r0, r0, r3, lsl #3
+  83 0012 00EB8000 		add	r0, r0, r0, lsl #2
+  84 0016 014B     		ldr	r3, .L7
+  85 0018 1880     		strh	r0, [r3]	@ movhi
+  86 001a 08BD     		pop	{r3, pc}
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccHZTi2e.s 			page 3
+
+
+  87              	.L8:
+  88              		.align	2
+  89              	.L7:
+  90 001c 00000000 		.word	.LANCHOR0
+  91              		.cfi_endproc
+  92              	.LFE65:
+  93              		.size	Pedal_update, .-Pedal_update
+  94              		.global	set_
+  95              		.bss
+  96              		.align	1
+  97              		.set	.LANCHOR0,. + 0
+  98              		.type	set_, %object
+  99              		.size	set_, 2
+ 100              	set_:
+ 101 0000 0000     		.space	2
+ 102              		.text
+ 103              	.Letext0:
+ 104              		.file 2 "c:\\program files (x86)\\cypress\\psoc creator\\3.3\\psoc creator\\import\\gnu\\arm\\4.9.
+ 105              		.file 3 "c:\\program files (x86)\\cypress\\psoc creator\\3.3\\psoc creator\\import\\gnu\\arm\\4.9.
+ 106              		.file 4 "Generated_Source\\PSoC5/cytypes.h"
+ 107              		.file 5 "Generated_Source\\PSoC5/core_cm3.h"
+ 108              		.file 6 "Generated_Source\\PSoC5/Status_Reg_1.h"
+ 109              		.section	.debug_info,"",%progbits
+ 110              	.Ldebug_info0:
+ 111 0000 24010000 		.4byte	0x124
+ 112 0004 0400     		.2byte	0x4
+ 113 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 114 000a 04       		.byte	0x4
+ 115 000b 01       		.uleb128 0x1
+ 116 000c 6B000000 		.4byte	.LASF19
+ 117 0010 01       		.byte	0x1
+ 118 0011 D5010000 		.4byte	.LASF20
+ 119 0015 33010000 		.4byte	.LASF21
+ 120 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 121 001d 00000000 		.4byte	0
+ 122 0021 00000000 		.4byte	.Ldebug_line0
+ 123 0025 02       		.uleb128 0x2
+ 124 0026 01       		.byte	0x1
+ 125 0027 06       		.byte	0x6
+ 126 0028 9D010000 		.4byte	.LASF0
+ 127 002c 02       		.uleb128 0x2
+ 128 002d 01       		.byte	0x1
+ 129 002e 08       		.byte	0x8
+ 130 002f 2E000000 		.4byte	.LASF1
+ 131 0033 02       		.uleb128 0x2
+ 132 0034 02       		.byte	0x2
+ 133 0035 05       		.byte	0x5
+ 134 0036 29010000 		.4byte	.LASF2
+ 135 003a 02       		.uleb128 0x2
+ 136 003b 02       		.byte	0x2
+ 137 003c 07       		.byte	0x7
+ 138 003d 0E000000 		.4byte	.LASF3
+ 139 0041 03       		.uleb128 0x3
+ 140 0042 A9010000 		.4byte	.LASF9
+ 141 0046 02       		.byte	0x2
+ 142 0047 3F       		.byte	0x3f
+ 143 0048 4C000000 		.4byte	0x4c
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccHZTi2e.s 			page 4
+
+
+ 144 004c 02       		.uleb128 0x2
+ 145 004d 04       		.byte	0x4
+ 146 004e 05       		.byte	0x5
+ 147 004f 20010000 		.4byte	.LASF4
+ 148 0053 02       		.uleb128 0x2
+ 149 0054 04       		.byte	0x4
+ 150 0055 07       		.byte	0x7
+ 151 0056 42000000 		.4byte	.LASF5
+ 152 005a 02       		.uleb128 0x2
+ 153 005b 08       		.byte	0x8
+ 154 005c 05       		.byte	0x5
+ 155 005d 00000000 		.4byte	.LASF6
+ 156 0061 02       		.uleb128 0x2
+ 157 0062 08       		.byte	0x8
+ 158 0063 07       		.byte	0x7
+ 159 0064 54000000 		.4byte	.LASF7
+ 160 0068 04       		.uleb128 0x4
+ 161 0069 04       		.byte	0x4
+ 162 006a 05       		.byte	0x5
+ 163 006b 696E7400 		.ascii	"int\000"
+ 164 006f 02       		.uleb128 0x2
+ 165 0070 04       		.byte	0x4
+ 166 0071 07       		.byte	0x7
+ 167 0072 21000000 		.4byte	.LASF8
+ 168 0076 03       		.uleb128 0x3
+ 169 0077 CD010000 		.4byte	.LASF10
+ 170 007b 03       		.byte	0x3
+ 171 007c 2C       		.byte	0x2c
+ 172 007d 41000000 		.4byte	0x41
+ 173 0081 05       		.uleb128 0x5
+ 174 0082 3C000000 		.4byte	.LASF11
+ 175 0086 04       		.byte	0x4
+ 176 0087 3801     		.2byte	0x138
+ 177 0089 2C000000 		.4byte	0x2c
+ 178 008d 05       		.uleb128 0x5
+ 179 008e C6010000 		.4byte	.LASF12
+ 180 0092 04       		.byte	0x4
+ 181 0093 3901     		.2byte	0x139
+ 182 0095 3A000000 		.4byte	0x3a
+ 183 0099 02       		.uleb128 0x2
+ 184 009a 04       		.byte	0x4
+ 185 009b 04       		.byte	0x4
+ 186 009c B3010000 		.4byte	.LASF13
+ 187 00a0 02       		.uleb128 0x2
+ 188 00a1 08       		.byte	0x8
+ 189 00a2 04       		.byte	0x4
+ 190 00a3 89010000 		.4byte	.LASF14
+ 191 00a7 02       		.uleb128 0x2
+ 192 00a8 01       		.byte	0x1
+ 193 00a9 08       		.byte	0x8
+ 194 00aa 10010000 		.4byte	.LASF15
+ 195 00ae 02       		.uleb128 0x2
+ 196 00af 04       		.byte	0x4
+ 197 00b0 07       		.byte	0x7
+ 198 00b1 DF010000 		.4byte	.LASF16
+ 199 00b5 06       		.uleb128 0x6
+ 200 00b6 15010000 		.4byte	.LASF22
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccHZTi2e.s 			page 5
+
+
+ 201 00ba 01       		.byte	0x1
+ 202 00bb 10       		.byte	0x10
+ 203 00bc 00000000 		.4byte	.LFB63
+ 204 00c0 02000000 		.4byte	.LFE63-.LFB63
+ 205 00c4 01       		.uleb128 0x1
+ 206 00c5 9C       		.byte	0x9c
+ 207 00c6 07       		.uleb128 0x7
+ 208 00c7 7A010000 		.4byte	.LASF23
+ 209 00cb 01       		.byte	0x1
+ 210 00cc 15       		.byte	0x15
+ 211 00cd 8D000000 		.4byte	0x8d
+ 212 00d1 00000000 		.4byte	.LFB64
+ 213 00d5 0C000000 		.4byte	.LFE64-.LFB64
+ 214 00d9 01       		.uleb128 0x1
+ 215 00da 9C       		.byte	0x9c
+ 216 00db 08       		.uleb128 0x8
+ 217 00dc B9010000 		.4byte	.LASF24
+ 218 00e0 01       		.byte	0x1
+ 219 00e1 1A       		.byte	0x1a
+ 220 00e2 00000000 		.4byte	.LFB65
+ 221 00e6 20000000 		.4byte	.LFE65-.LFB65
+ 222 00ea 01       		.uleb128 0x1
+ 223 00eb 9C       		.byte	0x9c
+ 224 00ec FA000000 		.4byte	0xfa
+ 225 00f0 09       		.uleb128 0x9
+ 226 00f1 06000000 		.4byte	.LVL0
+ 227 00f5 1C010000 		.4byte	0x11c
+ 228 00f9 00       		.byte	0
+ 229 00fa 0A       		.uleb128 0xa
+ 230 00fb 90010000 		.4byte	.LASF17
+ 231 00ff 05       		.byte	0x5
+ 232 0100 5506     		.2byte	0x655
+ 233 0102 06010000 		.4byte	0x106
+ 234 0106 0B       		.uleb128 0xb
+ 235 0107 76000000 		.4byte	0x76
+ 236 010b 0C       		.uleb128 0xc
+ 237 010c F9000000 		.4byte	.LASF18
+ 238 0110 01       		.byte	0x1
+ 239 0111 0E       		.byte	0xe
+ 240 0112 8D000000 		.4byte	0x8d
+ 241 0116 05       		.uleb128 0x5
+ 242 0117 03       		.byte	0x3
+ 243 0118 00000000 		.4byte	set_
+ 244 011c 0D       		.uleb128 0xd
+ 245 011d FE000000 		.4byte	.LASF25
+ 246 0121 06       		.byte	0x6
+ 247 0122 28       		.byte	0x28
+ 248 0123 81000000 		.4byte	0x81
+ 249 0127 00       		.byte	0
+ 250              		.section	.debug_abbrev,"",%progbits
+ 251              	.Ldebug_abbrev0:
+ 252 0000 01       		.uleb128 0x1
+ 253 0001 11       		.uleb128 0x11
+ 254 0002 01       		.byte	0x1
+ 255 0003 25       		.uleb128 0x25
+ 256 0004 0E       		.uleb128 0xe
+ 257 0005 13       		.uleb128 0x13
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccHZTi2e.s 			page 6
+
+
+ 258 0006 0B       		.uleb128 0xb
+ 259 0007 03       		.uleb128 0x3
+ 260 0008 0E       		.uleb128 0xe
+ 261 0009 1B       		.uleb128 0x1b
+ 262 000a 0E       		.uleb128 0xe
+ 263 000b 55       		.uleb128 0x55
+ 264 000c 17       		.uleb128 0x17
+ 265 000d 11       		.uleb128 0x11
+ 266 000e 01       		.uleb128 0x1
+ 267 000f 10       		.uleb128 0x10
+ 268 0010 17       		.uleb128 0x17
+ 269 0011 00       		.byte	0
+ 270 0012 00       		.byte	0
+ 271 0013 02       		.uleb128 0x2
+ 272 0014 24       		.uleb128 0x24
+ 273 0015 00       		.byte	0
+ 274 0016 0B       		.uleb128 0xb
+ 275 0017 0B       		.uleb128 0xb
+ 276 0018 3E       		.uleb128 0x3e
+ 277 0019 0B       		.uleb128 0xb
+ 278 001a 03       		.uleb128 0x3
+ 279 001b 0E       		.uleb128 0xe
+ 280 001c 00       		.byte	0
+ 281 001d 00       		.byte	0
+ 282 001e 03       		.uleb128 0x3
+ 283 001f 16       		.uleb128 0x16
+ 284 0020 00       		.byte	0
+ 285 0021 03       		.uleb128 0x3
+ 286 0022 0E       		.uleb128 0xe
+ 287 0023 3A       		.uleb128 0x3a
+ 288 0024 0B       		.uleb128 0xb
+ 289 0025 3B       		.uleb128 0x3b
+ 290 0026 0B       		.uleb128 0xb
+ 291 0027 49       		.uleb128 0x49
+ 292 0028 13       		.uleb128 0x13
+ 293 0029 00       		.byte	0
+ 294 002a 00       		.byte	0
+ 295 002b 04       		.uleb128 0x4
+ 296 002c 24       		.uleb128 0x24
+ 297 002d 00       		.byte	0
+ 298 002e 0B       		.uleb128 0xb
+ 299 002f 0B       		.uleb128 0xb
+ 300 0030 3E       		.uleb128 0x3e
+ 301 0031 0B       		.uleb128 0xb
+ 302 0032 03       		.uleb128 0x3
+ 303 0033 08       		.uleb128 0x8
+ 304 0034 00       		.byte	0
+ 305 0035 00       		.byte	0
+ 306 0036 05       		.uleb128 0x5
+ 307 0037 16       		.uleb128 0x16
+ 308 0038 00       		.byte	0
+ 309 0039 03       		.uleb128 0x3
+ 310 003a 0E       		.uleb128 0xe
+ 311 003b 3A       		.uleb128 0x3a
+ 312 003c 0B       		.uleb128 0xb
+ 313 003d 3B       		.uleb128 0x3b
+ 314 003e 05       		.uleb128 0x5
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccHZTi2e.s 			page 7
+
+
+ 315 003f 49       		.uleb128 0x49
+ 316 0040 13       		.uleb128 0x13
+ 317 0041 00       		.byte	0
+ 318 0042 00       		.byte	0
+ 319 0043 06       		.uleb128 0x6
+ 320 0044 2E       		.uleb128 0x2e
+ 321 0045 00       		.byte	0
+ 322 0046 3F       		.uleb128 0x3f
+ 323 0047 19       		.uleb128 0x19
+ 324 0048 03       		.uleb128 0x3
+ 325 0049 0E       		.uleb128 0xe
+ 326 004a 3A       		.uleb128 0x3a
+ 327 004b 0B       		.uleb128 0xb
+ 328 004c 3B       		.uleb128 0x3b
+ 329 004d 0B       		.uleb128 0xb
+ 330 004e 11       		.uleb128 0x11
+ 331 004f 01       		.uleb128 0x1
+ 332 0050 12       		.uleb128 0x12
+ 333 0051 06       		.uleb128 0x6
+ 334 0052 40       		.uleb128 0x40
+ 335 0053 18       		.uleb128 0x18
+ 336 0054 9742     		.uleb128 0x2117
+ 337 0056 19       		.uleb128 0x19
+ 338 0057 00       		.byte	0
+ 339 0058 00       		.byte	0
+ 340 0059 07       		.uleb128 0x7
+ 341 005a 2E       		.uleb128 0x2e
+ 342 005b 00       		.byte	0
+ 343 005c 3F       		.uleb128 0x3f
+ 344 005d 19       		.uleb128 0x19
+ 345 005e 03       		.uleb128 0x3
+ 346 005f 0E       		.uleb128 0xe
+ 347 0060 3A       		.uleb128 0x3a
+ 348 0061 0B       		.uleb128 0xb
+ 349 0062 3B       		.uleb128 0x3b
+ 350 0063 0B       		.uleb128 0xb
+ 351 0064 49       		.uleb128 0x49
+ 352 0065 13       		.uleb128 0x13
+ 353 0066 11       		.uleb128 0x11
+ 354 0067 01       		.uleb128 0x1
+ 355 0068 12       		.uleb128 0x12
+ 356 0069 06       		.uleb128 0x6
+ 357 006a 40       		.uleb128 0x40
+ 358 006b 18       		.uleb128 0x18
+ 359 006c 9742     		.uleb128 0x2117
+ 360 006e 19       		.uleb128 0x19
+ 361 006f 00       		.byte	0
+ 362 0070 00       		.byte	0
+ 363 0071 08       		.uleb128 0x8
+ 364 0072 2E       		.uleb128 0x2e
+ 365 0073 01       		.byte	0x1
+ 366 0074 3F       		.uleb128 0x3f
+ 367 0075 19       		.uleb128 0x19
+ 368 0076 03       		.uleb128 0x3
+ 369 0077 0E       		.uleb128 0xe
+ 370 0078 3A       		.uleb128 0x3a
+ 371 0079 0B       		.uleb128 0xb
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccHZTi2e.s 			page 8
+
+
+ 372 007a 3B       		.uleb128 0x3b
+ 373 007b 0B       		.uleb128 0xb
+ 374 007c 11       		.uleb128 0x11
+ 375 007d 01       		.uleb128 0x1
+ 376 007e 12       		.uleb128 0x12
+ 377 007f 06       		.uleb128 0x6
+ 378 0080 40       		.uleb128 0x40
+ 379 0081 18       		.uleb128 0x18
+ 380 0082 9742     		.uleb128 0x2117
+ 381 0084 19       		.uleb128 0x19
+ 382 0085 01       		.uleb128 0x1
+ 383 0086 13       		.uleb128 0x13
+ 384 0087 00       		.byte	0
+ 385 0088 00       		.byte	0
+ 386 0089 09       		.uleb128 0x9
+ 387 008a 898201   		.uleb128 0x4109
+ 388 008d 00       		.byte	0
+ 389 008e 11       		.uleb128 0x11
+ 390 008f 01       		.uleb128 0x1
+ 391 0090 31       		.uleb128 0x31
+ 392 0091 13       		.uleb128 0x13
+ 393 0092 00       		.byte	0
+ 394 0093 00       		.byte	0
+ 395 0094 0A       		.uleb128 0xa
+ 396 0095 34       		.uleb128 0x34
+ 397 0096 00       		.byte	0
+ 398 0097 03       		.uleb128 0x3
+ 399 0098 0E       		.uleb128 0xe
+ 400 0099 3A       		.uleb128 0x3a
+ 401 009a 0B       		.uleb128 0xb
+ 402 009b 3B       		.uleb128 0x3b
+ 403 009c 05       		.uleb128 0x5
+ 404 009d 49       		.uleb128 0x49
+ 405 009e 13       		.uleb128 0x13
+ 406 009f 3F       		.uleb128 0x3f
+ 407 00a0 19       		.uleb128 0x19
+ 408 00a1 3C       		.uleb128 0x3c
+ 409 00a2 19       		.uleb128 0x19
+ 410 00a3 00       		.byte	0
+ 411 00a4 00       		.byte	0
+ 412 00a5 0B       		.uleb128 0xb
+ 413 00a6 35       		.uleb128 0x35
+ 414 00a7 00       		.byte	0
+ 415 00a8 49       		.uleb128 0x49
+ 416 00a9 13       		.uleb128 0x13
+ 417 00aa 00       		.byte	0
+ 418 00ab 00       		.byte	0
+ 419 00ac 0C       		.uleb128 0xc
+ 420 00ad 34       		.uleb128 0x34
+ 421 00ae 00       		.byte	0
+ 422 00af 03       		.uleb128 0x3
+ 423 00b0 0E       		.uleb128 0xe
+ 424 00b1 3A       		.uleb128 0x3a
+ 425 00b2 0B       		.uleb128 0xb
+ 426 00b3 3B       		.uleb128 0x3b
+ 427 00b4 0B       		.uleb128 0xb
+ 428 00b5 49       		.uleb128 0x49
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccHZTi2e.s 			page 9
+
+
+ 429 00b6 13       		.uleb128 0x13
+ 430 00b7 3F       		.uleb128 0x3f
+ 431 00b8 19       		.uleb128 0x19
+ 432 00b9 02       		.uleb128 0x2
+ 433 00ba 18       		.uleb128 0x18
+ 434 00bb 00       		.byte	0
+ 435 00bc 00       		.byte	0
+ 436 00bd 0D       		.uleb128 0xd
+ 437 00be 2E       		.uleb128 0x2e
+ 438 00bf 00       		.byte	0
+ 439 00c0 3F       		.uleb128 0x3f
+ 440 00c1 19       		.uleb128 0x19
+ 441 00c2 03       		.uleb128 0x3
+ 442 00c3 0E       		.uleb128 0xe
+ 443 00c4 3A       		.uleb128 0x3a
+ 444 00c5 0B       		.uleb128 0xb
+ 445 00c6 3B       		.uleb128 0x3b
+ 446 00c7 0B       		.uleb128 0xb
+ 447 00c8 27       		.uleb128 0x27
+ 448 00c9 19       		.uleb128 0x19
+ 449 00ca 49       		.uleb128 0x49
+ 450 00cb 13       		.uleb128 0x13
+ 451 00cc 3C       		.uleb128 0x3c
+ 452 00cd 19       		.uleb128 0x19
+ 453 00ce 00       		.byte	0
+ 454 00cf 00       		.byte	0
+ 455 00d0 00       		.byte	0
+ 456              		.section	.debug_aranges,"",%progbits
+ 457 0000 2C000000 		.4byte	0x2c
+ 458 0004 0200     		.2byte	0x2
+ 459 0006 00000000 		.4byte	.Ldebug_info0
+ 460 000a 04       		.byte	0x4
+ 461 000b 00       		.byte	0
+ 462 000c 0000     		.2byte	0
+ 463 000e 0000     		.2byte	0
+ 464 0010 00000000 		.4byte	.LFB63
+ 465 0014 02000000 		.4byte	.LFE63-.LFB63
+ 466 0018 00000000 		.4byte	.LFB64
+ 467 001c 0C000000 		.4byte	.LFE64-.LFB64
+ 468 0020 00000000 		.4byte	.LFB65
+ 469 0024 20000000 		.4byte	.LFE65-.LFB65
+ 470 0028 00000000 		.4byte	0
+ 471 002c 00000000 		.4byte	0
+ 472              		.section	.debug_ranges,"",%progbits
+ 473              	.Ldebug_ranges0:
+ 474 0000 00000000 		.4byte	.LFB63
+ 475 0004 02000000 		.4byte	.LFE63
+ 476 0008 00000000 		.4byte	.LFB64
+ 477 000c 0C000000 		.4byte	.LFE64
+ 478 0010 00000000 		.4byte	.LFB65
+ 479 0014 20000000 		.4byte	.LFE65
+ 480 0018 00000000 		.4byte	0
+ 481 001c 00000000 		.4byte	0
+ 482              		.section	.debug_line,"",%progbits
+ 483              	.Ldebug_line0:
+ 484 0000 91010000 		.section	.debug_str,"MS",%progbits,1
+ 484      02005C01 
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccHZTi2e.s 			page 10
+
+
+ 484      00000201 
+ 484      FB0E0D00 
+ 484      01010101 
+ 485              	.LASF6:
+ 486 0000 6C6F6E67 		.ascii	"long long int\000"
+ 486      206C6F6E 
+ 486      6720696E 
+ 486      7400
+ 487              	.LASF3:
+ 488 000e 73686F72 		.ascii	"short unsigned int\000"
+ 488      7420756E 
+ 488      7369676E 
+ 488      65642069 
+ 488      6E7400
+ 489              	.LASF8:
+ 490 0021 756E7369 		.ascii	"unsigned int\000"
+ 490      676E6564 
+ 490      20696E74 
+ 490      00
+ 491              	.LASF1:
+ 492 002e 756E7369 		.ascii	"unsigned char\000"
+ 492      676E6564 
+ 492      20636861 
+ 492      7200
+ 493              	.LASF11:
+ 494 003c 75696E74 		.ascii	"uint8\000"
+ 494      3800
+ 495              	.LASF5:
+ 496 0042 6C6F6E67 		.ascii	"long unsigned int\000"
+ 496      20756E73 
+ 496      69676E65 
+ 496      6420696E 
+ 496      7400
+ 497              	.LASF7:
+ 498 0054 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 498      206C6F6E 
+ 498      6720756E 
+ 498      7369676E 
+ 498      65642069 
+ 499              	.LASF19:
+ 500 006b 474E5520 		.ascii	"GNU C 4.9.3 20150303 (release) [ARM/embedded-4_9-br"
+ 500      4320342E 
+ 500      392E3320 
+ 500      32303135 
+ 500      30333033 
+ 501 009e 616E6368 		.ascii	"anch revision 221220] -mcpu=cortex-m3 -mthumb -g -O"
+ 501      20726576 
+ 501      6973696F 
+ 501      6E203232 
+ 501      31323230 
+ 502 00d1 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 502      66756E63 
+ 502      74696F6E 
+ 502      2D736563 
+ 502      74696F6E 
+ 503              	.LASF18:
+ 504 00f9 7365745F 		.ascii	"set_\000"
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccHZTi2e.s 			page 11
+
+
+ 504      00
+ 505              	.LASF25:
+ 506 00fe 53746174 		.ascii	"Status_Reg_1_Read\000"
+ 506      75735F52 
+ 506      65675F31 
+ 506      5F526561 
+ 506      6400
+ 507              	.LASF15:
+ 508 0110 63686172 		.ascii	"char\000"
+ 508      00
+ 509              	.LASF22:
+ 510 0115 50656461 		.ascii	"Pedal_init\000"
+ 510      6C5F696E 
+ 510      697400
+ 511              	.LASF4:
+ 512 0120 6C6F6E67 		.ascii	"long int\000"
+ 512      20696E74 
+ 512      00
+ 513              	.LASF2:
+ 514 0129 73686F72 		.ascii	"short int\000"
+ 514      7420696E 
+ 514      7400
+ 515              	.LASF21:
+ 516 0133 433A5C55 		.ascii	"C:\\Users\\Thomas\\Documents\\GitHub\\MotorControll"
+ 516      73657273 
+ 516      5C54686F 
+ 516      6D61735C 
+ 516      446F6375 
+ 517 0161 65725C4D 		.ascii	"er\\MotorController.cydsn\000"
+ 517      6F746F72 
+ 517      436F6E74 
+ 517      726F6C6C 
+ 517      65722E63 
+ 518              	.LASF23:
+ 519 017a 50656461 		.ascii	"Pedal_getValue\000"
+ 519      6C5F6765 
+ 519      7456616C 
+ 519      756500
+ 520              	.LASF14:
+ 521 0189 646F7562 		.ascii	"double\000"
+ 521      6C6500
+ 522              	.LASF17:
+ 523 0190 49544D5F 		.ascii	"ITM_RxBuffer\000"
+ 523      52784275 
+ 523      66666572 
+ 523      00
+ 524              	.LASF0:
+ 525 019d 7369676E 		.ascii	"signed char\000"
+ 525      65642063 
+ 525      68617200 
+ 526              	.LASF9:
+ 527 01a9 5F5F696E 		.ascii	"__int32_t\000"
+ 527      7433325F 
+ 527      7400
+ 528              	.LASF13:
+ 529 01b3 666C6F61 		.ascii	"float\000"
+ 529      7400
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccHZTi2e.s 			page 12
+
+
+ 530              	.LASF24:
+ 531 01b9 50656461 		.ascii	"Pedal_update\000"
+ 531      6C5F7570 
+ 531      64617465 
+ 531      00
+ 532              	.LASF12:
+ 533 01c6 75696E74 		.ascii	"uint16\000"
+ 533      313600
+ 534              	.LASF10:
+ 535 01cd 696E7433 		.ascii	"int32_t\000"
+ 535      325F7400 
+ 536              	.LASF20:
+ 537 01d5 2E5C5065 		.ascii	".\\Pedal.c\000"
+ 537      64616C2E 
+ 537      6300
+ 538              	.LASF16:
+ 539 01df 73697A65 		.ascii	"sizetype\000"
+ 539      74797065 
+ 539      00
+ 540              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 4.9.3 20150303 (release) [ARM/embedded-4_9-br

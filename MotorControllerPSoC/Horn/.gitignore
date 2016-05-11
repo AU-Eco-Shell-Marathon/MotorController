@@ -1,0 +1,4 @@
+*.cydsn/codegentemp/
+*.cydsn/CortexM3/
+*.cydsn/Export/
+*.cywrk.*

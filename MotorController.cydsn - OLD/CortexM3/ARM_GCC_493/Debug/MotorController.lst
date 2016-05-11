@@ -1,0 +1,2136 @@
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"MotorController.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.MOTOR_tick,"ax",%progbits
+  19              		.align	2
+  20              		.global	MOTOR_tick
+  21              		.thumb
+  22              		.thumb_func
+  23              		.type	MOTOR_tick, %function
+  24              	MOTOR_tick:
+  25              	.LFB63:
+  26              		.file 1 ".\\MotorController.c"
+   1:.\MotorController.c **** /* ========================================
+   2:.\MotorController.c ****  *
+   3:.\MotorController.c ****  * Copyright YOUR COMPANY, THE YEAR
+   4:.\MotorController.c ****  * All Rights Reserved
+   5:.\MotorController.c ****  * UNPUBLISHED, LICENSED SOFTWARE.
+   6:.\MotorController.c ****  *
+   7:.\MotorController.c ****  * CONFIDENTIAL AND PROPRIETARY INFORMATION
+   8:.\MotorController.c ****  * WHICH IS THE PROPERTY OF your company.
+   9:.\MotorController.c ****  *
+  10:.\MotorController.c ****  * ========================================
+  11:.\MotorController.c **** */
+  12:.\MotorController.c **** #include "MotorController.h"
+  13:.\MotorController.c **** 
+  14:.\MotorController.c **** /*
+  15:.\MotorController.c **** const uint8 * speed_ = NULL;
+  16:.\MotorController.c **** const uint16 * rpm_ = NULL;
+  17:.\MotorController.c **** const uint16 * volt_ = NULL;
+  18:.\MotorController.c **** const uint16 * current_ = NULL;
+  19:.\MotorController.c **** */
+  20:.\MotorController.c **** uint16 Threshold_ = 57; // i RPM
+  21:.\MotorController.c **** enum STATES {TEST, ACC, CAB, STOP}; //CAB = cost and burn
+  22:.\MotorController.c **** 
+  23:.\MotorController.c **** enum STATES state = STOP;
+  24:.\MotorController.c **** 
+  25:.\MotorController.c **** CY_ISR_PROTO(MOTOR_tick);
+  26:.\MotorController.c **** CY_ISR_PROTO(OVERCURRENT);
+  27:.\MotorController.c **** 
+  28:.\MotorController.c **** CY_ISR(MOTOR_tick)
+  29:.\MotorController.c **** {
+  27              		.loc 1 29 0
+  28              		.cfi_startproc
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 2
+
+
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31 0000 70B5     		push	{r4, r5, r6, lr}
+  32              		.cfi_def_cfa_offset 16
+  33              		.cfi_offset 4, -16
+  34              		.cfi_offset 5, -12
+  35              		.cfi_offset 6, -8
+  36              		.cfi_offset 14, -4
+  30:.\MotorController.c **** 
+  31:.\MotorController.c ****     uint16 output;
+  32:.\MotorController.c ****     uint16 power = effectSensor_getValue();
+  37              		.loc 1 32 0
+  38 0002 FFF7FEFF 		bl	effectSensor_getValue
+  39              	.LVL0:
+  40 0006 0646     		mov	r6, r0
+  41              	.LVL1:
+  33:.\MotorController.c ****     uint16 rpm = RPMSensor_getValue();
+  42              		.loc 1 33 0
+  43 0008 FFF7FEFF 		bl	RPMSensor_getValue
+  44              	.LVL2:
+  45 000c 0446     		mov	r4, r0
+  46              	.LVL3:
+  34:.\MotorController.c ****     uint16 WantedSpeed = Pedal_getValue();
+  47              		.loc 1 34 0
+  48 000e FFF7FEFF 		bl	Pedal_getValue
+  49              	.LVL4:
+  50 0012 0546     		mov	r5, r0
+  51              	.LVL5:
+  35:.\MotorController.c ****     uint16 Speed_LUT = LUT_speed(WantedSpeed, rpm, power);
+  52              		.loc 1 35 0
+  53 0014 2146     		mov	r1, r4
+  54 0016 3246     		mov	r2, r6
+  55 0018 FFF7FEFF 		bl	LUT_speed
+  56              	.LVL6:
+  36:.\MotorController.c ****     
+  37:.\MotorController.c ****     switch(state){
+  57              		.loc 1 37 0
+  58 001c 0F4B     		ldr	r3, .L7
+  59 001e 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  60 0020 012B     		cmp	r3, #1
+  61 0022 03D0     		beq	.L3
+  62 0024 CBB1     		cbz	r3, .L1
+  63 0026 022B     		cmp	r3, #2
+  64 0028 0CD0     		beq	.L5
+  65 002a 13E0     		b	.L2
+  66              	.L3:
+  38:.\MotorController.c ****     case TEST:
+  39:.\MotorController.c ****         //til test og andet.
+  40:.\MotorController.c ****         break;
+  41:.\MotorController.c ****     case ACC:
+  42:.\MotorController.c ****         
+  43:.\MotorController.c ****         output = PID(Speed_LUT, rpm);
+  67              		.loc 1 43 0
+  68 002c 2146     		mov	r1, r4
+  69 002e FFF7FEFF 		bl	PID
+  70              	.LVL7:
+  44:.\MotorController.c ****         PWM_motor_WriteCompare((uint8)output);
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 3
+
+
+  71              		.loc 1 44 0
+  72 0032 C0B2     		uxtb	r0, r0
+  73              	.LVL8:
+  74 0034 FFF7FEFF 		bl	PWM_motor_WriteCompare
+  75              	.LVL9:
+  45:.\MotorController.c ****         if(rpm >= WantedSpeed) state = CAB;
+  76              		.loc 1 45 0
+  77 0038 AC42     		cmp	r4, r5
+  78 003a 0ED3     		bcc	.L1
+  79              		.loc 1 45 0 is_stmt 0 discriminator 1
+  80 003c 0222     		movs	r2, #2
+  81 003e 074B     		ldr	r3, .L7
+  82 0040 1A70     		strb	r2, [r3]
+  83 0042 70BD     		pop	{r4, r5, r6, pc}
+  84              	.LVL10:
+  85              	.L5:
+  46:.\MotorController.c ****         break;
+  47:.\MotorController.c ****     case CAB:
+  48:.\MotorController.c ****         if(rpm <= (WantedSpeed - Threshold_)) state = ACC;
+  86              		.loc 1 48 0 is_stmt 1
+  87 0044 054B     		ldr	r3, .L7
+  88 0046 5B88     		ldrh	r3, [r3, #2]
+  89 0048 ED1A     		subs	r5, r5, r3
+  90              	.LVL11:
+  91 004a AC42     		cmp	r4, r5
+  92 004c 02DC     		bgt	.L2
+  93              		.loc 1 48 0 is_stmt 0 discriminator 1
+  94 004e 0122     		movs	r2, #1
+  95 0050 024B     		ldr	r3, .L7
+  96 0052 1A70     		strb	r2, [r3]
+  97              	.L2:
+  49:.\MotorController.c ****     case STOP:
+  50:.\MotorController.c ****     default:
+  51:.\MotorController.c ****         PWM_motor_WriteCompare(0x00);
+  98              		.loc 1 51 0 is_stmt 1
+  99 0054 0020     		movs	r0, #0
+ 100              	.LVL12:
+ 101 0056 FFF7FEFF 		bl	PWM_motor_WriteCompare
+ 102              	.LVL13:
+ 103              	.L1:
+ 104 005a 70BD     		pop	{r4, r5, r6, pc}
+ 105              	.LVL14:
+ 106              	.L8:
+ 107              		.align	2
+ 108              	.L7:
+ 109 005c 00000000 		.word	.LANCHOR0
+ 110              		.cfi_endproc
+ 111              	.LFE63:
+ 112              		.size	MOTOR_tick, .-MOTOR_tick
+ 113              		.section	.text.MC_start,"ax",%progbits
+ 114              		.align	2
+ 115              		.global	MC_start
+ 116              		.thumb
+ 117              		.thumb_func
+ 118              		.type	MC_start, %function
+ 119              	MC_start:
+ 120              	.LFB65:
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 4
+
+
+  52:.\MotorController.c ****         break;
+  53:.\MotorController.c ****     }
+  54:.\MotorController.c **** 
+  55:.\MotorController.c **** }
+  56:.\MotorController.c **** 
+  57:.\MotorController.c **** 
+  58:.\MotorController.c **** CY_ISR(OVERCURRENT) //tjekker om det er nødvendigt at lukke for systemet eller ej.
+  59:.\MotorController.c **** {
+  60:.\MotorController.c ****     CyGlobalIntDisable;
+  61:.\MotorController.c ****     MC_stop();
+  62:.\MotorController.c ****     PWM_motor_WriteCompare(0x00);
+  63:.\MotorController.c ****     CyDelay(1000);
+  64:.\MotorController.c ****     PWM_motor_WriteCompare(0x01);
+  65:.\MotorController.c ****     Control_Reg_motor_reset_Write(1u);
+  66:.\MotorController.c ****     CyDelay(100);
+  67:.\MotorController.c ****     if((Status_Reg_1_Read()&1u) == 1u)
+  68:.\MotorController.c ****     {
+  69:.\MotorController.c ****         PWM_motor_WriteCompare(0x00);
+  70:.\MotorController.c ****         while(1); // der er for stor belastning på motoren og MCU går i lukke tilstand og kræver
+  71:.\MotorController.c ****     }
+  72:.\MotorController.c ****     
+  73:.\MotorController.c ****     
+  74:.\MotorController.c ****     MC_start(); //Det er vurderet at det er iorden at forsætte og MCU går tilbage til normal tils
+  75:.\MotorController.c ****     CyGlobalIntEnable;
+  76:.\MotorController.c **** }
+  77:.\MotorController.c **** 
+  78:.\MotorController.c **** void MC_start()
+  79:.\MotorController.c **** {
+ 121              		.loc 1 79 0
+ 122              		.cfi_startproc
+ 123              		@ args = 0, pretend = 0, frame = 0
+ 124              		@ frame_needed = 0, uses_anonymous_args = 0
+ 125              		@ link register save eliminated.
+  80:.\MotorController.c ****     state = ACC;
+ 126              		.loc 1 80 0
+ 127 0000 0122     		movs	r2, #1
+ 128 0002 014B     		ldr	r3, .L10
+ 129 0004 1A70     		strb	r2, [r3]
+ 130 0006 7047     		bx	lr
+ 131              	.L11:
+ 132              		.align	2
+ 133              	.L10:
+ 134 0008 00000000 		.word	.LANCHOR0
+ 135              		.cfi_endproc
+ 136              	.LFE65:
+ 137              		.size	MC_start, .-MC_start
+ 138              		.section	.text.MC_stop,"ax",%progbits
+ 139              		.align	2
+ 140              		.global	MC_stop
+ 141              		.thumb
+ 142              		.thumb_func
+ 143              		.type	MC_stop, %function
+ 144              	MC_stop:
+ 145              	.LFB66:
+  81:.\MotorController.c **** }
+  82:.\MotorController.c **** 
+  83:.\MotorController.c **** void MC_stop()
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 5
+
+
+  84:.\MotorController.c **** {
+ 146              		.loc 1 84 0
+ 147              		.cfi_startproc
+ 148              		@ args = 0, pretend = 0, frame = 0
+ 149              		@ frame_needed = 0, uses_anonymous_args = 0
+ 150              		@ link register save eliminated.
+  85:.\MotorController.c ****     state = STOP;
+ 151              		.loc 1 85 0
+ 152 0000 0322     		movs	r2, #3
+ 153 0002 014B     		ldr	r3, .L13
+ 154 0004 1A70     		strb	r2, [r3]
+ 155 0006 7047     		bx	lr
+ 156              	.L14:
+ 157              		.align	2
+ 158              	.L13:
+ 159 0008 00000000 		.word	.LANCHOR0
+ 160              		.cfi_endproc
+ 161              	.LFE66:
+ 162              		.size	MC_stop, .-MC_stop
+ 163              		.section	.text.OVERCURRENT,"ax",%progbits
+ 164              		.align	2
+ 165              		.global	OVERCURRENT
+ 166              		.thumb
+ 167              		.thumb_func
+ 168              		.type	OVERCURRENT, %function
+ 169              	OVERCURRENT:
+ 170              	.LFB64:
+  59:.\MotorController.c ****     CyGlobalIntDisable;
+ 171              		.loc 1 59 0
+ 172              		.cfi_startproc
+ 173              		@ args = 0, pretend = 0, frame = 0
+ 174              		@ frame_needed = 0, uses_anonymous_args = 0
+ 175 0000 08B5     		push	{r3, lr}
+ 176              		.cfi_def_cfa_offset 8
+ 177              		.cfi_offset 3, -8
+ 178              		.cfi_offset 14, -4
+  60:.\MotorController.c ****     MC_stop();
+ 179              		.loc 1 60 0
+ 180              	@ 60 ".\MotorController.c" 1
+ 181 0002 72B6     		CPSID   i
+ 182              	@ 0 "" 2
+  61:.\MotorController.c ****     PWM_motor_WriteCompare(0x00);
+ 183              		.loc 1 61 0
+ 184              		.thumb
+ 185 0004 FFF7FEFF 		bl	MC_stop
+ 186              	.LVL15:
+  62:.\MotorController.c ****     CyDelay(1000);
+ 187              		.loc 1 62 0
+ 188 0008 0020     		movs	r0, #0
+ 189 000a FFF7FEFF 		bl	PWM_motor_WriteCompare
+ 190              	.LVL16:
+  63:.\MotorController.c ****     PWM_motor_WriteCompare(0x01);
+ 191              		.loc 1 63 0
+ 192 000e 4FF47A70 		mov	r0, #1000
+ 193 0012 FFF7FEFF 		bl	CyDelay
+ 194              	.LVL17:
+  64:.\MotorController.c ****     Control_Reg_motor_reset_Write(1u);
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 6
+
+
+ 195              		.loc 1 64 0
+ 196 0016 0120     		movs	r0, #1
+ 197 0018 FFF7FEFF 		bl	PWM_motor_WriteCompare
+ 198              	.LVL18:
+  65:.\MotorController.c ****     CyDelay(100);
+ 199              		.loc 1 65 0
+ 200 001c 0120     		movs	r0, #1
+ 201 001e FFF7FEFF 		bl	Control_Reg_motor_reset_Write
+ 202              	.LVL19:
+  66:.\MotorController.c ****     if((Status_Reg_1_Read()&1u) == 1u)
+ 203              		.loc 1 66 0
+ 204 0022 6420     		movs	r0, #100
+ 205 0024 FFF7FEFF 		bl	CyDelay
+ 206              	.LVL20:
+  67:.\MotorController.c ****     {
+ 207              		.loc 1 67 0
+ 208 0028 FFF7FEFF 		bl	Status_Reg_1_Read
+ 209              	.LVL21:
+ 210 002c 10F0010F 		tst	r0, #1
+ 211 0030 03D0     		beq	.L16
+  69:.\MotorController.c ****         while(1); // der er for stor belastning på motoren og MCU går i lukke tilstand og kræver
+ 212              		.loc 1 69 0
+ 213 0032 0020     		movs	r0, #0
+ 214 0034 FFF7FEFF 		bl	PWM_motor_WriteCompare
+ 215              	.LVL22:
+ 216              	.L17:
+  70:.\MotorController.c ****     }
+ 217              		.loc 1 70 0 discriminator 1
+ 218 0038 FEE7     		b	.L17
+ 219              	.L16:
+  74:.\MotorController.c ****     CyGlobalIntEnable;
+ 220              		.loc 1 74 0
+ 221 003a FFF7FEFF 		bl	MC_start
+ 222              	.LVL23:
+  75:.\MotorController.c **** }
+ 223              		.loc 1 75 0
+ 224              	@ 75 ".\MotorController.c" 1
+ 225 003e 62B6     		CPSIE   i
+ 226              	@ 0 "" 2
+ 227              		.thumb
+ 228 0040 08BD     		pop	{r3, pc}
+ 229              		.cfi_endproc
+ 230              	.LFE64:
+ 231              		.size	OVERCURRENT, .-OVERCURRENT
+ 232 0042 00BF     		.section	.text.MC_init,"ax",%progbits
+ 233              		.align	2
+ 234              		.global	MC_init
+ 235              		.thumb
+ 236              		.thumb_func
+ 237              		.type	MC_init, %function
+ 238              	MC_init:
+ 239              	.LFB67:
+  86:.\MotorController.c **** }
+  87:.\MotorController.c **** 
+  88:.\MotorController.c **** void MC_init(const struct PIDparameter * pidval)
+  89:.\MotorController.c **** {
+ 240              		.loc 1 89 0
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 7
+
+
+ 241              		.cfi_startproc
+ 242              		@ args = 0, pretend = 0, frame = 0
+ 243              		@ frame_needed = 0, uses_anonymous_args = 0
+ 244              	.LVL24:
+ 245 0000 10B5     		push	{r4, lr}
+ 246              		.cfi_def_cfa_offset 8
+ 247              		.cfi_offset 4, -8
+ 248              		.cfi_offset 14, -4
+ 249 0002 0446     		mov	r4, r0
+  90:.\MotorController.c ****     //initialiser PID regulatoren
+  91:.\MotorController.c ****     PID_init();
+ 250              		.loc 1 91 0
+ 251 0004 FFF7FEFF 		bl	PID_init
+ 252              	.LVL25:
+  92:.\MotorController.c ****     setPID(pidval);
+ 253              		.loc 1 92 0
+ 254 0008 2046     		mov	r0, r4
+ 255 000a FFF7FEFF 		bl	setPID
+ 256              	.LVL26:
+  93:.\MotorController.c ****     
+  94:.\MotorController.c ****     //opsætter interrupt rutine til tilfælde af overbelastning.
+  95:.\MotorController.c ****     isr_overCurrent_StartEx(OVERCURRENT);
+ 257              		.loc 1 95 0
+ 258 000e 0648     		ldr	r0, .L21
+ 259 0010 FFF7FEFF 		bl	isr_overCurrent_StartEx
+ 260              	.LVL27:
+  96:.\MotorController.c ****     
+  97:.\MotorController.c ****     //Starter de hardware blokke der skal bruges af MotorController.
+  98:.\MotorController.c ****     Clock_motor_Start();
+ 261              		.loc 1 98 0
+ 262 0014 FFF7FEFF 		bl	Clock_motor_Start
+ 263              	.LVL28:
+  99:.\MotorController.c ****     PWM_motor_Start();
+ 264              		.loc 1 99 0
+ 265 0018 FFF7FEFF 		bl	PWM_motor_Start
+ 266              	.LVL29:
+ 100:.\MotorController.c ****     
+ 101:.\MotorController.c ****     //Sætter bilen i start tilstand og opsætter interrupt rutine til MotorControlleren.
+ 102:.\MotorController.c ****     MC_start();
+ 267              		.loc 1 102 0
+ 268 001c FFF7FEFF 		bl	MC_start
+ 269              	.LVL30:
+ 103:.\MotorController.c ****     isr_motor_StartEx(MOTOR_tick);
+ 270              		.loc 1 103 0
+ 271 0020 0248     		ldr	r0, .L21+4
+ 272 0022 FFF7FEFF 		bl	isr_motor_StartEx
+ 273              	.LVL31:
+ 274 0026 10BD     		pop	{r4, pc}
+ 275              	.LVL32:
+ 276              	.L22:
+ 277              		.align	2
+ 278              	.L21:
+ 279 0028 00000000 		.word	OVERCURRENT
+ 280 002c 00000000 		.word	MOTOR_tick
+ 281              		.cfi_endproc
+ 282              	.LFE67:
+ 283              		.size	MC_init, .-MC_init
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 8
+
+
+ 284              		.section	.text.MC_ChangePID,"ax",%progbits
+ 285              		.align	2
+ 286              		.global	MC_ChangePID
+ 287              		.thumb
+ 288              		.thumb_func
+ 289              		.type	MC_ChangePID, %function
+ 290              	MC_ChangePID:
+ 291              	.LFB68:
+ 104:.\MotorController.c **** }
+ 105:.\MotorController.c **** 
+ 106:.\MotorController.c **** void MC_ChangePID(const struct PIDparameter * pidval)
+ 107:.\MotorController.c **** {
+ 292              		.loc 1 107 0
+ 293              		.cfi_startproc
+ 294              		@ args = 0, pretend = 0, frame = 0
+ 295              		@ frame_needed = 0, uses_anonymous_args = 0
+ 296              	.LVL33:
+ 297 0000 08B5     		push	{r3, lr}
+ 298              		.cfi_def_cfa_offset 8
+ 299              		.cfi_offset 3, -8
+ 300              		.cfi_offset 14, -4
+ 108:.\MotorController.c ****     setPID(pidval);
+ 301              		.loc 1 108 0
+ 302 0002 FFF7FEFF 		bl	setPID
+ 303              	.LVL34:
+ 304 0006 08BD     		pop	{r3, pc}
+ 305              		.cfi_endproc
+ 306              	.LFE68:
+ 307              		.size	MC_ChangePID, .-MC_ChangePID
+ 308              		.section	.text.MC_setThreshold,"ax",%progbits
+ 309              		.align	2
+ 310              		.global	MC_setThreshold
+ 311              		.thumb
+ 312              		.thumb_func
+ 313              		.type	MC_setThreshold, %function
+ 314              	MC_setThreshold:
+ 315              	.LFB69:
+ 109:.\MotorController.c **** }
+ 110:.\MotorController.c **** 
+ 111:.\MotorController.c **** void MC_setThreshold(uint16 Threshold)
+ 112:.\MotorController.c **** {
+ 316              		.loc 1 112 0
+ 317              		.cfi_startproc
+ 318              		@ args = 0, pretend = 0, frame = 0
+ 319              		@ frame_needed = 0, uses_anonymous_args = 0
+ 320              		@ link register save eliminated.
+ 321              	.LVL35:
+ 113:.\MotorController.c ****        Threshold_ = Threshold;
+ 322              		.loc 1 113 0
+ 323 0000 014B     		ldr	r3, .L26
+ 324 0002 5880     		strh	r0, [r3, #2]	@ movhi
+ 325 0004 7047     		bx	lr
+ 326              	.L27:
+ 327 0006 00BF     		.align	2
+ 328              	.L26:
+ 329 0008 00000000 		.word	.LANCHOR0
+ 330              		.cfi_endproc
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 9
+
+
+ 331              	.LFE69:
+ 332              		.size	MC_setThreshold, .-MC_setThreshold
+ 333              		.global	state
+ 334              		.global	Threshold_
+ 335              		.data
+ 336              		.align	1
+ 337              		.set	.LANCHOR0,. + 0
+ 338              		.type	state, %object
+ 339              		.size	state, 1
+ 340              	state:
+ 341 0000 03       		.byte	3
+ 342 0001 00       		.space	1
+ 343              		.type	Threshold_, %object
+ 344              		.size	Threshold_, 2
+ 345              	Threshold_:
+ 346 0002 3900     		.short	57
+ 347              		.text
+ 348              	.Letext0:
+ 349              		.file 2 "c:\\program files (x86)\\cypress\\psoc creator\\3.3\\psoc creator\\import\\gnu\\arm\\4.9.
+ 350              		.file 3 "c:\\program files (x86)\\cypress\\psoc creator\\3.3\\psoc creator\\import\\gnu\\arm\\4.9.
+ 351              		.file 4 "Generated_Source\\PSoC5/cytypes.h"
+ 352              		.file 5 ".\\PID.h"
+ 353              		.file 6 "Generated_Source\\PSoC5/core_cm3.h"
+ 354              		.file 7 ".\\effectSensor.h"
+ 355              		.file 8 ".\\RPMSensor.h"
+ 356              		.file 9 ".\\Pedal.h"
+ 357              		.file 10 "Generated_Source\\PSoC5/PWM_motor.h"
+ 358              		.file 11 "Generated_Source\\PSoC5/CyLib.h"
+ 359              		.file 12 "Generated_Source\\PSoC5/Control_Reg_motor_reset.h"
+ 360              		.file 13 "Generated_Source\\PSoC5/isr_overCurrent.h"
+ 361              		.file 14 "Generated_Source\\PSoC5/Clock_motor.h"
+ 362              		.file 15 "Generated_Source\\PSoC5/isr_motor.h"
+ 363              		.file 16 ".\\Motor_lookupTable.h"
+ 364              		.file 17 "Generated_Source\\PSoC5/Status_Reg_1.h"
+ 365              		.section	.debug_info,"",%progbits
+ 366              	.Ldebug_info0:
+ 367 0000 13050000 		.4byte	0x513
+ 368 0004 0400     		.2byte	0x4
+ 369 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 370 000a 04       		.byte	0x4
+ 371 000b 01       		.uleb128 0x1
+ 372 000c E3010000 		.4byte	.LASF54
+ 373 0010 01       		.byte	0x1
+ 374 0011 CA010000 		.4byte	.LASF55
+ 375 0015 0E030000 		.4byte	.LASF56
+ 376 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 377 001d 00000000 		.4byte	0
+ 378 0021 00000000 		.4byte	.Ldebug_line0
+ 379 0025 02       		.uleb128 0x2
+ 380 0026 01       		.byte	0x1
+ 381 0027 06       		.byte	0x6
+ 382 0028 8D010000 		.4byte	.LASF0
+ 383 002c 02       		.uleb128 0x2
+ 384 002d 01       		.byte	0x1
+ 385 002e 08       		.byte	0x8
+ 386 002f 61010000 		.4byte	.LASF1
+ 387 0033 02       		.uleb128 0x2
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 10
+
+
+ 388 0034 02       		.byte	0x2
+ 389 0035 05       		.byte	0x5
+ 390 0036 39000000 		.4byte	.LASF2
+ 391 003a 02       		.uleb128 0x2
+ 392 003b 02       		.byte	0x2
+ 393 003c 07       		.byte	0x7
+ 394 003d 79020000 		.4byte	.LASF3
+ 395 0041 03       		.uleb128 0x3
+ 396 0042 E6020000 		.4byte	.LASF9
+ 397 0046 02       		.byte	0x2
+ 398 0047 3F       		.byte	0x3f
+ 399 0048 4C000000 		.4byte	0x4c
+ 400 004c 02       		.uleb128 0x2
+ 401 004d 04       		.byte	0x4
+ 402 004e 05       		.byte	0x5
+ 403 004f 19010000 		.4byte	.LASF4
+ 404 0053 02       		.uleb128 0x2
+ 405 0054 04       		.byte	0x4
+ 406 0055 07       		.byte	0x7
+ 407 0056 C7020000 		.4byte	.LASF5
+ 408 005a 02       		.uleb128 0x2
+ 409 005b 08       		.byte	0x8
+ 410 005c 05       		.byte	0x5
+ 411 005d FB000000 		.4byte	.LASF6
+ 412 0061 02       		.uleb128 0x2
+ 413 0062 08       		.byte	0x8
+ 414 0063 07       		.byte	0x7
+ 415 0064 99010000 		.4byte	.LASF7
+ 416 0068 04       		.uleb128 0x4
+ 417 0069 04       		.byte	0x4
+ 418 006a 05       		.byte	0x5
+ 419 006b 696E7400 		.ascii	"int\000"
+ 420 006f 02       		.uleb128 0x2
+ 421 0070 04       		.byte	0x4
+ 422 0071 07       		.byte	0x7
+ 423 0072 B5010000 		.4byte	.LASF8
+ 424 0076 03       		.uleb128 0x3
+ 425 0077 71020000 		.4byte	.LASF10
+ 426 007b 03       		.byte	0x3
+ 427 007c 2C       		.byte	0x2c
+ 428 007d 41000000 		.4byte	0x41
+ 429 0081 05       		.uleb128 0x5
+ 430 0082 EF000000 		.4byte	.LASF11
+ 431 0086 04       		.byte	0x4
+ 432 0087 3801     		.2byte	0x138
+ 433 0089 2C000000 		.4byte	0x2c
+ 434 008d 05       		.uleb128 0x5
+ 435 008e CE000000 		.4byte	.LASF12
+ 436 0092 04       		.byte	0x4
+ 437 0093 3901     		.2byte	0x139
+ 438 0095 3A000000 		.4byte	0x3a
+ 439 0099 05       		.uleb128 0x5
+ 440 009a B5020000 		.4byte	.LASF13
+ 441 009e 04       		.byte	0x4
+ 442 009f 3A01     		.2byte	0x13a
+ 443 00a1 53000000 		.4byte	0x53
+ 444 00a5 05       		.uleb128 0x5
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 11
+
+
+ 445 00a6 D9020000 		.4byte	.LASF14
+ 446 00aa 04       		.byte	0x4
+ 447 00ab 3D01     		.2byte	0x13d
+ 448 00ad 4C000000 		.4byte	0x4c
+ 449 00b1 02       		.uleb128 0x2
+ 450 00b2 04       		.byte	0x4
+ 451 00b3 04       		.byte	0x4
+ 452 00b4 F5000000 		.4byte	.LASF15
+ 453 00b8 02       		.uleb128 0x2
+ 454 00b9 08       		.byte	0x8
+ 455 00ba 04       		.byte	0x4
+ 456 00bb DF020000 		.4byte	.LASF16
+ 457 00bf 02       		.uleb128 0x2
+ 458 00c0 01       		.byte	0x1
+ 459 00c1 08       		.byte	0x8
+ 460 00c2 DE010000 		.4byte	.LASF17
+ 461 00c6 05       		.uleb128 0x5
+ 462 00c7 6F010000 		.4byte	.LASF18
+ 463 00cb 04       		.byte	0x4
+ 464 00cc F401     		.2byte	0x1f4
+ 465 00ce D2000000 		.4byte	0xd2
+ 466 00d2 06       		.uleb128 0x6
+ 467 00d3 04       		.byte	0x4
+ 468 00d4 D8000000 		.4byte	0xd8
+ 469 00d8 07       		.uleb128 0x7
+ 470 00d9 02       		.uleb128 0x2
+ 471 00da 04       		.byte	0x4
+ 472 00db 07       		.byte	0x7
+ 473 00dc 5E000000 		.4byte	.LASF19
+ 474 00e0 08       		.uleb128 0x8
+ 475 00e1 D5000000 		.4byte	.LASF57
+ 476 00e5 20       		.byte	0x20
+ 477 00e6 05       		.byte	0x5
+ 478 00e7 0D       		.byte	0xd
+ 479 00e8 4A010000 		.4byte	0x14a
+ 480 00ec 09       		.uleb128 0x9
+ 481 00ed 4B7000   		.ascii	"Kp\000"
+ 482 00f0 05       		.byte	0x5
+ 483 00f1 0F       		.byte	0xf
+ 484 00f2 A5000000 		.4byte	0xa5
+ 485 00f6 00       		.byte	0
+ 486 00f7 09       		.uleb128 0x9
+ 487 00f8 4B6900   		.ascii	"Ki\000"
+ 488 00fb 05       		.byte	0x5
+ 489 00fc 10       		.byte	0x10
+ 490 00fd A5000000 		.4byte	0xa5
+ 491 0101 04       		.byte	0x4
+ 492 0102 09       		.uleb128 0x9
+ 493 0103 4B6400   		.ascii	"Kd\000"
+ 494 0106 05       		.byte	0x5
+ 495 0107 11       		.byte	0x11
+ 496 0108 A5000000 		.4byte	0xa5
+ 497 010c 08       		.byte	0x8
+ 498 010d 0A       		.uleb128 0xa
+ 499 010e 5E030000 		.4byte	.LASF20
+ 500 0112 05       		.byte	0x5
+ 501 0113 12       		.byte	0x12
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 12
+
+
+ 502 0114 A5000000 		.4byte	0xa5
+ 503 0118 0C       		.byte	0xc
+ 504 0119 09       		.uleb128 0x9
+ 505 011a 4D415800 		.ascii	"MAX\000"
+ 506 011e 05       		.byte	0x5
+ 507 011f 13       		.byte	0x13
+ 508 0120 A5000000 		.4byte	0xa5
+ 509 0124 10       		.byte	0x10
+ 510 0125 09       		.uleb128 0x9
+ 511 0126 4D494E00 		.ascii	"MIN\000"
+ 512 012a 05       		.byte	0x5
+ 513 012b 14       		.byte	0x14
+ 514 012c A5000000 		.4byte	0xa5
+ 515 0130 14       		.byte	0x14
+ 516 0131 0A       		.uleb128 0xa
+ 517 0132 4C010000 		.4byte	.LASF21
+ 518 0136 05       		.byte	0x5
+ 519 0137 15       		.byte	0x15
+ 520 0138 A5000000 		.4byte	0xa5
+ 521 013c 18       		.byte	0x18
+ 522 013d 0A       		.uleb128 0xa
+ 523 013e 00000000 		.4byte	.LASF22
+ 524 0142 05       		.byte	0x5
+ 525 0143 16       		.byte	0x16
+ 526 0144 BF000000 		.4byte	0xbf
+ 527 0148 1C       		.byte	0x1c
+ 528 0149 00       		.byte	0
+ 529 014a 0B       		.uleb128 0xb
+ 530 014b 32000000 		.4byte	.LASF58
+ 531 014f 01       		.byte	0x1
+ 532 0150 01       		.byte	0x1
+ 533 0151 15       		.byte	0x15
+ 534 0152 6F010000 		.4byte	0x16f
+ 535 0156 0C       		.uleb128 0xc
+ 536 0157 B0010000 		.4byte	.LASF23
+ 537 015b 00       		.sleb128 0
+ 538 015c 0D       		.uleb128 0xd
+ 539 015d 41434300 		.ascii	"ACC\000"
+ 540 0161 01       		.sleb128 1
+ 541 0162 0D       		.uleb128 0xd
+ 542 0163 43414200 		.ascii	"CAB\000"
+ 543 0167 02       		.sleb128 2
+ 544 0168 0C       		.uleb128 0xc
+ 545 0169 F0020000 		.4byte	.LASF24
+ 546 016d 03       		.sleb128 3
+ 547 016e 00       		.byte	0
+ 548 016f 0E       		.uleb128 0xe
+ 549 0170 BC020000 		.4byte	.LASF31
+ 550 0174 01       		.byte	0x1
+ 551 0175 1C       		.byte	0x1c
+ 552 0176 00000000 		.4byte	.LFB63
+ 553 017a 60000000 		.4byte	.LFE63-.LFB63
+ 554 017e 01       		.uleb128 0x1
+ 555 017f 9C       		.byte	0x9c
+ 556 0180 37020000 		.4byte	0x237
+ 557 0184 0F       		.uleb128 0xf
+ 558 0185 F5020000 		.4byte	.LASF25
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 13
+
+
+ 559 0189 01       		.byte	0x1
+ 560 018a 1F       		.byte	0x1f
+ 561 018b 8D000000 		.4byte	0x8d
+ 562 018f 00000000 		.4byte	.LLST0
+ 563 0193 0F       		.uleb128 0xf
+ 564 0194 AF020000 		.4byte	.LASF26
+ 565 0198 01       		.byte	0x1
+ 566 0199 20       		.byte	0x20
+ 567 019a 8D000000 		.4byte	0x8d
+ 568 019e 13000000 		.4byte	.LLST1
+ 569 01a2 10       		.uleb128 0x10
+ 570 01a3 72706D00 		.ascii	"rpm\000"
+ 571 01a7 01       		.byte	0x1
+ 572 01a8 21       		.byte	0x21
+ 573 01a9 8D000000 		.4byte	0x8d
+ 574 01ad 26000000 		.4byte	.LLST2
+ 575 01b1 0F       		.uleb128 0xf
+ 576 01b2 55010000 		.4byte	.LASF27
+ 577 01b6 01       		.byte	0x1
+ 578 01b7 22       		.byte	0x22
+ 579 01b8 8D000000 		.4byte	0x8d
+ 580 01bc 39000000 		.4byte	.LLST3
+ 581 01c0 0F       		.uleb128 0xf
+ 582 01c1 67000000 		.4byte	.LASF28
+ 583 01c5 01       		.byte	0x1
+ 584 01c6 23       		.byte	0x23
+ 585 01c7 8D000000 		.4byte	0x8d
+ 586 01cb 4C000000 		.4byte	.LLST4
+ 587 01cf 11       		.uleb128 0x11
+ 588 01d0 06000000 		.4byte	.LVL0
+ 589 01d4 1D040000 		.4byte	0x41d
+ 590 01d8 11       		.uleb128 0x11
+ 591 01d9 0C000000 		.4byte	.LVL2
+ 592 01dd 2E040000 		.4byte	0x42e
+ 593 01e1 11       		.uleb128 0x11
+ 594 01e2 12000000 		.4byte	.LVL4
+ 595 01e6 3F040000 		.4byte	0x43f
+ 596 01ea 12       		.uleb128 0x12
+ 597 01eb 1C000000 		.4byte	.LVL6
+ 598 01ef 50040000 		.4byte	0x450
+ 599 01f3 0A020000 		.4byte	0x20a
+ 600 01f7 13       		.uleb128 0x13
+ 601 01f8 01       		.uleb128 0x1
+ 602 01f9 52       		.byte	0x52
+ 603 01fa 02       		.uleb128 0x2
+ 604 01fb 76       		.byte	0x76
+ 605 01fc 00       		.sleb128 0
+ 606 01fd 13       		.uleb128 0x13
+ 607 01fe 01       		.uleb128 0x1
+ 608 01ff 51       		.byte	0x51
+ 609 0200 02       		.uleb128 0x2
+ 610 0201 74       		.byte	0x74
+ 611 0202 00       		.sleb128 0
+ 612 0203 13       		.uleb128 0x13
+ 613 0204 01       		.uleb128 0x1
+ 614 0205 50       		.byte	0x50
+ 615 0206 02       		.uleb128 0x2
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 14
+
+
+ 616 0207 75       		.byte	0x75
+ 617 0208 00       		.sleb128 0
+ 618 0209 00       		.byte	0
+ 619 020a 12       		.uleb128 0x12
+ 620 020b 32000000 		.4byte	.LVL7
+ 621 020f 74040000 		.4byte	0x474
+ 622 0213 1E020000 		.4byte	0x21e
+ 623 0217 13       		.uleb128 0x13
+ 624 0218 01       		.uleb128 0x1
+ 625 0219 51       		.byte	0x51
+ 626 021a 02       		.uleb128 0x2
+ 627 021b 74       		.byte	0x74
+ 628 021c 00       		.sleb128 0
+ 629 021d 00       		.byte	0
+ 630 021e 11       		.uleb128 0x11
+ 631 021f 38000000 		.4byte	.LVL9
+ 632 0223 8E040000 		.4byte	0x48e
+ 633 0227 14       		.uleb128 0x14
+ 634 0228 5A000000 		.4byte	.LVL13
+ 635 022c 8E040000 		.4byte	0x48e
+ 636 0230 13       		.uleb128 0x13
+ 637 0231 01       		.uleb128 0x1
+ 638 0232 50       		.byte	0x50
+ 639 0233 01       		.uleb128 0x1
+ 640 0234 30       		.byte	0x30
+ 641 0235 00       		.byte	0
+ 642 0236 00       		.byte	0
+ 643 0237 15       		.uleb128 0x15
+ 644 0238 55030000 		.4byte	.LASF29
+ 645 023c 01       		.byte	0x1
+ 646 023d 4E       		.byte	0x4e
+ 647 023e 00000000 		.4byte	.LFB65
+ 648 0242 0C000000 		.4byte	.LFE65-.LFB65
+ 649 0246 01       		.uleb128 0x1
+ 650 0247 9C       		.byte	0x9c
+ 651 0248 15       		.uleb128 0x15
+ 652 0249 C2010000 		.4byte	.LASF30
+ 653 024d 01       		.byte	0x1
+ 654 024e 53       		.byte	0x53
+ 655 024f 00000000 		.4byte	.LFB66
+ 656 0253 0C000000 		.4byte	.LFE66-.LFB66
+ 657 0257 01       		.uleb128 0x1
+ 658 0258 9C       		.byte	0x9c
+ 659 0259 0E       		.uleb128 0xe
+ 660 025a 97000000 		.4byte	.LASF32
+ 661 025e 01       		.byte	0x1
+ 662 025f 3A       		.byte	0x3a
+ 663 0260 00000000 		.4byte	.LFB64
+ 664 0264 42000000 		.4byte	.LFE64-.LFB64
+ 665 0268 01       		.uleb128 0x1
+ 666 0269 9C       		.byte	0x9c
+ 667 026a FF020000 		.4byte	0x2ff
+ 668 026e 11       		.uleb128 0x11
+ 669 026f 08000000 		.4byte	.LVL15
+ 670 0273 48020000 		.4byte	0x248
+ 671 0277 12       		.uleb128 0x12
+ 672 0278 0E000000 		.4byte	.LVL16
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 15
+
+
+ 673 027c 8E040000 		.4byte	0x48e
+ 674 0280 8A020000 		.4byte	0x28a
+ 675 0284 13       		.uleb128 0x13
+ 676 0285 01       		.uleb128 0x1
+ 677 0286 50       		.byte	0x50
+ 678 0287 01       		.uleb128 0x1
+ 679 0288 30       		.byte	0x30
+ 680 0289 00       		.byte	0
+ 681 028a 12       		.uleb128 0x12
+ 682 028b 16000000 		.4byte	.LVL17
+ 683 028f 9F040000 		.4byte	0x49f
+ 684 0293 9F020000 		.4byte	0x29f
+ 685 0297 13       		.uleb128 0x13
+ 686 0298 01       		.uleb128 0x1
+ 687 0299 50       		.byte	0x50
+ 688 029a 03       		.uleb128 0x3
+ 689 029b 0A       		.byte	0xa
+ 690 029c E803     		.2byte	0x3e8
+ 691 029e 00       		.byte	0
+ 692 029f 12       		.uleb128 0x12
+ 693 02a0 1C000000 		.4byte	.LVL18
+ 694 02a4 8E040000 		.4byte	0x48e
+ 695 02a8 B2020000 		.4byte	0x2b2
+ 696 02ac 13       		.uleb128 0x13
+ 697 02ad 01       		.uleb128 0x1
+ 698 02ae 50       		.byte	0x50
+ 699 02af 01       		.uleb128 0x1
+ 700 02b0 31       		.byte	0x31
+ 701 02b1 00       		.byte	0
+ 702 02b2 12       		.uleb128 0x12
+ 703 02b3 22000000 		.4byte	.LVL19
+ 704 02b7 B0040000 		.4byte	0x4b0
+ 705 02bb C5020000 		.4byte	0x2c5
+ 706 02bf 13       		.uleb128 0x13
+ 707 02c0 01       		.uleb128 0x1
+ 708 02c1 50       		.byte	0x50
+ 709 02c2 01       		.uleb128 0x1
+ 710 02c3 31       		.byte	0x31
+ 711 02c4 00       		.byte	0
+ 712 02c5 12       		.uleb128 0x12
+ 713 02c6 28000000 		.4byte	.LVL20
+ 714 02ca 9F040000 		.4byte	0x49f
+ 715 02ce D9020000 		.4byte	0x2d9
+ 716 02d2 13       		.uleb128 0x13
+ 717 02d3 01       		.uleb128 0x1
+ 718 02d4 50       		.byte	0x50
+ 719 02d5 02       		.uleb128 0x2
+ 720 02d6 08       		.byte	0x8
+ 721 02d7 64       		.byte	0x64
+ 722 02d8 00       		.byte	0
+ 723 02d9 11       		.uleb128 0x11
+ 724 02da 2C000000 		.4byte	.LVL21
+ 725 02de C1040000 		.4byte	0x4c1
+ 726 02e2 12       		.uleb128 0x12
+ 727 02e3 38000000 		.4byte	.LVL22
+ 728 02e7 8E040000 		.4byte	0x48e
+ 729 02eb F5020000 		.4byte	0x2f5
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 16
+
+
+ 730 02ef 13       		.uleb128 0x13
+ 731 02f0 01       		.uleb128 0x1
+ 732 02f1 50       		.byte	0x50
+ 733 02f2 01       		.uleb128 0x1
+ 734 02f3 30       		.byte	0x30
+ 735 02f4 00       		.byte	0
+ 736 02f5 11       		.uleb128 0x11
+ 737 02f6 3E000000 		.4byte	.LVL23
+ 738 02fa 37020000 		.4byte	0x237
+ 739 02fe 00       		.byte	0
+ 740 02ff 0E       		.uleb128 0xe
+ 741 0300 71000000 		.4byte	.LASF33
+ 742 0304 01       		.byte	0x1
+ 743 0305 58       		.byte	0x58
+ 744 0306 00000000 		.4byte	.LFB67
+ 745 030a 30000000 		.4byte	.LFE67-.LFB67
+ 746 030e 01       		.uleb128 0x1
+ 747 030f 9C       		.byte	0x9c
+ 748 0310 86030000 		.4byte	0x386
+ 749 0314 16       		.uleb128 0x16
+ 750 0315 7A030000 		.4byte	.LASF35
+ 751 0319 01       		.byte	0x1
+ 752 031a 58       		.byte	0x58
+ 753 031b 86030000 		.4byte	0x386
+ 754 031f 6A000000 		.4byte	.LLST5
+ 755 0323 11       		.uleb128 0x11
+ 756 0324 08000000 		.4byte	.LVL25
+ 757 0328 CC040000 		.4byte	0x4cc
+ 758 032c 12       		.uleb128 0x12
+ 759 032d 0E000000 		.4byte	.LVL26
+ 760 0331 D9040000 		.4byte	0x4d9
+ 761 0335 40030000 		.4byte	0x340
+ 762 0339 13       		.uleb128 0x13
+ 763 033a 01       		.uleb128 0x1
+ 764 033b 50       		.byte	0x50
+ 765 033c 02       		.uleb128 0x2
+ 766 033d 74       		.byte	0x74
+ 767 033e 00       		.sleb128 0
+ 768 033f 00       		.byte	0
+ 769 0340 12       		.uleb128 0x12
+ 770 0341 14000000 		.4byte	.LVL27
+ 771 0345 EA040000 		.4byte	0x4ea
+ 772 0349 57030000 		.4byte	0x357
+ 773 034d 13       		.uleb128 0x13
+ 774 034e 01       		.uleb128 0x1
+ 775 034f 50       		.byte	0x50
+ 776 0350 05       		.uleb128 0x5
+ 777 0351 03       		.byte	0x3
+ 778 0352 00000000 		.4byte	OVERCURRENT
+ 779 0356 00       		.byte	0
+ 780 0357 11       		.uleb128 0x11
+ 781 0358 18000000 		.4byte	.LVL28
+ 782 035c FB040000 		.4byte	0x4fb
+ 783 0360 11       		.uleb128 0x11
+ 784 0361 1C000000 		.4byte	.LVL29
+ 785 0365 02050000 		.4byte	0x502
+ 786 0369 11       		.uleb128 0x11
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 17
+
+
+ 787 036a 20000000 		.4byte	.LVL30
+ 788 036e 37020000 		.4byte	0x237
+ 789 0372 14       		.uleb128 0x14
+ 790 0373 26000000 		.4byte	.LVL31
+ 791 0377 09050000 		.4byte	0x509
+ 792 037b 13       		.uleb128 0x13
+ 793 037c 01       		.uleb128 0x1
+ 794 037d 50       		.byte	0x50
+ 795 037e 05       		.uleb128 0x5
+ 796 037f 03       		.byte	0x3
+ 797 0380 00000000 		.4byte	MOTOR_tick
+ 798 0384 00       		.byte	0
+ 799 0385 00       		.byte	0
+ 800 0386 06       		.uleb128 0x6
+ 801 0387 04       		.byte	0x4
+ 802 0388 8C030000 		.4byte	0x38c
+ 803 038c 17       		.uleb128 0x17
+ 804 038d E0000000 		.4byte	0xe0
+ 805 0391 0E       		.uleb128 0xe
+ 806 0392 E2000000 		.4byte	.LASF34
+ 807 0396 01       		.byte	0x1
+ 808 0397 6A       		.byte	0x6a
+ 809 0398 00000000 		.4byte	.LFB68
+ 810 039c 08000000 		.4byte	.LFE68-.LFB68
+ 811 03a0 01       		.uleb128 0x1
+ 812 03a1 9C       		.byte	0x9c
+ 813 03a2 C7030000 		.4byte	0x3c7
+ 814 03a6 16       		.uleb128 0x16
+ 815 03a7 7A030000 		.4byte	.LASF35
+ 816 03ab 01       		.byte	0x1
+ 817 03ac 6A       		.byte	0x6a
+ 818 03ad 86030000 		.4byte	0x386
+ 819 03b1 96000000 		.4byte	.LLST6
+ 820 03b5 14       		.uleb128 0x14
+ 821 03b6 06000000 		.4byte	.LVL34
+ 822 03ba D9040000 		.4byte	0x4d9
+ 823 03be 13       		.uleb128 0x13
+ 824 03bf 01       		.uleb128 0x1
+ 825 03c0 50       		.byte	0x50
+ 826 03c1 03       		.uleb128 0x3
+ 827 03c2 F3       		.byte	0xf3
+ 828 03c3 01       		.uleb128 0x1
+ 829 03c4 50       		.byte	0x50
+ 830 03c5 00       		.byte	0
+ 831 03c6 00       		.byte	0
+ 832 03c7 0E       		.uleb128 0xe
+ 833 03c8 09010000 		.4byte	.LASF36
+ 834 03cc 01       		.byte	0x1
+ 835 03cd 6F       		.byte	0x6f
+ 836 03ce 00000000 		.4byte	.LFB69
+ 837 03d2 0C000000 		.4byte	.LFE69-.LFB69
+ 838 03d6 01       		.uleb128 0x1
+ 839 03d7 9C       		.byte	0x9c
+ 840 03d8 EA030000 		.4byte	0x3ea
+ 841 03dc 18       		.uleb128 0x18
+ 842 03dd A3000000 		.4byte	.LASF37
+ 843 03e1 01       		.byte	0x1
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 18
+
+
+ 844 03e2 6F       		.byte	0x6f
+ 845 03e3 8D000000 		.4byte	0x8d
+ 846 03e7 01       		.uleb128 0x1
+ 847 03e8 50       		.byte	0x50
+ 848 03e9 00       		.byte	0
+ 849 03ea 19       		.uleb128 0x19
+ 850 03eb 65030000 		.4byte	.LASF38
+ 851 03ef 06       		.byte	0x6
+ 852 03f0 5506     		.2byte	0x655
+ 853 03f2 F6030000 		.4byte	0x3f6
+ 854 03f6 1A       		.uleb128 0x1a
+ 855 03f7 76000000 		.4byte	0x76
+ 856 03fb 1B       		.uleb128 0x1b
+ 857 03fc AD000000 		.4byte	.LASF39
+ 858 0400 01       		.byte	0x1
+ 859 0401 14       		.byte	0x14
+ 860 0402 8D000000 		.4byte	0x8d
+ 861 0406 05       		.uleb128 0x5
+ 862 0407 03       		.byte	0x3
+ 863 0408 00000000 		.4byte	Threshold_
+ 864 040c 1B       		.uleb128 0x1b
+ 865 040d 2C000000 		.4byte	.LASF40
+ 866 0411 01       		.byte	0x1
+ 867 0412 17       		.byte	0x17
+ 868 0413 4A010000 		.4byte	0x14a
+ 869 0417 05       		.uleb128 0x5
+ 870 0418 03       		.byte	0x3
+ 871 0419 00000000 		.4byte	state
+ 872 041d 1C       		.uleb128 0x1c
+ 873 041e B8000000 		.4byte	.LASF41
+ 874 0422 07       		.byte	0x7
+ 875 0423 0A       		.byte	0xa
+ 876 0424 8D000000 		.4byte	0x8d
+ 877 0428 2E040000 		.4byte	0x42e
+ 878 042c 1D       		.uleb128 0x1d
+ 879 042d 00       		.byte	0
+ 880 042e 1C       		.uleb128 0x1c
+ 881 042f 8C020000 		.4byte	.LASF42
+ 882 0433 08       		.byte	0x8
+ 883 0434 08       		.byte	0x8
+ 884 0435 8D000000 		.4byte	0x8d
+ 885 0439 3F040000 		.4byte	0x43f
+ 886 043d 1D       		.uleb128 0x1d
+ 887 043e 00       		.byte	0
+ 888 043f 1C       		.uleb128 0x1c
+ 889 0440 1D000000 		.4byte	.LASF43
+ 890 0444 09       		.byte	0x9
+ 891 0445 08       		.byte	0x8
+ 892 0446 8D000000 		.4byte	0x8d
+ 893 044a 50040000 		.4byte	0x450
+ 894 044e 1D       		.uleb128 0x1d
+ 895 044f 00       		.byte	0
+ 896 0450 1E       		.uleb128 0x1e
+ 897 0451 83010000 		.4byte	.LASF44
+ 898 0455 10       		.byte	0x10
+ 899 0456 06       		.byte	0x6
+ 900 0457 8D000000 		.4byte	0x8d
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 19
+
+
+ 901 045b 6F040000 		.4byte	0x46f
+ 902 045f 1F       		.uleb128 0x1f
+ 903 0460 6F040000 		.4byte	0x46f
+ 904 0464 1F       		.uleb128 0x1f
+ 905 0465 6F040000 		.4byte	0x46f
+ 906 0469 1F       		.uleb128 0x1f
+ 907 046a 6F040000 		.4byte	0x46f
+ 908 046e 00       		.byte	0
+ 909 046f 17       		.uleb128 0x17
+ 910 0470 8D000000 		.4byte	0x8d
+ 911 0474 20       		.uleb128 0x20
+ 912 0475 50494400 		.ascii	"PID\000"
+ 913 0479 05       		.byte	0x5
+ 914 047a 1A       		.byte	0x1a
+ 915 047b 8D000000 		.4byte	0x8d
+ 916 047f 8E040000 		.4byte	0x48e
+ 917 0483 1F       		.uleb128 0x1f
+ 918 0484 6F040000 		.4byte	0x46f
+ 919 0488 1F       		.uleb128 0x1f
+ 920 0489 6F040000 		.4byte	0x46f
+ 921 048d 00       		.byte	0
+ 922 048e 21       		.uleb128 0x21
+ 923 048f 06000000 		.4byte	.LASF45
+ 924 0493 0A       		.byte	0xa
+ 925 0494 C3       		.byte	0xc3
+ 926 0495 9F040000 		.4byte	0x49f
+ 927 0499 1F       		.uleb128 0x1f
+ 928 049a 81000000 		.4byte	0x81
+ 929 049e 00       		.byte	0
+ 930 049f 21       		.uleb128 0x21
+ 931 04a0 72030000 		.4byte	.LASF46
+ 932 04a4 0B       		.byte	0xb
+ 933 04a5 77       		.byte	0x77
+ 934 04a6 B0040000 		.4byte	0x4b0
+ 935 04aa 1F       		.uleb128 0x1f
+ 936 04ab 99000000 		.4byte	0x99
+ 937 04af 00       		.byte	0
+ 938 04b0 21       		.uleb128 0x21
+ 939 04b1 79000000 		.4byte	.LASF47
+ 940 04b5 0C       		.byte	0xc
+ 941 04b6 27       		.byte	0x27
+ 942 04b7 C1040000 		.4byte	0x4c1
+ 943 04bb 1F       		.uleb128 0x1f
+ 944 04bc 81000000 		.4byte	0x81
+ 945 04c0 00       		.byte	0
+ 946 04c1 22       		.uleb128 0x22
+ 947 04c2 22010000 		.4byte	.LASF59
+ 948 04c6 11       		.byte	0x11
+ 949 04c7 28       		.byte	0x28
+ 950 04c8 81000000 		.4byte	0x81
+ 951 04cc 23       		.uleb128 0x23
+ 952 04cd 43000000 		.4byte	.LASF52
+ 953 04d1 05       		.byte	0x5
+ 954 04d2 19       		.byte	0x19
+ 955 04d3 D9040000 		.4byte	0x4d9
+ 956 04d7 1D       		.uleb128 0x1d
+ 957 04d8 00       		.byte	0
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 20
+
+
+ 958 04d9 21       		.uleb128 0x21
+ 959 04da 7C010000 		.4byte	.LASF48
+ 960 04de 05       		.byte	0x5
+ 961 04df 1B       		.byte	0x1b
+ 962 04e0 EA040000 		.4byte	0x4ea
+ 963 04e4 1F       		.uleb128 0x1f
+ 964 04e5 86030000 		.4byte	0x386
+ 965 04e9 00       		.byte	0
+ 966 04ea 21       		.uleb128 0x21
+ 967 04eb 34010000 		.4byte	.LASF49
+ 968 04ef 0D       		.byte	0xd
+ 969 04f0 18       		.byte	0x18
+ 970 04f1 FB040000 		.4byte	0x4fb
+ 971 04f5 1F       		.uleb128 0x1f
+ 972 04f6 C6000000 		.4byte	0xc6
+ 973 04fa 00       		.byte	0
+ 974 04fb 24       		.uleb128 0x24
+ 975 04fc FC020000 		.4byte	.LASF50
+ 976 0500 0E       		.byte	0xe
+ 977 0501 27       		.byte	0x27
+ 978 0502 24       		.uleb128 0x24
+ 979 0503 9F020000 		.4byte	.LASF51
+ 980 0507 0A       		.byte	0xa
+ 981 0508 92       		.byte	0x92
+ 982 0509 25       		.uleb128 0x25
+ 983 050a 4C000000 		.4byte	.LASF53
+ 984 050e 0F       		.byte	0xf
+ 985 050f 18       		.byte	0x18
+ 986 0510 1F       		.uleb128 0x1f
+ 987 0511 C6000000 		.4byte	0xc6
+ 988 0515 00       		.byte	0
+ 989 0516 00       		.byte	0
+ 990              		.section	.debug_abbrev,"",%progbits
+ 991              	.Ldebug_abbrev0:
+ 992 0000 01       		.uleb128 0x1
+ 993 0001 11       		.uleb128 0x11
+ 994 0002 01       		.byte	0x1
+ 995 0003 25       		.uleb128 0x25
+ 996 0004 0E       		.uleb128 0xe
+ 997 0005 13       		.uleb128 0x13
+ 998 0006 0B       		.uleb128 0xb
+ 999 0007 03       		.uleb128 0x3
+ 1000 0008 0E       		.uleb128 0xe
+ 1001 0009 1B       		.uleb128 0x1b
+ 1002 000a 0E       		.uleb128 0xe
+ 1003 000b 55       		.uleb128 0x55
+ 1004 000c 17       		.uleb128 0x17
+ 1005 000d 11       		.uleb128 0x11
+ 1006 000e 01       		.uleb128 0x1
+ 1007 000f 10       		.uleb128 0x10
+ 1008 0010 17       		.uleb128 0x17
+ 1009 0011 00       		.byte	0
+ 1010 0012 00       		.byte	0
+ 1011 0013 02       		.uleb128 0x2
+ 1012 0014 24       		.uleb128 0x24
+ 1013 0015 00       		.byte	0
+ 1014 0016 0B       		.uleb128 0xb
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 21
+
+
+ 1015 0017 0B       		.uleb128 0xb
+ 1016 0018 3E       		.uleb128 0x3e
+ 1017 0019 0B       		.uleb128 0xb
+ 1018 001a 03       		.uleb128 0x3
+ 1019 001b 0E       		.uleb128 0xe
+ 1020 001c 00       		.byte	0
+ 1021 001d 00       		.byte	0
+ 1022 001e 03       		.uleb128 0x3
+ 1023 001f 16       		.uleb128 0x16
+ 1024 0020 00       		.byte	0
+ 1025 0021 03       		.uleb128 0x3
+ 1026 0022 0E       		.uleb128 0xe
+ 1027 0023 3A       		.uleb128 0x3a
+ 1028 0024 0B       		.uleb128 0xb
+ 1029 0025 3B       		.uleb128 0x3b
+ 1030 0026 0B       		.uleb128 0xb
+ 1031 0027 49       		.uleb128 0x49
+ 1032 0028 13       		.uleb128 0x13
+ 1033 0029 00       		.byte	0
+ 1034 002a 00       		.byte	0
+ 1035 002b 04       		.uleb128 0x4
+ 1036 002c 24       		.uleb128 0x24
+ 1037 002d 00       		.byte	0
+ 1038 002e 0B       		.uleb128 0xb
+ 1039 002f 0B       		.uleb128 0xb
+ 1040 0030 3E       		.uleb128 0x3e
+ 1041 0031 0B       		.uleb128 0xb
+ 1042 0032 03       		.uleb128 0x3
+ 1043 0033 08       		.uleb128 0x8
+ 1044 0034 00       		.byte	0
+ 1045 0035 00       		.byte	0
+ 1046 0036 05       		.uleb128 0x5
+ 1047 0037 16       		.uleb128 0x16
+ 1048 0038 00       		.byte	0
+ 1049 0039 03       		.uleb128 0x3
+ 1050 003a 0E       		.uleb128 0xe
+ 1051 003b 3A       		.uleb128 0x3a
+ 1052 003c 0B       		.uleb128 0xb
+ 1053 003d 3B       		.uleb128 0x3b
+ 1054 003e 05       		.uleb128 0x5
+ 1055 003f 49       		.uleb128 0x49
+ 1056 0040 13       		.uleb128 0x13
+ 1057 0041 00       		.byte	0
+ 1058 0042 00       		.byte	0
+ 1059 0043 06       		.uleb128 0x6
+ 1060 0044 0F       		.uleb128 0xf
+ 1061 0045 00       		.byte	0
+ 1062 0046 0B       		.uleb128 0xb
+ 1063 0047 0B       		.uleb128 0xb
+ 1064 0048 49       		.uleb128 0x49
+ 1065 0049 13       		.uleb128 0x13
+ 1066 004a 00       		.byte	0
+ 1067 004b 00       		.byte	0
+ 1068 004c 07       		.uleb128 0x7
+ 1069 004d 15       		.uleb128 0x15
+ 1070 004e 00       		.byte	0
+ 1071 004f 27       		.uleb128 0x27
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 22
+
+
+ 1072 0050 19       		.uleb128 0x19
+ 1073 0051 00       		.byte	0
+ 1074 0052 00       		.byte	0
+ 1075 0053 08       		.uleb128 0x8
+ 1076 0054 13       		.uleb128 0x13
+ 1077 0055 01       		.byte	0x1
+ 1078 0056 03       		.uleb128 0x3
+ 1079 0057 0E       		.uleb128 0xe
+ 1080 0058 0B       		.uleb128 0xb
+ 1081 0059 0B       		.uleb128 0xb
+ 1082 005a 3A       		.uleb128 0x3a
+ 1083 005b 0B       		.uleb128 0xb
+ 1084 005c 3B       		.uleb128 0x3b
+ 1085 005d 0B       		.uleb128 0xb
+ 1086 005e 01       		.uleb128 0x1
+ 1087 005f 13       		.uleb128 0x13
+ 1088 0060 00       		.byte	0
+ 1089 0061 00       		.byte	0
+ 1090 0062 09       		.uleb128 0x9
+ 1091 0063 0D       		.uleb128 0xd
+ 1092 0064 00       		.byte	0
+ 1093 0065 03       		.uleb128 0x3
+ 1094 0066 08       		.uleb128 0x8
+ 1095 0067 3A       		.uleb128 0x3a
+ 1096 0068 0B       		.uleb128 0xb
+ 1097 0069 3B       		.uleb128 0x3b
+ 1098 006a 0B       		.uleb128 0xb
+ 1099 006b 49       		.uleb128 0x49
+ 1100 006c 13       		.uleb128 0x13
+ 1101 006d 38       		.uleb128 0x38
+ 1102 006e 0B       		.uleb128 0xb
+ 1103 006f 00       		.byte	0
+ 1104 0070 00       		.byte	0
+ 1105 0071 0A       		.uleb128 0xa
+ 1106 0072 0D       		.uleb128 0xd
+ 1107 0073 00       		.byte	0
+ 1108 0074 03       		.uleb128 0x3
+ 1109 0075 0E       		.uleb128 0xe
+ 1110 0076 3A       		.uleb128 0x3a
+ 1111 0077 0B       		.uleb128 0xb
+ 1112 0078 3B       		.uleb128 0x3b
+ 1113 0079 0B       		.uleb128 0xb
+ 1114 007a 49       		.uleb128 0x49
+ 1115 007b 13       		.uleb128 0x13
+ 1116 007c 38       		.uleb128 0x38
+ 1117 007d 0B       		.uleb128 0xb
+ 1118 007e 00       		.byte	0
+ 1119 007f 00       		.byte	0
+ 1120 0080 0B       		.uleb128 0xb
+ 1121 0081 04       		.uleb128 0x4
+ 1122 0082 01       		.byte	0x1
+ 1123 0083 03       		.uleb128 0x3
+ 1124 0084 0E       		.uleb128 0xe
+ 1125 0085 0B       		.uleb128 0xb
+ 1126 0086 0B       		.uleb128 0xb
+ 1127 0087 3A       		.uleb128 0x3a
+ 1128 0088 0B       		.uleb128 0xb
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 23
+
+
+ 1129 0089 3B       		.uleb128 0x3b
+ 1130 008a 0B       		.uleb128 0xb
+ 1131 008b 01       		.uleb128 0x1
+ 1132 008c 13       		.uleb128 0x13
+ 1133 008d 00       		.byte	0
+ 1134 008e 00       		.byte	0
+ 1135 008f 0C       		.uleb128 0xc
+ 1136 0090 28       		.uleb128 0x28
+ 1137 0091 00       		.byte	0
+ 1138 0092 03       		.uleb128 0x3
+ 1139 0093 0E       		.uleb128 0xe
+ 1140 0094 1C       		.uleb128 0x1c
+ 1141 0095 0D       		.uleb128 0xd
+ 1142 0096 00       		.byte	0
+ 1143 0097 00       		.byte	0
+ 1144 0098 0D       		.uleb128 0xd
+ 1145 0099 28       		.uleb128 0x28
+ 1146 009a 00       		.byte	0
+ 1147 009b 03       		.uleb128 0x3
+ 1148 009c 08       		.uleb128 0x8
+ 1149 009d 1C       		.uleb128 0x1c
+ 1150 009e 0D       		.uleb128 0xd
+ 1151 009f 00       		.byte	0
+ 1152 00a0 00       		.byte	0
+ 1153 00a1 0E       		.uleb128 0xe
+ 1154 00a2 2E       		.uleb128 0x2e
+ 1155 00a3 01       		.byte	0x1
+ 1156 00a4 3F       		.uleb128 0x3f
+ 1157 00a5 19       		.uleb128 0x19
+ 1158 00a6 03       		.uleb128 0x3
+ 1159 00a7 0E       		.uleb128 0xe
+ 1160 00a8 3A       		.uleb128 0x3a
+ 1161 00a9 0B       		.uleb128 0xb
+ 1162 00aa 3B       		.uleb128 0x3b
+ 1163 00ab 0B       		.uleb128 0xb
+ 1164 00ac 27       		.uleb128 0x27
+ 1165 00ad 19       		.uleb128 0x19
+ 1166 00ae 11       		.uleb128 0x11
+ 1167 00af 01       		.uleb128 0x1
+ 1168 00b0 12       		.uleb128 0x12
+ 1169 00b1 06       		.uleb128 0x6
+ 1170 00b2 40       		.uleb128 0x40
+ 1171 00b3 18       		.uleb128 0x18
+ 1172 00b4 9742     		.uleb128 0x2117
+ 1173 00b6 19       		.uleb128 0x19
+ 1174 00b7 01       		.uleb128 0x1
+ 1175 00b8 13       		.uleb128 0x13
+ 1176 00b9 00       		.byte	0
+ 1177 00ba 00       		.byte	0
+ 1178 00bb 0F       		.uleb128 0xf
+ 1179 00bc 34       		.uleb128 0x34
+ 1180 00bd 00       		.byte	0
+ 1181 00be 03       		.uleb128 0x3
+ 1182 00bf 0E       		.uleb128 0xe
+ 1183 00c0 3A       		.uleb128 0x3a
+ 1184 00c1 0B       		.uleb128 0xb
+ 1185 00c2 3B       		.uleb128 0x3b
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 24
+
+
+ 1186 00c3 0B       		.uleb128 0xb
+ 1187 00c4 49       		.uleb128 0x49
+ 1188 00c5 13       		.uleb128 0x13
+ 1189 00c6 02       		.uleb128 0x2
+ 1190 00c7 17       		.uleb128 0x17
+ 1191 00c8 00       		.byte	0
+ 1192 00c9 00       		.byte	0
+ 1193 00ca 10       		.uleb128 0x10
+ 1194 00cb 34       		.uleb128 0x34
+ 1195 00cc 00       		.byte	0
+ 1196 00cd 03       		.uleb128 0x3
+ 1197 00ce 08       		.uleb128 0x8
+ 1198 00cf 3A       		.uleb128 0x3a
+ 1199 00d0 0B       		.uleb128 0xb
+ 1200 00d1 3B       		.uleb128 0x3b
+ 1201 00d2 0B       		.uleb128 0xb
+ 1202 00d3 49       		.uleb128 0x49
+ 1203 00d4 13       		.uleb128 0x13
+ 1204 00d5 02       		.uleb128 0x2
+ 1205 00d6 17       		.uleb128 0x17
+ 1206 00d7 00       		.byte	0
+ 1207 00d8 00       		.byte	0
+ 1208 00d9 11       		.uleb128 0x11
+ 1209 00da 898201   		.uleb128 0x4109
+ 1210 00dd 00       		.byte	0
+ 1211 00de 11       		.uleb128 0x11
+ 1212 00df 01       		.uleb128 0x1
+ 1213 00e0 31       		.uleb128 0x31
+ 1214 00e1 13       		.uleb128 0x13
+ 1215 00e2 00       		.byte	0
+ 1216 00e3 00       		.byte	0
+ 1217 00e4 12       		.uleb128 0x12
+ 1218 00e5 898201   		.uleb128 0x4109
+ 1219 00e8 01       		.byte	0x1
+ 1220 00e9 11       		.uleb128 0x11
+ 1221 00ea 01       		.uleb128 0x1
+ 1222 00eb 31       		.uleb128 0x31
+ 1223 00ec 13       		.uleb128 0x13
+ 1224 00ed 01       		.uleb128 0x1
+ 1225 00ee 13       		.uleb128 0x13
+ 1226 00ef 00       		.byte	0
+ 1227 00f0 00       		.byte	0
+ 1228 00f1 13       		.uleb128 0x13
+ 1229 00f2 8A8201   		.uleb128 0x410a
+ 1230 00f5 00       		.byte	0
+ 1231 00f6 02       		.uleb128 0x2
+ 1232 00f7 18       		.uleb128 0x18
+ 1233 00f8 9142     		.uleb128 0x2111
+ 1234 00fa 18       		.uleb128 0x18
+ 1235 00fb 00       		.byte	0
+ 1236 00fc 00       		.byte	0
+ 1237 00fd 14       		.uleb128 0x14
+ 1238 00fe 898201   		.uleb128 0x4109
+ 1239 0101 01       		.byte	0x1
+ 1240 0102 11       		.uleb128 0x11
+ 1241 0103 01       		.uleb128 0x1
+ 1242 0104 31       		.uleb128 0x31
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 25
+
+
+ 1243 0105 13       		.uleb128 0x13
+ 1244 0106 00       		.byte	0
+ 1245 0107 00       		.byte	0
+ 1246 0108 15       		.uleb128 0x15
+ 1247 0109 2E       		.uleb128 0x2e
+ 1248 010a 00       		.byte	0
+ 1249 010b 3F       		.uleb128 0x3f
+ 1250 010c 19       		.uleb128 0x19
+ 1251 010d 03       		.uleb128 0x3
+ 1252 010e 0E       		.uleb128 0xe
+ 1253 010f 3A       		.uleb128 0x3a
+ 1254 0110 0B       		.uleb128 0xb
+ 1255 0111 3B       		.uleb128 0x3b
+ 1256 0112 0B       		.uleb128 0xb
+ 1257 0113 11       		.uleb128 0x11
+ 1258 0114 01       		.uleb128 0x1
+ 1259 0115 12       		.uleb128 0x12
+ 1260 0116 06       		.uleb128 0x6
+ 1261 0117 40       		.uleb128 0x40
+ 1262 0118 18       		.uleb128 0x18
+ 1263 0119 9742     		.uleb128 0x2117
+ 1264 011b 19       		.uleb128 0x19
+ 1265 011c 00       		.byte	0
+ 1266 011d 00       		.byte	0
+ 1267 011e 16       		.uleb128 0x16
+ 1268 011f 05       		.uleb128 0x5
+ 1269 0120 00       		.byte	0
+ 1270 0121 03       		.uleb128 0x3
+ 1271 0122 0E       		.uleb128 0xe
+ 1272 0123 3A       		.uleb128 0x3a
+ 1273 0124 0B       		.uleb128 0xb
+ 1274 0125 3B       		.uleb128 0x3b
+ 1275 0126 0B       		.uleb128 0xb
+ 1276 0127 49       		.uleb128 0x49
+ 1277 0128 13       		.uleb128 0x13
+ 1278 0129 02       		.uleb128 0x2
+ 1279 012a 17       		.uleb128 0x17
+ 1280 012b 00       		.byte	0
+ 1281 012c 00       		.byte	0
+ 1282 012d 17       		.uleb128 0x17
+ 1283 012e 26       		.uleb128 0x26
+ 1284 012f 00       		.byte	0
+ 1285 0130 49       		.uleb128 0x49
+ 1286 0131 13       		.uleb128 0x13
+ 1287 0132 00       		.byte	0
+ 1288 0133 00       		.byte	0
+ 1289 0134 18       		.uleb128 0x18
+ 1290 0135 05       		.uleb128 0x5
+ 1291 0136 00       		.byte	0
+ 1292 0137 03       		.uleb128 0x3
+ 1293 0138 0E       		.uleb128 0xe
+ 1294 0139 3A       		.uleb128 0x3a
+ 1295 013a 0B       		.uleb128 0xb
+ 1296 013b 3B       		.uleb128 0x3b
+ 1297 013c 0B       		.uleb128 0xb
+ 1298 013d 49       		.uleb128 0x49
+ 1299 013e 13       		.uleb128 0x13
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 26
+
+
+ 1300 013f 02       		.uleb128 0x2
+ 1301 0140 18       		.uleb128 0x18
+ 1302 0141 00       		.byte	0
+ 1303 0142 00       		.byte	0
+ 1304 0143 19       		.uleb128 0x19
+ 1305 0144 34       		.uleb128 0x34
+ 1306 0145 00       		.byte	0
+ 1307 0146 03       		.uleb128 0x3
+ 1308 0147 0E       		.uleb128 0xe
+ 1309 0148 3A       		.uleb128 0x3a
+ 1310 0149 0B       		.uleb128 0xb
+ 1311 014a 3B       		.uleb128 0x3b
+ 1312 014b 05       		.uleb128 0x5
+ 1313 014c 49       		.uleb128 0x49
+ 1314 014d 13       		.uleb128 0x13
+ 1315 014e 3F       		.uleb128 0x3f
+ 1316 014f 19       		.uleb128 0x19
+ 1317 0150 3C       		.uleb128 0x3c
+ 1318 0151 19       		.uleb128 0x19
+ 1319 0152 00       		.byte	0
+ 1320 0153 00       		.byte	0
+ 1321 0154 1A       		.uleb128 0x1a
+ 1322 0155 35       		.uleb128 0x35
+ 1323 0156 00       		.byte	0
+ 1324 0157 49       		.uleb128 0x49
+ 1325 0158 13       		.uleb128 0x13
+ 1326 0159 00       		.byte	0
+ 1327 015a 00       		.byte	0
+ 1328 015b 1B       		.uleb128 0x1b
+ 1329 015c 34       		.uleb128 0x34
+ 1330 015d 00       		.byte	0
+ 1331 015e 03       		.uleb128 0x3
+ 1332 015f 0E       		.uleb128 0xe
+ 1333 0160 3A       		.uleb128 0x3a
+ 1334 0161 0B       		.uleb128 0xb
+ 1335 0162 3B       		.uleb128 0x3b
+ 1336 0163 0B       		.uleb128 0xb
+ 1337 0164 49       		.uleb128 0x49
+ 1338 0165 13       		.uleb128 0x13
+ 1339 0166 3F       		.uleb128 0x3f
+ 1340 0167 19       		.uleb128 0x19
+ 1341 0168 02       		.uleb128 0x2
+ 1342 0169 18       		.uleb128 0x18
+ 1343 016a 00       		.byte	0
+ 1344 016b 00       		.byte	0
+ 1345 016c 1C       		.uleb128 0x1c
+ 1346 016d 2E       		.uleb128 0x2e
+ 1347 016e 01       		.byte	0x1
+ 1348 016f 3F       		.uleb128 0x3f
+ 1349 0170 19       		.uleb128 0x19
+ 1350 0171 03       		.uleb128 0x3
+ 1351 0172 0E       		.uleb128 0xe
+ 1352 0173 3A       		.uleb128 0x3a
+ 1353 0174 0B       		.uleb128 0xb
+ 1354 0175 3B       		.uleb128 0x3b
+ 1355 0176 0B       		.uleb128 0xb
+ 1356 0177 49       		.uleb128 0x49
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 27
+
+
+ 1357 0178 13       		.uleb128 0x13
+ 1358 0179 3C       		.uleb128 0x3c
+ 1359 017a 19       		.uleb128 0x19
+ 1360 017b 01       		.uleb128 0x1
+ 1361 017c 13       		.uleb128 0x13
+ 1362 017d 00       		.byte	0
+ 1363 017e 00       		.byte	0
+ 1364 017f 1D       		.uleb128 0x1d
+ 1365 0180 18       		.uleb128 0x18
+ 1366 0181 00       		.byte	0
+ 1367 0182 00       		.byte	0
+ 1368 0183 00       		.byte	0
+ 1369 0184 1E       		.uleb128 0x1e
+ 1370 0185 2E       		.uleb128 0x2e
+ 1371 0186 01       		.byte	0x1
+ 1372 0187 3F       		.uleb128 0x3f
+ 1373 0188 19       		.uleb128 0x19
+ 1374 0189 03       		.uleb128 0x3
+ 1375 018a 0E       		.uleb128 0xe
+ 1376 018b 3A       		.uleb128 0x3a
+ 1377 018c 0B       		.uleb128 0xb
+ 1378 018d 3B       		.uleb128 0x3b
+ 1379 018e 0B       		.uleb128 0xb
+ 1380 018f 27       		.uleb128 0x27
+ 1381 0190 19       		.uleb128 0x19
+ 1382 0191 49       		.uleb128 0x49
+ 1383 0192 13       		.uleb128 0x13
+ 1384 0193 3C       		.uleb128 0x3c
+ 1385 0194 19       		.uleb128 0x19
+ 1386 0195 01       		.uleb128 0x1
+ 1387 0196 13       		.uleb128 0x13
+ 1388 0197 00       		.byte	0
+ 1389 0198 00       		.byte	0
+ 1390 0199 1F       		.uleb128 0x1f
+ 1391 019a 05       		.uleb128 0x5
+ 1392 019b 00       		.byte	0
+ 1393 019c 49       		.uleb128 0x49
+ 1394 019d 13       		.uleb128 0x13
+ 1395 019e 00       		.byte	0
+ 1396 019f 00       		.byte	0
+ 1397 01a0 20       		.uleb128 0x20
+ 1398 01a1 2E       		.uleb128 0x2e
+ 1399 01a2 01       		.byte	0x1
+ 1400 01a3 3F       		.uleb128 0x3f
+ 1401 01a4 19       		.uleb128 0x19
+ 1402 01a5 03       		.uleb128 0x3
+ 1403 01a6 08       		.uleb128 0x8
+ 1404 01a7 3A       		.uleb128 0x3a
+ 1405 01a8 0B       		.uleb128 0xb
+ 1406 01a9 3B       		.uleb128 0x3b
+ 1407 01aa 0B       		.uleb128 0xb
+ 1408 01ab 27       		.uleb128 0x27
+ 1409 01ac 19       		.uleb128 0x19
+ 1410 01ad 49       		.uleb128 0x49
+ 1411 01ae 13       		.uleb128 0x13
+ 1412 01af 3C       		.uleb128 0x3c
+ 1413 01b0 19       		.uleb128 0x19
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 28
+
+
+ 1414 01b1 01       		.uleb128 0x1
+ 1415 01b2 13       		.uleb128 0x13
+ 1416 01b3 00       		.byte	0
+ 1417 01b4 00       		.byte	0
+ 1418 01b5 21       		.uleb128 0x21
+ 1419 01b6 2E       		.uleb128 0x2e
+ 1420 01b7 01       		.byte	0x1
+ 1421 01b8 3F       		.uleb128 0x3f
+ 1422 01b9 19       		.uleb128 0x19
+ 1423 01ba 03       		.uleb128 0x3
+ 1424 01bb 0E       		.uleb128 0xe
+ 1425 01bc 3A       		.uleb128 0x3a
+ 1426 01bd 0B       		.uleb128 0xb
+ 1427 01be 3B       		.uleb128 0x3b
+ 1428 01bf 0B       		.uleb128 0xb
+ 1429 01c0 27       		.uleb128 0x27
+ 1430 01c1 19       		.uleb128 0x19
+ 1431 01c2 3C       		.uleb128 0x3c
+ 1432 01c3 19       		.uleb128 0x19
+ 1433 01c4 01       		.uleb128 0x1
+ 1434 01c5 13       		.uleb128 0x13
+ 1435 01c6 00       		.byte	0
+ 1436 01c7 00       		.byte	0
+ 1437 01c8 22       		.uleb128 0x22
+ 1438 01c9 2E       		.uleb128 0x2e
+ 1439 01ca 00       		.byte	0
+ 1440 01cb 3F       		.uleb128 0x3f
+ 1441 01cc 19       		.uleb128 0x19
+ 1442 01cd 03       		.uleb128 0x3
+ 1443 01ce 0E       		.uleb128 0xe
+ 1444 01cf 3A       		.uleb128 0x3a
+ 1445 01d0 0B       		.uleb128 0xb
+ 1446 01d1 3B       		.uleb128 0x3b
+ 1447 01d2 0B       		.uleb128 0xb
+ 1448 01d3 27       		.uleb128 0x27
+ 1449 01d4 19       		.uleb128 0x19
+ 1450 01d5 49       		.uleb128 0x49
+ 1451 01d6 13       		.uleb128 0x13
+ 1452 01d7 3C       		.uleb128 0x3c
+ 1453 01d8 19       		.uleb128 0x19
+ 1454 01d9 00       		.byte	0
+ 1455 01da 00       		.byte	0
+ 1456 01db 23       		.uleb128 0x23
+ 1457 01dc 2E       		.uleb128 0x2e
+ 1458 01dd 01       		.byte	0x1
+ 1459 01de 3F       		.uleb128 0x3f
+ 1460 01df 19       		.uleb128 0x19
+ 1461 01e0 03       		.uleb128 0x3
+ 1462 01e1 0E       		.uleb128 0xe
+ 1463 01e2 3A       		.uleb128 0x3a
+ 1464 01e3 0B       		.uleb128 0xb
+ 1465 01e4 3B       		.uleb128 0x3b
+ 1466 01e5 0B       		.uleb128 0xb
+ 1467 01e6 3C       		.uleb128 0x3c
+ 1468 01e7 19       		.uleb128 0x19
+ 1469 01e8 01       		.uleb128 0x1
+ 1470 01e9 13       		.uleb128 0x13
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 29
+
+
+ 1471 01ea 00       		.byte	0
+ 1472 01eb 00       		.byte	0
+ 1473 01ec 24       		.uleb128 0x24
+ 1474 01ed 2E       		.uleb128 0x2e
+ 1475 01ee 00       		.byte	0
+ 1476 01ef 3F       		.uleb128 0x3f
+ 1477 01f0 19       		.uleb128 0x19
+ 1478 01f1 03       		.uleb128 0x3
+ 1479 01f2 0E       		.uleb128 0xe
+ 1480 01f3 3A       		.uleb128 0x3a
+ 1481 01f4 0B       		.uleb128 0xb
+ 1482 01f5 3B       		.uleb128 0x3b
+ 1483 01f6 0B       		.uleb128 0xb
+ 1484 01f7 27       		.uleb128 0x27
+ 1485 01f8 19       		.uleb128 0x19
+ 1486 01f9 3C       		.uleb128 0x3c
+ 1487 01fa 19       		.uleb128 0x19
+ 1488 01fb 00       		.byte	0
+ 1489 01fc 00       		.byte	0
+ 1490 01fd 25       		.uleb128 0x25
+ 1491 01fe 2E       		.uleb128 0x2e
+ 1492 01ff 01       		.byte	0x1
+ 1493 0200 3F       		.uleb128 0x3f
+ 1494 0201 19       		.uleb128 0x19
+ 1495 0202 03       		.uleb128 0x3
+ 1496 0203 0E       		.uleb128 0xe
+ 1497 0204 3A       		.uleb128 0x3a
+ 1498 0205 0B       		.uleb128 0xb
+ 1499 0206 3B       		.uleb128 0x3b
+ 1500 0207 0B       		.uleb128 0xb
+ 1501 0208 27       		.uleb128 0x27
+ 1502 0209 19       		.uleb128 0x19
+ 1503 020a 3C       		.uleb128 0x3c
+ 1504 020b 19       		.uleb128 0x19
+ 1505 020c 00       		.byte	0
+ 1506 020d 00       		.byte	0
+ 1507 020e 00       		.byte	0
+ 1508              		.section	.debug_loc,"",%progbits
+ 1509              	.Ldebug_loc0:
+ 1510              	.LLST0:
+ 1511 0000 32000000 		.4byte	.LVL7
+ 1512 0004 34000000 		.4byte	.LVL8
+ 1513 0008 0100     		.2byte	0x1
+ 1514 000a 50       		.byte	0x50
+ 1515 000b 00000000 		.4byte	0
+ 1516 000f 00000000 		.4byte	0
+ 1517              	.LLST1:
+ 1518 0013 08000000 		.4byte	.LVL1
+ 1519 0017 5C000000 		.4byte	.LVL14
+ 1520 001b 0100     		.2byte	0x1
+ 1521 001d 56       		.byte	0x56
+ 1522 001e 00000000 		.4byte	0
+ 1523 0022 00000000 		.4byte	0
+ 1524              	.LLST2:
+ 1525 0026 0E000000 		.4byte	.LVL3
+ 1526 002a 5C000000 		.4byte	.LVL14
+ 1527 002e 0100     		.2byte	0x1
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 30
+
+
+ 1528 0030 54       		.byte	0x54
+ 1529 0031 00000000 		.4byte	0
+ 1530 0035 00000000 		.4byte	0
+ 1531              	.LLST3:
+ 1532 0039 14000000 		.4byte	.LVL5
+ 1533 003d 4A000000 		.4byte	.LVL11
+ 1534 0041 0100     		.2byte	0x1
+ 1535 0043 55       		.byte	0x55
+ 1536 0044 00000000 		.4byte	0
+ 1537 0048 00000000 		.4byte	0
+ 1538              	.LLST4:
+ 1539 004c 1C000000 		.4byte	.LVL6
+ 1540 0050 31000000 		.4byte	.LVL7-1
+ 1541 0054 0100     		.2byte	0x1
+ 1542 0056 50       		.byte	0x50
+ 1543 0057 44000000 		.4byte	.LVL10
+ 1544 005b 56000000 		.4byte	.LVL12
+ 1545 005f 0100     		.2byte	0x1
+ 1546 0061 50       		.byte	0x50
+ 1547 0062 00000000 		.4byte	0
+ 1548 0066 00000000 		.4byte	0
+ 1549              	.LLST5:
+ 1550 006a 00000000 		.4byte	.LVL24
+ 1551 006e 07000000 		.4byte	.LVL25-1
+ 1552 0072 0100     		.2byte	0x1
+ 1553 0074 50       		.byte	0x50
+ 1554 0075 07000000 		.4byte	.LVL25-1
+ 1555 0079 28000000 		.4byte	.LVL32
+ 1556 007d 0100     		.2byte	0x1
+ 1557 007f 54       		.byte	0x54
+ 1558 0080 28000000 		.4byte	.LVL32
+ 1559 0084 30000000 		.4byte	.LFE67
+ 1560 0088 0400     		.2byte	0x4
+ 1561 008a F3       		.byte	0xf3
+ 1562 008b 01       		.uleb128 0x1
+ 1563 008c 50       		.byte	0x50
+ 1564 008d 9F       		.byte	0x9f
+ 1565 008e 00000000 		.4byte	0
+ 1566 0092 00000000 		.4byte	0
+ 1567              	.LLST6:
+ 1568 0096 00000000 		.4byte	.LVL33
+ 1569 009a 05000000 		.4byte	.LVL34-1
+ 1570 009e 0100     		.2byte	0x1
+ 1571 00a0 50       		.byte	0x50
+ 1572 00a1 05000000 		.4byte	.LVL34-1
+ 1573 00a5 08000000 		.4byte	.LFE68
+ 1574 00a9 0400     		.2byte	0x4
+ 1575 00ab F3       		.byte	0xf3
+ 1576 00ac 01       		.uleb128 0x1
+ 1577 00ad 50       		.byte	0x50
+ 1578 00ae 9F       		.byte	0x9f
+ 1579 00af 00000000 		.4byte	0
+ 1580 00b3 00000000 		.4byte	0
+ 1581              		.section	.debug_aranges,"",%progbits
+ 1582 0000 4C000000 		.4byte	0x4c
+ 1583 0004 0200     		.2byte	0x2
+ 1584 0006 00000000 		.4byte	.Ldebug_info0
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 31
+
+
+ 1585 000a 04       		.byte	0x4
+ 1586 000b 00       		.byte	0
+ 1587 000c 0000     		.2byte	0
+ 1588 000e 0000     		.2byte	0
+ 1589 0010 00000000 		.4byte	.LFB63
+ 1590 0014 60000000 		.4byte	.LFE63-.LFB63
+ 1591 0018 00000000 		.4byte	.LFB65
+ 1592 001c 0C000000 		.4byte	.LFE65-.LFB65
+ 1593 0020 00000000 		.4byte	.LFB66
+ 1594 0024 0C000000 		.4byte	.LFE66-.LFB66
+ 1595 0028 00000000 		.4byte	.LFB64
+ 1596 002c 42000000 		.4byte	.LFE64-.LFB64
+ 1597 0030 00000000 		.4byte	.LFB67
+ 1598 0034 30000000 		.4byte	.LFE67-.LFB67
+ 1599 0038 00000000 		.4byte	.LFB68
+ 1600 003c 08000000 		.4byte	.LFE68-.LFB68
+ 1601 0040 00000000 		.4byte	.LFB69
+ 1602 0044 0C000000 		.4byte	.LFE69-.LFB69
+ 1603 0048 00000000 		.4byte	0
+ 1604 004c 00000000 		.4byte	0
+ 1605              		.section	.debug_ranges,"",%progbits
+ 1606              	.Ldebug_ranges0:
+ 1607 0000 00000000 		.4byte	.LFB63
+ 1608 0004 60000000 		.4byte	.LFE63
+ 1609 0008 00000000 		.4byte	.LFB65
+ 1610 000c 0C000000 		.4byte	.LFE65
+ 1611 0010 00000000 		.4byte	.LFB66
+ 1612 0014 0C000000 		.4byte	.LFE66
+ 1613 0018 00000000 		.4byte	.LFB64
+ 1614 001c 42000000 		.4byte	.LFE64
+ 1615 0020 00000000 		.4byte	.LFB67
+ 1616 0024 30000000 		.4byte	.LFE67
+ 1617 0028 00000000 		.4byte	.LFB68
+ 1618 002c 08000000 		.4byte	.LFE68
+ 1619 0030 00000000 		.4byte	.LFB69
+ 1620 0034 0C000000 		.4byte	.LFE69
+ 1621 0038 00000000 		.4byte	0
+ 1622 003c 00000000 		.4byte	0
+ 1623              		.section	.debug_line,"",%progbits
+ 1624              	.Ldebug_line0:
+ 1625 0000 CF020000 		.section	.debug_str,"MS",%progbits,1
+ 1625      02002802 
+ 1625      00000201 
+ 1625      FB0E0D00 
+ 1625      01010101 
+ 1626              	.LASF22:
+ 1627 0000 76616C69 		.ascii	"valid\000"
+ 1627      6400
+ 1628              	.LASF45:
+ 1629 0006 50574D5F 		.ascii	"PWM_motor_WriteCompare\000"
+ 1629      6D6F746F 
+ 1629      725F5772 
+ 1629      69746543 
+ 1629      6F6D7061 
+ 1630              	.LASF43:
+ 1631 001d 50656461 		.ascii	"Pedal_getValue\000"
+ 1631      6C5F6765 
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 32
+
+
+ 1631      7456616C 
+ 1631      756500
+ 1632              	.LASF40:
+ 1633 002c 73746174 		.ascii	"state\000"
+ 1633      6500
+ 1634              	.LASF58:
+ 1635 0032 53544154 		.ascii	"STATES\000"
+ 1635      455300
+ 1636              	.LASF2:
+ 1637 0039 73686F72 		.ascii	"short int\000"
+ 1637      7420696E 
+ 1637      7400
+ 1638              	.LASF52:
+ 1639 0043 5049445F 		.ascii	"PID_init\000"
+ 1639      696E6974 
+ 1639      00
+ 1640              	.LASF53:
+ 1641 004c 6973725F 		.ascii	"isr_motor_StartEx\000"
+ 1641      6D6F746F 
+ 1641      725F5374 
+ 1641      61727445 
+ 1641      7800
+ 1642              	.LASF19:
+ 1643 005e 73697A65 		.ascii	"sizetype\000"
+ 1643      74797065 
+ 1643      00
+ 1644              	.LASF28:
+ 1645 0067 53706565 		.ascii	"Speed_LUT\000"
+ 1645      645F4C55 
+ 1645      5400
+ 1646              	.LASF33:
+ 1647 0071 4D435F69 		.ascii	"MC_init\000"
+ 1647      6E697400 
+ 1648              	.LASF47:
+ 1649 0079 436F6E74 		.ascii	"Control_Reg_motor_reset_Write\000"
+ 1649      726F6C5F 
+ 1649      5265675F 
+ 1649      6D6F746F 
+ 1649      725F7265 
+ 1650              	.LASF32:
+ 1651 0097 4F564552 		.ascii	"OVERCURRENT\000"
+ 1651      43555252 
+ 1651      454E5400 
+ 1652              	.LASF37:
+ 1653 00a3 54687265 		.ascii	"Threshold\000"
+ 1653      73686F6C 
+ 1653      6400
+ 1654              	.LASF39:
+ 1655 00ad 54687265 		.ascii	"Threshold_\000"
+ 1655      73686F6C 
+ 1655      645F00
+ 1656              	.LASF41:
+ 1657 00b8 65666665 		.ascii	"effectSensor_getValue\000"
+ 1657      63745365 
+ 1657      6E736F72 
+ 1657      5F676574 
+ 1657      56616C75 
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 33
+
+
+ 1658              	.LASF12:
+ 1659 00ce 75696E74 		.ascii	"uint16\000"
+ 1659      313600
+ 1660              	.LASF57:
+ 1661 00d5 50494470 		.ascii	"PIDparameter\000"
+ 1661      6172616D 
+ 1661      65746572 
+ 1661      00
+ 1662              	.LASF34:
+ 1663 00e2 4D435F43 		.ascii	"MC_ChangePID\000"
+ 1663      68616E67 
+ 1663      65504944 
+ 1663      00
+ 1664              	.LASF11:
+ 1665 00ef 75696E74 		.ascii	"uint8\000"
+ 1665      3800
+ 1666              	.LASF15:
+ 1667 00f5 666C6F61 		.ascii	"float\000"
+ 1667      7400
+ 1668              	.LASF6:
+ 1669 00fb 6C6F6E67 		.ascii	"long long int\000"
+ 1669      206C6F6E 
+ 1669      6720696E 
+ 1669      7400
+ 1670              	.LASF36:
+ 1671 0109 4D435F73 		.ascii	"MC_setThreshold\000"
+ 1671      65745468 
+ 1671      72657368 
+ 1671      6F6C6400 
+ 1672              	.LASF4:
+ 1673 0119 6C6F6E67 		.ascii	"long int\000"
+ 1673      20696E74 
+ 1673      00
+ 1674              	.LASF59:
+ 1675 0122 53746174 		.ascii	"Status_Reg_1_Read\000"
+ 1675      75735F52 
+ 1675      65675F31 
+ 1675      5F526561 
+ 1675      6400
+ 1676              	.LASF49:
+ 1677 0134 6973725F 		.ascii	"isr_overCurrent_StartEx\000"
+ 1677      6F766572 
+ 1677      43757272 
+ 1677      656E745F 
+ 1677      53746172 
+ 1678              	.LASF21:
+ 1679 014c 70726553 		.ascii	"preShift\000"
+ 1679      68696674 
+ 1679      00
+ 1680              	.LASF27:
+ 1681 0155 57616E74 		.ascii	"WantedSpeed\000"
+ 1681      65645370 
+ 1681      65656400 
+ 1682              	.LASF1:
+ 1683 0161 756E7369 		.ascii	"unsigned char\000"
+ 1683      676E6564 
+ 1683      20636861 
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 34
+
+
+ 1683      7200
+ 1684              	.LASF18:
+ 1685 016f 63796973 		.ascii	"cyisraddress\000"
+ 1685      72616464 
+ 1685      72657373 
+ 1685      00
+ 1686              	.LASF48:
+ 1687 017c 73657450 		.ascii	"setPID\000"
+ 1687      494400
+ 1688              	.LASF44:
+ 1689 0183 4C55545F 		.ascii	"LUT_speed\000"
+ 1689      73706565 
+ 1689      6400
+ 1690              	.LASF0:
+ 1691 018d 7369676E 		.ascii	"signed char\000"
+ 1691      65642063 
+ 1691      68617200 
+ 1692              	.LASF7:
+ 1693 0199 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 1693      206C6F6E 
+ 1693      6720756E 
+ 1693      7369676E 
+ 1693      65642069 
+ 1694              	.LASF23:
+ 1695 01b0 54455354 		.ascii	"TEST\000"
+ 1695      00
+ 1696              	.LASF8:
+ 1697 01b5 756E7369 		.ascii	"unsigned int\000"
+ 1697      676E6564 
+ 1697      20696E74 
+ 1697      00
+ 1698              	.LASF30:
+ 1699 01c2 4D435F73 		.ascii	"MC_stop\000"
+ 1699      746F7000 
+ 1700              	.LASF55:
+ 1701 01ca 2E5C4D6F 		.ascii	".\\MotorController.c\000"
+ 1701      746F7243 
+ 1701      6F6E7472 
+ 1701      6F6C6C65 
+ 1701      722E6300 
+ 1702              	.LASF17:
+ 1703 01de 63686172 		.ascii	"char\000"
+ 1703      00
+ 1704              	.LASF54:
+ 1705 01e3 474E5520 		.ascii	"GNU C 4.9.3 20150303 (release) [ARM/embedded-4_9-br"
+ 1705      4320342E 
+ 1705      392E3320 
+ 1705      32303135 
+ 1705      30333033 
+ 1706 0216 616E6368 		.ascii	"anch revision 221220] -mcpu=cortex-m3 -mthumb -g -O"
+ 1706      20726576 
+ 1706      6973696F 
+ 1706      6E203232 
+ 1706      31323230 
+ 1707 0249 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 1707      66756E63 
+ 1707      74696F6E 
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 35
+
+
+ 1707      2D736563 
+ 1707      74696F6E 
+ 1708              	.LASF10:
+ 1709 0271 696E7433 		.ascii	"int32_t\000"
+ 1709      325F7400 
+ 1710              	.LASF3:
+ 1711 0279 73686F72 		.ascii	"short unsigned int\000"
+ 1711      7420756E 
+ 1711      7369676E 
+ 1711      65642069 
+ 1711      6E7400
+ 1712              	.LASF42:
+ 1713 028c 52504D53 		.ascii	"RPMSensor_getValue\000"
+ 1713      656E736F 
+ 1713      725F6765 
+ 1713      7456616C 
+ 1713      756500
+ 1714              	.LASF51:
+ 1715 029f 50574D5F 		.ascii	"PWM_motor_Start\000"
+ 1715      6D6F746F 
+ 1715      725F5374 
+ 1715      61727400 
+ 1716              	.LASF26:
+ 1717 02af 706F7765 		.ascii	"power\000"
+ 1717      7200
+ 1718              	.LASF13:
+ 1719 02b5 75696E74 		.ascii	"uint32\000"
+ 1719      333200
+ 1720              	.LASF31:
+ 1721 02bc 4D4F544F 		.ascii	"MOTOR_tick\000"
+ 1721      525F7469 
+ 1721      636B00
+ 1722              	.LASF5:
+ 1723 02c7 6C6F6E67 		.ascii	"long unsigned int\000"
+ 1723      20756E73 
+ 1723      69676E65 
+ 1723      6420696E 
+ 1723      7400
+ 1724              	.LASF14:
+ 1725 02d9 696E7433 		.ascii	"int32\000"
+ 1725      3200
+ 1726              	.LASF16:
+ 1727 02df 646F7562 		.ascii	"double\000"
+ 1727      6C6500
+ 1728              	.LASF9:
+ 1729 02e6 5F5F696E 		.ascii	"__int32_t\000"
+ 1729      7433325F 
+ 1729      7400
+ 1730              	.LASF24:
+ 1731 02f0 53544F50 		.ascii	"STOP\000"
+ 1731      00
+ 1732              	.LASF25:
+ 1733 02f5 6F757470 		.ascii	"output\000"
+ 1733      757400
+ 1734              	.LASF50:
+ 1735 02fc 436C6F63 		.ascii	"Clock_motor_Start\000"
+ 1735      6B5F6D6F 
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccfjcERj.s 			page 36
+
+
+ 1735      746F725F 
+ 1735      53746172 
+ 1735      7400
+ 1736              	.LASF56:
+ 1737 030e 433A5C55 		.ascii	"C:\\Users\\Thomas\\Documents\\GitHub\\MotorControll"
+ 1737      73657273 
+ 1737      5C54686F 
+ 1737      6D61735C 
+ 1737      446F6375 
+ 1738 033c 65725C4D 		.ascii	"er\\MotorController.cydsn\000"
+ 1738      6F746F72 
+ 1738      436F6E74 
+ 1738      726F6C6C 
+ 1738      65722E63 
+ 1739              	.LASF29:
+ 1740 0355 4D435F73 		.ascii	"MC_start\000"
+ 1740      74617274 
+ 1740      00
+ 1741              	.LASF20:
+ 1742 035e 4B536869 		.ascii	"KShift\000"
+ 1742      667400
+ 1743              	.LASF38:
+ 1744 0365 49544D5F 		.ascii	"ITM_RxBuffer\000"
+ 1744      52784275 
+ 1744      66666572 
+ 1744      00
+ 1745              	.LASF46:
+ 1746 0372 43794465 		.ascii	"CyDelay\000"
+ 1746      6C617900 
+ 1747              	.LASF35:
+ 1748 037a 70696476 		.ascii	"pidval\000"
+ 1748      616C00
+ 1749              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 4.9.3 20150303 (release) [ARM/embedded-4_9-br

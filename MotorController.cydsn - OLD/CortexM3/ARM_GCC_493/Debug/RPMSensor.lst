@@ -1,0 +1,1226 @@
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccZtRC7f.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"RPMSensor.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.RPM,"ax",%progbits
+  19              		.align	2
+  20              		.global	RPM
+  21              		.thumb
+  22              		.thumb_func
+  23              		.type	RPM, %function
+  24              	RPM:
+  25              	.LFB63:
+  26              		.file 1 ".\\RPMSensor.c"
+   1:.\RPMSensor.c **** /* ========================================
+   2:.\RPMSensor.c ****  *
+   3:.\RPMSensor.c ****  * Copyright YOUR COMPANY, THE YEAR
+   4:.\RPMSensor.c ****  * All Rights Reserved
+   5:.\RPMSensor.c ****  * UNPUBLISHED, LICENSED SOFTWARE.
+   6:.\RPMSensor.c ****  *
+   7:.\RPMSensor.c ****  * CONFIDENTIAL AND PROPRIETARY INFORMATION
+   8:.\RPMSensor.c ****  * WHICH IS THE PROPERTY OF your company.
+   9:.\RPMSensor.c ****  *
+  10:.\RPMSensor.c ****  * ========================================
+  11:.\RPMSensor.c **** */
+  12:.\RPMSensor.c **** #include "RPMSensor.h"
+  13:.\RPMSensor.c **** 
+  14:.\RPMSensor.c **** uint16 RPM_temp = 0;
+  15:.\RPMSensor.c **** char RPM_reset=0;
+  16:.\RPMSensor.c **** 
+  17:.\RPMSensor.c **** CY_ISR_PROTO(RPM);
+  18:.\RPMSensor.c **** 
+  19:.\RPMSensor.c **** 
+  20:.\RPMSensor.c **** CY_ISR(RPM)
+  21:.\RPMSensor.c **** {
+  27              		.loc 1 21 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31 0000 10B5     		push	{r4, lr}
+  32              		.cfi_def_cfa_offset 8
+  33              		.cfi_offset 4, -8
+  34              		.cfi_offset 14, -4
+  22:.\RPMSensor.c **** 
+  23:.\RPMSensor.c ****     uint8 STATUS = Timer_RPM_STATUS;
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccZtRC7f.s 			page 2
+
+
+  35              		.loc 1 23 0
+  36 0002 184B     		ldr	r3, .L8
+  37 0004 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  38 0006 DBB2     		uxtb	r3, r3
+  39              	.LVL0:
+  24:.\RPMSensor.c ****     
+  25:.\RPMSensor.c ****     if((STATUS&(1<<1)))//capture
+  40              		.loc 1 25 0
+  41 0008 13F0020F 		tst	r3, #2
+  42 000c 16D0     		beq	.L2
+  43              	.LBB2:
+  26:.\RPMSensor.c ****     {
+  27:.\RPMSensor.c ****         uint16 temp = Timer_RPM_ReadCapture();
+  44              		.loc 1 27 0
+  45 000e FFF7FEFF 		bl	Timer_RPM_ReadCapture
+  46              	.LVL1:
+  47 0012 0446     		mov	r4, r0
+  48              	.LVL2:
+  28:.\RPMSensor.c ****         uint16 temp2 = 0;
+  29:.\RPMSensor.c ****         if(Timer_RPM_STATUS&(1<<3))
+  49              		.loc 1 29 0
+  50 0014 134B     		ldr	r3, .L8
+  51 0016 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  52 0018 13F0080F 		tst	r3, #8
+  53 001c 02D0     		beq	.L6
+  30:.\RPMSensor.c ****             temp2 = Timer_RPM_ReadCapture();
+  54              		.loc 1 30 0
+  55 001e FFF7FEFF 		bl	Timer_RPM_ReadCapture
+  56              	.LVL3:
+  57 0022 00E0     		b	.L3
+  58              	.LVL4:
+  59              	.L6:
+  28:.\RPMSensor.c ****         uint16 temp2 = 0;
+  60              		.loc 1 28 0
+  61 0024 0020     		movs	r0, #0
+  62              	.LVL5:
+  63              	.L3:
+  31:.\RPMSensor.c ****             
+  32:.\RPMSensor.c ****         
+  33:.\RPMSensor.c ****         RPM_reset=0;
+  64              		.loc 1 33 0
+  65 0026 0022     		movs	r2, #0
+  66 0028 0F4B     		ldr	r3, .L8+4
+  67 002a 1A70     		strb	r2, [r3]
+  34:.\RPMSensor.c ****         
+  35:.\RPMSensor.c ****         if(temp2 != 0)
+  68              		.loc 1 35 0
+  69 002c 90B1     		cbz	r0, .L4
+  36:.\RPMSensor.c ****         {
+  37:.\RPMSensor.c ****             RPM_temp = ((uint16)(60000/(temp-temp2)));
+  70              		.loc 1 37 0
+  71 002e 241A     		subs	r4, r4, r0
+  72              	.LVL6:
+  73 0030 4EF66020 		movw	r0, #60000
+  74              	.LVL7:
+  75 0034 90FBF4F4 		sdiv	r4, r0, r4
+  76 0038 5C80     		strh	r4, [r3, #2]	@ movhi
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccZtRC7f.s 			page 3
+
+
+  77 003a 0BE0     		b	.L4
+  78              	.LVL8:
+  79              	.L2:
+  80              	.LBE2:
+  38:.\RPMSensor.c ****         }
+  39:.\RPMSensor.c ****         else
+  40:.\RPMSensor.c ****         {
+  41:.\RPMSensor.c ****             //RPM_temp=0;
+  42:.\RPMSensor.c ****         }
+  43:.\RPMSensor.c ****         
+  44:.\RPMSensor.c ****     }
+  45:.\RPMSensor.c ****     else if((STATUS&(1<<0)))//TC
+  81              		.loc 1 45 0
+  82 003c 13F0010F 		tst	r3, #1
+  83 0040 08D0     		beq	.L4
+  46:.\RPMSensor.c ****     {
+  47:.\RPMSensor.c ****         
+  48:.\RPMSensor.c ****         if(RPM_reset)
+  84              		.loc 1 48 0
+  85 0042 094B     		ldr	r3, .L8+4
+  86              	.LVL9:
+  87 0044 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+  88 0046 13B1     		cbz	r3, .L5
+  49:.\RPMSensor.c ****         {
+  50:.\RPMSensor.c ****             RPM_temp=0;
+  89              		.loc 1 50 0
+  90 0048 0022     		movs	r2, #0
+  91 004a 074B     		ldr	r3, .L8+4
+  92 004c 5A80     		strh	r2, [r3, #2]	@ movhi
+  93              	.L5:
+  51:.\RPMSensor.c ****         }
+  52:.\RPMSensor.c ****         RPM_reset=1;
+  94              		.loc 1 52 0
+  95 004e 0122     		movs	r2, #1
+  96 0050 054B     		ldr	r3, .L8+4
+  97 0052 1A70     		strb	r2, [r3]
+  98              	.L4:
+  53:.\RPMSensor.c ****         
+  54:.\RPMSensor.c ****     }
+  55:.\RPMSensor.c ****     Timer_RPM_WriteCounter(6000u);
+  99              		.loc 1 55 0
+ 100 0054 41F27070 		movw	r0, #6000
+ 101 0058 FFF7FEFF 		bl	Timer_RPM_WriteCounter
+ 102              	.LVL10:
+  56:.\RPMSensor.c ****     Timer_RPM_ClearFIFO();
+ 103              		.loc 1 56 0
+ 104 005c FFF7FEFF 		bl	Timer_RPM_ClearFIFO
+ 105              	.LVL11:
+ 106 0060 10BD     		pop	{r4, pc}
+ 107              	.L9:
+ 108 0062 00BF     		.align	2
+ 109              	.L8:
+ 110 0064 6D640040 		.word	1073767533
+ 111 0068 00000000 		.word	.LANCHOR0
+ 112              		.cfi_endproc
+ 113              	.LFE63:
+ 114              		.size	RPM, .-RPM
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccZtRC7f.s 			page 4
+
+
+ 115              		.section	.text.RPMSensor_init,"ax",%progbits
+ 116              		.align	2
+ 117              		.global	RPMSensor_init
+ 118              		.thumb
+ 119              		.thumb_func
+ 120              		.type	RPMSensor_init, %function
+ 121              	RPMSensor_init:
+ 122              	.LFB64:
+  57:.\RPMSensor.c **** }
+  58:.\RPMSensor.c **** 
+  59:.\RPMSensor.c **** 
+  60:.\RPMSensor.c **** void RPMSensor_init()
+  61:.\RPMSensor.c **** {
+ 123              		.loc 1 61 0
+ 124              		.cfi_startproc
+ 125              		@ args = 0, pretend = 0, frame = 0
+ 126              		@ frame_needed = 0, uses_anonymous_args = 0
+ 127 0000 08B5     		push	{r3, lr}
+ 128              		.cfi_def_cfa_offset 8
+ 129              		.cfi_offset 3, -8
+ 130              		.cfi_offset 14, -4
+  62:.\RPMSensor.c ****     RPM_isr_StartEx(RPM);
+ 131              		.loc 1 62 0
+ 132 0002 0448     		ldr	r0, .L12
+ 133 0004 FFF7FEFF 		bl	RPM_isr_StartEx
+ 134              	.LVL12:
+  63:.\RPMSensor.c ****     Timer_RPM_Start();
+ 135              		.loc 1 63 0
+ 136 0008 FFF7FEFF 		bl	Timer_RPM_Start
+ 137              	.LVL13:
+  64:.\RPMSensor.c ****     Clock_4_Start();
+ 138              		.loc 1 64 0
+ 139 000c FFF7FEFF 		bl	Clock_4_Start
+ 140              	.LVL14:
+ 141 0010 08BD     		pop	{r3, pc}
+ 142              	.L13:
+ 143 0012 00BF     		.align	2
+ 144              	.L12:
+ 145 0014 00000000 		.word	RPM
+ 146              		.cfi_endproc
+ 147              	.LFE64:
+ 148              		.size	RPMSensor_init, .-RPMSensor_init
+ 149              		.section	.text.RPMSensor_getValue,"ax",%progbits
+ 150              		.align	2
+ 151              		.global	RPMSensor_getValue
+ 152              		.thumb
+ 153              		.thumb_func
+ 154              		.type	RPMSensor_getValue, %function
+ 155              	RPMSensor_getValue:
+ 156              	.LFB65:
+  65:.\RPMSensor.c **** }
+  66:.\RPMSensor.c **** 
+  67:.\RPMSensor.c **** uint16 RPMSensor_getValue()
+  68:.\RPMSensor.c **** {
+ 157              		.loc 1 68 0
+ 158              		.cfi_startproc
+ 159              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccZtRC7f.s 			page 5
+
+
+ 160              		@ frame_needed = 0, uses_anonymous_args = 0
+ 161              		@ link register save eliminated.
+  69:.\RPMSensor.c ****     return RPM_temp;   
+  70:.\RPMSensor.c **** }
+ 162              		.loc 1 70 0
+ 163 0000 014B     		ldr	r3, .L15
+ 164 0002 5888     		ldrh	r0, [r3, #2]
+ 165 0004 7047     		bx	lr
+ 166              	.L16:
+ 167 0006 00BF     		.align	2
+ 168              	.L15:
+ 169 0008 00000000 		.word	.LANCHOR0
+ 170              		.cfi_endproc
+ 171              	.LFE65:
+ 172              		.size	RPMSensor_getValue, .-RPMSensor_getValue
+ 173              		.section	.text.RPMSensor_getSpeed,"ax",%progbits
+ 174              		.align	2
+ 175              		.global	RPMSensor_getSpeed
+ 176              		.thumb
+ 177              		.thumb_func
+ 178              		.type	RPMSensor_getSpeed, %function
+ 179              	RPMSensor_getSpeed:
+ 180              	.LFB66:
+  71:.\RPMSensor.c **** 
+  72:.\RPMSensor.c **** uint16 RPMSensor_getSpeed()
+  73:.\RPMSensor.c **** {
+ 181              		.loc 1 73 0
+ 182              		.cfi_startproc
+ 183              		@ args = 0, pretend = 0, frame = 0
+ 184              		@ frame_needed = 0, uses_anonymous_args = 0
+ 185 0000 08B5     		push	{r3, lr}
+ 186              		.cfi_def_cfa_offset 8
+ 187              		.cfi_offset 3, -8
+ 188              		.cfi_offset 14, -4
+  74:.\RPMSensor.c ****     return RPMSensor_getValue();
+ 189              		.loc 1 74 0
+ 190 0002 FFF7FEFF 		bl	RPMSensor_getValue
+ 191              	.LVL15:
+  75:.\RPMSensor.c **** }
+ 192              		.loc 1 75 0
+ 193 0006 08BD     		pop	{r3, pc}
+ 194              		.cfi_endproc
+ 195              	.LFE66:
+ 196              		.size	RPMSensor_getSpeed, .-RPMSensor_getSpeed
+ 197              		.global	RPM_reset
+ 198              		.global	RPM_temp
+ 199              		.bss
+ 200              		.align	1
+ 201              		.set	.LANCHOR0,. + 0
+ 202              		.type	RPM_reset, %object
+ 203              		.size	RPM_reset, 1
+ 204              	RPM_reset:
+ 205 0000 00       		.space	1
+ 206 0001 00       		.space	1
+ 207              		.type	RPM_temp, %object
+ 208              		.size	RPM_temp, 2
+ 209              	RPM_temp:
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccZtRC7f.s 			page 6
+
+
+ 210 0002 0000     		.space	2
+ 211              		.text
+ 212              	.Letext0:
+ 213              		.file 2 "c:\\program files (x86)\\cypress\\psoc creator\\3.3\\psoc creator\\import\\gnu\\arm\\4.9.
+ 214              		.file 3 "c:\\program files (x86)\\cypress\\psoc creator\\3.3\\psoc creator\\import\\gnu\\arm\\4.9.
+ 215              		.file 4 "Generated_Source\\PSoC5/cytypes.h"
+ 216              		.file 5 "Generated_Source\\PSoC5/core_cm3.h"
+ 217              		.file 6 "Generated_Source\\PSoC5/Timer_RPM.h"
+ 218              		.file 7 "Generated_Source\\PSoC5/RPM_isr.h"
+ 219              		.file 8 "Generated_Source\\PSoC5/Clock_4.h"
+ 220              		.section	.debug_info,"",%progbits
+ 221              	.Ldebug_info0:
+ 222 0000 43020000 		.4byte	0x243
+ 223 0004 0400     		.2byte	0x4
+ 224 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 225 000a 04       		.byte	0x4
+ 226 000b 01       		.uleb128 0x1
+ 227 000c 36010000 		.4byte	.LASF31
+ 228 0010 01       		.byte	0x1
+ 229 0011 00000000 		.4byte	.LASF32
+ 230 0015 7D000000 		.4byte	.LASF33
+ 231 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 232 001d 00000000 		.4byte	0
+ 233 0021 00000000 		.4byte	.Ldebug_line0
+ 234 0025 02       		.uleb128 0x2
+ 235 0026 01       		.byte	0x1
+ 236 0027 06       		.byte	0x6
+ 237 0028 7D020000 		.4byte	.LASF0
+ 238 002c 02       		.uleb128 0x2
+ 239 002d 01       		.byte	0x1
+ 240 002e 08       		.byte	0x8
+ 241 002f 6A000000 		.4byte	.LASF1
+ 242 0033 02       		.uleb128 0x2
+ 243 0034 02       		.byte	0x2
+ 244 0035 05       		.byte	0x5
+ 245 0036 50020000 		.4byte	.LASF2
+ 246 003a 02       		.uleb128 0x2
+ 247 003b 02       		.byte	0x2
+ 248 003c 07       		.byte	0x7
+ 249 003d DB000000 		.4byte	.LASF3
+ 250 0041 03       		.uleb128 0x3
+ 251 0042 0E000000 		.4byte	.LASF9
+ 252 0046 02       		.byte	0x2
+ 253 0047 3F       		.byte	0x3f
+ 254 0048 4C000000 		.4byte	0x4c
+ 255 004c 02       		.uleb128 0x2
+ 256 004d 04       		.byte	0x4
+ 257 004e 05       		.byte	0x5
+ 258 004f 74020000 		.4byte	.LASF4
+ 259 0053 02       		.uleb128 0x2
+ 260 0054 04       		.byte	0x4
+ 261 0055 07       		.byte	0x7
+ 262 0056 C4000000 		.4byte	.LASF5
+ 263 005a 02       		.uleb128 0x2
+ 264 005b 08       		.byte	0x8
+ 265 005c 05       		.byte	0x5
+ 266 005d 2E020000 		.4byte	.LASF6
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccZtRC7f.s 			page 7
+
+
+ 267 0061 02       		.uleb128 0x2
+ 268 0062 08       		.byte	0x8
+ 269 0063 07       		.byte	0x7
+ 270 0064 D1010000 		.4byte	.LASF7
+ 271 0068 04       		.uleb128 0x4
+ 272 0069 04       		.byte	0x4
+ 273 006a 05       		.byte	0x5
+ 274 006b 696E7400 		.ascii	"int\000"
+ 275 006f 02       		.uleb128 0x2
+ 276 0070 04       		.byte	0x4
+ 277 0071 07       		.byte	0x7
+ 278 0072 C4010000 		.4byte	.LASF8
+ 279 0076 03       		.uleb128 0x3
+ 280 0077 1D020000 		.4byte	.LASF10
+ 281 007b 03       		.byte	0x3
+ 282 007c 2C       		.byte	0x2c
+ 283 007d 41000000 		.4byte	0x41
+ 284 0081 05       		.uleb128 0x5
+ 285 0082 6E020000 		.4byte	.LASF11
+ 286 0086 04       		.byte	0x4
+ 287 0087 3801     		.2byte	0x138
+ 288 0089 2C000000 		.4byte	0x2c
+ 289 008d 05       		.uleb128 0x5
+ 290 008e 18010000 		.4byte	.LASF12
+ 291 0092 04       		.byte	0x4
+ 292 0093 3901     		.2byte	0x139
+ 293 0095 3A000000 		.4byte	0x3a
+ 294 0099 02       		.uleb128 0x2
+ 295 009a 04       		.byte	0x4
+ 296 009b 04       		.byte	0x4
+ 297 009c 5D000000 		.4byte	.LASF13
+ 298 00a0 02       		.uleb128 0x2
+ 299 00a1 08       		.byte	0x8
+ 300 00a2 04       		.byte	0x4
+ 301 00a3 11010000 		.4byte	.LASF14
+ 302 00a7 02       		.uleb128 0x2
+ 303 00a8 01       		.byte	0x1
+ 304 00a9 08       		.byte	0x8
+ 305 00aa 45020000 		.4byte	.LASF15
+ 306 00ae 05       		.uleb128 0x5
+ 307 00af 78000000 		.4byte	.LASF16
+ 308 00b3 04       		.byte	0x4
+ 309 00b4 E201     		.2byte	0x1e2
+ 310 00b6 BA000000 		.4byte	0xba
+ 311 00ba 06       		.uleb128 0x6
+ 312 00bb 81000000 		.4byte	0x81
+ 313 00bf 05       		.uleb128 0x5
+ 314 00c0 29010000 		.4byte	.LASF17
+ 315 00c4 04       		.byte	0x4
+ 316 00c5 F401     		.2byte	0x1f4
+ 317 00c7 CB000000 		.4byte	0xcb
+ 318 00cb 07       		.uleb128 0x7
+ 319 00cc 04       		.byte	0x4
+ 320 00cd D1000000 		.4byte	0xd1
+ 321 00d1 08       		.uleb128 0x8
+ 322 00d2 02       		.uleb128 0x2
+ 323 00d3 04       		.byte	0x4
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccZtRC7f.s 			page 8
+
+
+ 324 00d4 07       		.byte	0x7
+ 325 00d5 25020000 		.4byte	.LASF18
+ 326 00d9 09       		.uleb128 0x9
+ 327 00da 52504D00 		.ascii	"RPM\000"
+ 328 00de 01       		.byte	0x1
+ 329 00df 14       		.byte	0x14
+ 330 00e0 00000000 		.4byte	.LFB63
+ 331 00e4 6C000000 		.4byte	.LFE63-.LFB63
+ 332 00e8 01       		.uleb128 0x1
+ 333 00e9 9C       		.byte	0x9c
+ 334 00ea 5A010000 		.4byte	0x15a
+ 335 00ee 0A       		.uleb128 0xa
+ 336 00ef 63000000 		.4byte	.LASF19
+ 337 00f3 01       		.byte	0x1
+ 338 00f4 17       		.byte	0x17
+ 339 00f5 81000000 		.4byte	0x81
+ 340 00f9 00000000 		.4byte	.LLST0
+ 341 00fd 0B       		.uleb128 0xb
+ 342 00fe 0E000000 		.4byte	.LBB2
+ 343 0102 2E000000 		.4byte	.LBE2-.LBB2
+ 344 0106 3B010000 		.4byte	0x13b
+ 345 010a 0A       		.uleb128 0xa
+ 346 010b D6000000 		.4byte	.LASF20
+ 347 010f 01       		.byte	0x1
+ 348 0110 1B       		.byte	0x1b
+ 349 0111 8D000000 		.4byte	0x8d
+ 350 0115 1E000000 		.4byte	.LLST1
+ 351 0119 0A       		.uleb128 0xa
+ 352 011a 4A020000 		.4byte	.LASF21
+ 353 011e 01       		.byte	0x1
+ 354 011f 1C       		.byte	0x1c
+ 355 0120 8D000000 		.4byte	0x8d
+ 356 0124 31000000 		.4byte	.LLST2
+ 357 0128 0C       		.uleb128 0xc
+ 358 0129 12000000 		.4byte	.LVL1
+ 359 012d 04020000 		.4byte	0x204
+ 360 0131 0C       		.uleb128 0xc
+ 361 0132 22000000 		.4byte	.LVL3
+ 362 0136 04020000 		.4byte	0x204
+ 363 013a 00       		.byte	0
+ 364 013b 0D       		.uleb128 0xd
+ 365 013c 5C000000 		.4byte	.LVL10
+ 366 0140 0F020000 		.4byte	0x20f
+ 367 0144 50010000 		.4byte	0x150
+ 368 0148 0E       		.uleb128 0xe
+ 369 0149 01       		.uleb128 0x1
+ 370 014a 50       		.byte	0x50
+ 371 014b 03       		.uleb128 0x3
+ 372 014c 0A       		.byte	0xa
+ 373 014d 7017     		.2byte	0x1770
+ 374 014f 00       		.byte	0
+ 375 0150 0C       		.uleb128 0xc
+ 376 0151 60000000 		.4byte	.LVL11
+ 377 0155 20020000 		.4byte	0x220
+ 378 0159 00       		.byte	0
+ 379 015a 0F       		.uleb128 0xf
+ 380 015b 4E000000 		.4byte	.LASF34
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccZtRC7f.s 			page 9
+
+
+ 381 015f 01       		.byte	0x1
+ 382 0160 3C       		.byte	0x3c
+ 383 0161 00000000 		.4byte	.LFB64
+ 384 0165 18000000 		.4byte	.LFE64-.LFB64
+ 385 0169 01       		.uleb128 0x1
+ 386 016a 9C       		.byte	0x9c
+ 387 016b 99010000 		.4byte	0x199
+ 388 016f 0D       		.uleb128 0xd
+ 389 0170 08000000 		.4byte	.LVL12
+ 390 0174 27020000 		.4byte	0x227
+ 391 0178 86010000 		.4byte	0x186
+ 392 017c 0E       		.uleb128 0xe
+ 393 017d 01       		.uleb128 0x1
+ 394 017e 50       		.byte	0x50
+ 395 017f 05       		.uleb128 0x5
+ 396 0180 03       		.byte	0x3
+ 397 0181 00000000 		.4byte	RPM
+ 398 0185 00       		.byte	0
+ 399 0186 0C       		.uleb128 0xc
+ 400 0187 0C000000 		.4byte	.LVL13
+ 401 018b 38020000 		.4byte	0x238
+ 402 018f 0C       		.uleb128 0xc
+ 403 0190 10000000 		.4byte	.LVL14
+ 404 0194 3F020000 		.4byte	0x23f
+ 405 0198 00       		.byte	0
+ 406 0199 10       		.uleb128 0x10
+ 407 019a 18000000 		.4byte	.LASF35
+ 408 019e 01       		.byte	0x1
+ 409 019f 43       		.byte	0x43
+ 410 01a0 8D000000 		.4byte	0x8d
+ 411 01a4 00000000 		.4byte	.LFB65
+ 412 01a8 0C000000 		.4byte	.LFE65-.LFB65
+ 413 01ac 01       		.uleb128 0x1
+ 414 01ad 9C       		.byte	0x9c
+ 415 01ae 11       		.uleb128 0x11
+ 416 01af 2B000000 		.4byte	.LASF22
+ 417 01b3 01       		.byte	0x1
+ 418 01b4 48       		.byte	0x48
+ 419 01b5 8D000000 		.4byte	0x8d
+ 420 01b9 00000000 		.4byte	.LFB66
+ 421 01bd 08000000 		.4byte	.LFE66-.LFB66
+ 422 01c1 01       		.uleb128 0x1
+ 423 01c2 9C       		.byte	0x9c
+ 424 01c3 D1010000 		.4byte	0x1d1
+ 425 01c7 0C       		.uleb128 0xc
+ 426 01c8 06000000 		.4byte	.LVL15
+ 427 01cc 99010000 		.4byte	0x199
+ 428 01d0 00       		.byte	0
+ 429 01d1 12       		.uleb128 0x12
+ 430 01d2 04010000 		.4byte	.LASF23
+ 431 01d6 05       		.byte	0x5
+ 432 01d7 5506     		.2byte	0x655
+ 433 01d9 DD010000 		.4byte	0x1dd
+ 434 01dd 06       		.uleb128 0x6
+ 435 01de 76000000 		.4byte	0x76
+ 436 01e2 13       		.uleb128 0x13
+ 437 01e3 3C020000 		.4byte	.LASF24
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccZtRC7f.s 			page 10
+
+
+ 438 01e7 01       		.byte	0x1
+ 439 01e8 0E       		.byte	0xe
+ 440 01e9 8D000000 		.4byte	0x8d
+ 441 01ed 05       		.uleb128 0x5
+ 442 01ee 03       		.byte	0x3
+ 443 01ef 00000000 		.4byte	RPM_temp
+ 444 01f3 13       		.uleb128 0x13
+ 445 01f4 1F010000 		.4byte	.LASF25
+ 446 01f8 01       		.byte	0x1
+ 447 01f9 0F       		.byte	0xf
+ 448 01fa A7000000 		.4byte	0xa7
+ 449 01fe 05       		.uleb128 0x5
+ 450 01ff 03       		.byte	0x3
+ 451 0200 00000000 		.4byte	RPM_reset
+ 452 0204 14       		.uleb128 0x14
+ 453 0205 EE000000 		.4byte	.LASF36
+ 454 0209 06       		.byte	0x6
+ 455 020a 6B       		.byte	0x6b
+ 456 020b 8D000000 		.4byte	0x8d
+ 457 020f 15       		.uleb128 0x15
+ 458 0210 F6010000 		.4byte	.LASF26
+ 459 0214 06       		.byte	0x6
+ 460 0215 6A       		.byte	0x6a
+ 461 0216 20020000 		.4byte	0x220
+ 462 021a 16       		.uleb128 0x16
+ 463 021b 8D000000 		.4byte	0x8d
+ 464 021f 00       		.byte	0
+ 465 0220 17       		.uleb128 0x17
+ 466 0221 5A020000 		.4byte	.LASF28
+ 467 0225 06       		.byte	0x6
+ 468 0226 86       		.byte	0x86
+ 469 0227 15       		.uleb128 0x15
+ 470 0228 3E000000 		.4byte	.LASF27
+ 471 022c 07       		.byte	0x7
+ 472 022d 18       		.byte	0x18
+ 473 022e 38020000 		.4byte	0x238
+ 474 0232 16       		.uleb128 0x16
+ 475 0233 BF000000 		.4byte	0xbf
+ 476 0237 00       		.byte	0
+ 477 0238 17       		.uleb128 0x17
+ 478 0239 0D020000 		.4byte	.LASF29
+ 479 023d 06       		.byte	0x6
+ 480 023e 5A       		.byte	0x5a
+ 481 023f 17       		.uleb128 0x17
+ 482 0240 E8010000 		.4byte	.LASF30
+ 483 0244 08       		.byte	0x8
+ 484 0245 27       		.byte	0x27
+ 485 0246 00       		.byte	0
+ 486              		.section	.debug_abbrev,"",%progbits
+ 487              	.Ldebug_abbrev0:
+ 488 0000 01       		.uleb128 0x1
+ 489 0001 11       		.uleb128 0x11
+ 490 0002 01       		.byte	0x1
+ 491 0003 25       		.uleb128 0x25
+ 492 0004 0E       		.uleb128 0xe
+ 493 0005 13       		.uleb128 0x13
+ 494 0006 0B       		.uleb128 0xb
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccZtRC7f.s 			page 11
+
+
+ 495 0007 03       		.uleb128 0x3
+ 496 0008 0E       		.uleb128 0xe
+ 497 0009 1B       		.uleb128 0x1b
+ 498 000a 0E       		.uleb128 0xe
+ 499 000b 55       		.uleb128 0x55
+ 500 000c 17       		.uleb128 0x17
+ 501 000d 11       		.uleb128 0x11
+ 502 000e 01       		.uleb128 0x1
+ 503 000f 10       		.uleb128 0x10
+ 504 0010 17       		.uleb128 0x17
+ 505 0011 00       		.byte	0
+ 506 0012 00       		.byte	0
+ 507 0013 02       		.uleb128 0x2
+ 508 0014 24       		.uleb128 0x24
+ 509 0015 00       		.byte	0
+ 510 0016 0B       		.uleb128 0xb
+ 511 0017 0B       		.uleb128 0xb
+ 512 0018 3E       		.uleb128 0x3e
+ 513 0019 0B       		.uleb128 0xb
+ 514 001a 03       		.uleb128 0x3
+ 515 001b 0E       		.uleb128 0xe
+ 516 001c 00       		.byte	0
+ 517 001d 00       		.byte	0
+ 518 001e 03       		.uleb128 0x3
+ 519 001f 16       		.uleb128 0x16
+ 520 0020 00       		.byte	0
+ 521 0021 03       		.uleb128 0x3
+ 522 0022 0E       		.uleb128 0xe
+ 523 0023 3A       		.uleb128 0x3a
+ 524 0024 0B       		.uleb128 0xb
+ 525 0025 3B       		.uleb128 0x3b
+ 526 0026 0B       		.uleb128 0xb
+ 527 0027 49       		.uleb128 0x49
+ 528 0028 13       		.uleb128 0x13
+ 529 0029 00       		.byte	0
+ 530 002a 00       		.byte	0
+ 531 002b 04       		.uleb128 0x4
+ 532 002c 24       		.uleb128 0x24
+ 533 002d 00       		.byte	0
+ 534 002e 0B       		.uleb128 0xb
+ 535 002f 0B       		.uleb128 0xb
+ 536 0030 3E       		.uleb128 0x3e
+ 537 0031 0B       		.uleb128 0xb
+ 538 0032 03       		.uleb128 0x3
+ 539 0033 08       		.uleb128 0x8
+ 540 0034 00       		.byte	0
+ 541 0035 00       		.byte	0
+ 542 0036 05       		.uleb128 0x5
+ 543 0037 16       		.uleb128 0x16
+ 544 0038 00       		.byte	0
+ 545 0039 03       		.uleb128 0x3
+ 546 003a 0E       		.uleb128 0xe
+ 547 003b 3A       		.uleb128 0x3a
+ 548 003c 0B       		.uleb128 0xb
+ 549 003d 3B       		.uleb128 0x3b
+ 550 003e 05       		.uleb128 0x5
+ 551 003f 49       		.uleb128 0x49
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccZtRC7f.s 			page 12
+
+
+ 552 0040 13       		.uleb128 0x13
+ 553 0041 00       		.byte	0
+ 554 0042 00       		.byte	0
+ 555 0043 06       		.uleb128 0x6
+ 556 0044 35       		.uleb128 0x35
+ 557 0045 00       		.byte	0
+ 558 0046 49       		.uleb128 0x49
+ 559 0047 13       		.uleb128 0x13
+ 560 0048 00       		.byte	0
+ 561 0049 00       		.byte	0
+ 562 004a 07       		.uleb128 0x7
+ 563 004b 0F       		.uleb128 0xf
+ 564 004c 00       		.byte	0
+ 565 004d 0B       		.uleb128 0xb
+ 566 004e 0B       		.uleb128 0xb
+ 567 004f 49       		.uleb128 0x49
+ 568 0050 13       		.uleb128 0x13
+ 569 0051 00       		.byte	0
+ 570 0052 00       		.byte	0
+ 571 0053 08       		.uleb128 0x8
+ 572 0054 15       		.uleb128 0x15
+ 573 0055 00       		.byte	0
+ 574 0056 27       		.uleb128 0x27
+ 575 0057 19       		.uleb128 0x19
+ 576 0058 00       		.byte	0
+ 577 0059 00       		.byte	0
+ 578 005a 09       		.uleb128 0x9
+ 579 005b 2E       		.uleb128 0x2e
+ 580 005c 01       		.byte	0x1
+ 581 005d 3F       		.uleb128 0x3f
+ 582 005e 19       		.uleb128 0x19
+ 583 005f 03       		.uleb128 0x3
+ 584 0060 08       		.uleb128 0x8
+ 585 0061 3A       		.uleb128 0x3a
+ 586 0062 0B       		.uleb128 0xb
+ 587 0063 3B       		.uleb128 0x3b
+ 588 0064 0B       		.uleb128 0xb
+ 589 0065 27       		.uleb128 0x27
+ 590 0066 19       		.uleb128 0x19
+ 591 0067 11       		.uleb128 0x11
+ 592 0068 01       		.uleb128 0x1
+ 593 0069 12       		.uleb128 0x12
+ 594 006a 06       		.uleb128 0x6
+ 595 006b 40       		.uleb128 0x40
+ 596 006c 18       		.uleb128 0x18
+ 597 006d 9742     		.uleb128 0x2117
+ 598 006f 19       		.uleb128 0x19
+ 599 0070 01       		.uleb128 0x1
+ 600 0071 13       		.uleb128 0x13
+ 601 0072 00       		.byte	0
+ 602 0073 00       		.byte	0
+ 603 0074 0A       		.uleb128 0xa
+ 604 0075 34       		.uleb128 0x34
+ 605 0076 00       		.byte	0
+ 606 0077 03       		.uleb128 0x3
+ 607 0078 0E       		.uleb128 0xe
+ 608 0079 3A       		.uleb128 0x3a
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccZtRC7f.s 			page 13
+
+
+ 609 007a 0B       		.uleb128 0xb
+ 610 007b 3B       		.uleb128 0x3b
+ 611 007c 0B       		.uleb128 0xb
+ 612 007d 49       		.uleb128 0x49
+ 613 007e 13       		.uleb128 0x13
+ 614 007f 02       		.uleb128 0x2
+ 615 0080 17       		.uleb128 0x17
+ 616 0081 00       		.byte	0
+ 617 0082 00       		.byte	0
+ 618 0083 0B       		.uleb128 0xb
+ 619 0084 0B       		.uleb128 0xb
+ 620 0085 01       		.byte	0x1
+ 621 0086 11       		.uleb128 0x11
+ 622 0087 01       		.uleb128 0x1
+ 623 0088 12       		.uleb128 0x12
+ 624 0089 06       		.uleb128 0x6
+ 625 008a 01       		.uleb128 0x1
+ 626 008b 13       		.uleb128 0x13
+ 627 008c 00       		.byte	0
+ 628 008d 00       		.byte	0
+ 629 008e 0C       		.uleb128 0xc
+ 630 008f 898201   		.uleb128 0x4109
+ 631 0092 00       		.byte	0
+ 632 0093 11       		.uleb128 0x11
+ 633 0094 01       		.uleb128 0x1
+ 634 0095 31       		.uleb128 0x31
+ 635 0096 13       		.uleb128 0x13
+ 636 0097 00       		.byte	0
+ 637 0098 00       		.byte	0
+ 638 0099 0D       		.uleb128 0xd
+ 639 009a 898201   		.uleb128 0x4109
+ 640 009d 01       		.byte	0x1
+ 641 009e 11       		.uleb128 0x11
+ 642 009f 01       		.uleb128 0x1
+ 643 00a0 31       		.uleb128 0x31
+ 644 00a1 13       		.uleb128 0x13
+ 645 00a2 01       		.uleb128 0x1
+ 646 00a3 13       		.uleb128 0x13
+ 647 00a4 00       		.byte	0
+ 648 00a5 00       		.byte	0
+ 649 00a6 0E       		.uleb128 0xe
+ 650 00a7 8A8201   		.uleb128 0x410a
+ 651 00aa 00       		.byte	0
+ 652 00ab 02       		.uleb128 0x2
+ 653 00ac 18       		.uleb128 0x18
+ 654 00ad 9142     		.uleb128 0x2111
+ 655 00af 18       		.uleb128 0x18
+ 656 00b0 00       		.byte	0
+ 657 00b1 00       		.byte	0
+ 658 00b2 0F       		.uleb128 0xf
+ 659 00b3 2E       		.uleb128 0x2e
+ 660 00b4 01       		.byte	0x1
+ 661 00b5 3F       		.uleb128 0x3f
+ 662 00b6 19       		.uleb128 0x19
+ 663 00b7 03       		.uleb128 0x3
+ 664 00b8 0E       		.uleb128 0xe
+ 665 00b9 3A       		.uleb128 0x3a
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccZtRC7f.s 			page 14
+
+
+ 666 00ba 0B       		.uleb128 0xb
+ 667 00bb 3B       		.uleb128 0x3b
+ 668 00bc 0B       		.uleb128 0xb
+ 669 00bd 11       		.uleb128 0x11
+ 670 00be 01       		.uleb128 0x1
+ 671 00bf 12       		.uleb128 0x12
+ 672 00c0 06       		.uleb128 0x6
+ 673 00c1 40       		.uleb128 0x40
+ 674 00c2 18       		.uleb128 0x18
+ 675 00c3 9742     		.uleb128 0x2117
+ 676 00c5 19       		.uleb128 0x19
+ 677 00c6 01       		.uleb128 0x1
+ 678 00c7 13       		.uleb128 0x13
+ 679 00c8 00       		.byte	0
+ 680 00c9 00       		.byte	0
+ 681 00ca 10       		.uleb128 0x10
+ 682 00cb 2E       		.uleb128 0x2e
+ 683 00cc 00       		.byte	0
+ 684 00cd 3F       		.uleb128 0x3f
+ 685 00ce 19       		.uleb128 0x19
+ 686 00cf 03       		.uleb128 0x3
+ 687 00d0 0E       		.uleb128 0xe
+ 688 00d1 3A       		.uleb128 0x3a
+ 689 00d2 0B       		.uleb128 0xb
+ 690 00d3 3B       		.uleb128 0x3b
+ 691 00d4 0B       		.uleb128 0xb
+ 692 00d5 49       		.uleb128 0x49
+ 693 00d6 13       		.uleb128 0x13
+ 694 00d7 11       		.uleb128 0x11
+ 695 00d8 01       		.uleb128 0x1
+ 696 00d9 12       		.uleb128 0x12
+ 697 00da 06       		.uleb128 0x6
+ 698 00db 40       		.uleb128 0x40
+ 699 00dc 18       		.uleb128 0x18
+ 700 00dd 9742     		.uleb128 0x2117
+ 701 00df 19       		.uleb128 0x19
+ 702 00e0 00       		.byte	0
+ 703 00e1 00       		.byte	0
+ 704 00e2 11       		.uleb128 0x11
+ 705 00e3 2E       		.uleb128 0x2e
+ 706 00e4 01       		.byte	0x1
+ 707 00e5 3F       		.uleb128 0x3f
+ 708 00e6 19       		.uleb128 0x19
+ 709 00e7 03       		.uleb128 0x3
+ 710 00e8 0E       		.uleb128 0xe
+ 711 00e9 3A       		.uleb128 0x3a
+ 712 00ea 0B       		.uleb128 0xb
+ 713 00eb 3B       		.uleb128 0x3b
+ 714 00ec 0B       		.uleb128 0xb
+ 715 00ed 49       		.uleb128 0x49
+ 716 00ee 13       		.uleb128 0x13
+ 717 00ef 11       		.uleb128 0x11
+ 718 00f0 01       		.uleb128 0x1
+ 719 00f1 12       		.uleb128 0x12
+ 720 00f2 06       		.uleb128 0x6
+ 721 00f3 40       		.uleb128 0x40
+ 722 00f4 18       		.uleb128 0x18
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccZtRC7f.s 			page 15
+
+
+ 723 00f5 9742     		.uleb128 0x2117
+ 724 00f7 19       		.uleb128 0x19
+ 725 00f8 01       		.uleb128 0x1
+ 726 00f9 13       		.uleb128 0x13
+ 727 00fa 00       		.byte	0
+ 728 00fb 00       		.byte	0
+ 729 00fc 12       		.uleb128 0x12
+ 730 00fd 34       		.uleb128 0x34
+ 731 00fe 00       		.byte	0
+ 732 00ff 03       		.uleb128 0x3
+ 733 0100 0E       		.uleb128 0xe
+ 734 0101 3A       		.uleb128 0x3a
+ 735 0102 0B       		.uleb128 0xb
+ 736 0103 3B       		.uleb128 0x3b
+ 737 0104 05       		.uleb128 0x5
+ 738 0105 49       		.uleb128 0x49
+ 739 0106 13       		.uleb128 0x13
+ 740 0107 3F       		.uleb128 0x3f
+ 741 0108 19       		.uleb128 0x19
+ 742 0109 3C       		.uleb128 0x3c
+ 743 010a 19       		.uleb128 0x19
+ 744 010b 00       		.byte	0
+ 745 010c 00       		.byte	0
+ 746 010d 13       		.uleb128 0x13
+ 747 010e 34       		.uleb128 0x34
+ 748 010f 00       		.byte	0
+ 749 0110 03       		.uleb128 0x3
+ 750 0111 0E       		.uleb128 0xe
+ 751 0112 3A       		.uleb128 0x3a
+ 752 0113 0B       		.uleb128 0xb
+ 753 0114 3B       		.uleb128 0x3b
+ 754 0115 0B       		.uleb128 0xb
+ 755 0116 49       		.uleb128 0x49
+ 756 0117 13       		.uleb128 0x13
+ 757 0118 3F       		.uleb128 0x3f
+ 758 0119 19       		.uleb128 0x19
+ 759 011a 02       		.uleb128 0x2
+ 760 011b 18       		.uleb128 0x18
+ 761 011c 00       		.byte	0
+ 762 011d 00       		.byte	0
+ 763 011e 14       		.uleb128 0x14
+ 764 011f 2E       		.uleb128 0x2e
+ 765 0120 00       		.byte	0
+ 766 0121 3F       		.uleb128 0x3f
+ 767 0122 19       		.uleb128 0x19
+ 768 0123 03       		.uleb128 0x3
+ 769 0124 0E       		.uleb128 0xe
+ 770 0125 3A       		.uleb128 0x3a
+ 771 0126 0B       		.uleb128 0xb
+ 772 0127 3B       		.uleb128 0x3b
+ 773 0128 0B       		.uleb128 0xb
+ 774 0129 27       		.uleb128 0x27
+ 775 012a 19       		.uleb128 0x19
+ 776 012b 49       		.uleb128 0x49
+ 777 012c 13       		.uleb128 0x13
+ 778 012d 3C       		.uleb128 0x3c
+ 779 012e 19       		.uleb128 0x19
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccZtRC7f.s 			page 16
+
+
+ 780 012f 00       		.byte	0
+ 781 0130 00       		.byte	0
+ 782 0131 15       		.uleb128 0x15
+ 783 0132 2E       		.uleb128 0x2e
+ 784 0133 01       		.byte	0x1
+ 785 0134 3F       		.uleb128 0x3f
+ 786 0135 19       		.uleb128 0x19
+ 787 0136 03       		.uleb128 0x3
+ 788 0137 0E       		.uleb128 0xe
+ 789 0138 3A       		.uleb128 0x3a
+ 790 0139 0B       		.uleb128 0xb
+ 791 013a 3B       		.uleb128 0x3b
+ 792 013b 0B       		.uleb128 0xb
+ 793 013c 27       		.uleb128 0x27
+ 794 013d 19       		.uleb128 0x19
+ 795 013e 3C       		.uleb128 0x3c
+ 796 013f 19       		.uleb128 0x19
+ 797 0140 01       		.uleb128 0x1
+ 798 0141 13       		.uleb128 0x13
+ 799 0142 00       		.byte	0
+ 800 0143 00       		.byte	0
+ 801 0144 16       		.uleb128 0x16
+ 802 0145 05       		.uleb128 0x5
+ 803 0146 00       		.byte	0
+ 804 0147 49       		.uleb128 0x49
+ 805 0148 13       		.uleb128 0x13
+ 806 0149 00       		.byte	0
+ 807 014a 00       		.byte	0
+ 808 014b 17       		.uleb128 0x17
+ 809 014c 2E       		.uleb128 0x2e
+ 810 014d 00       		.byte	0
+ 811 014e 3F       		.uleb128 0x3f
+ 812 014f 19       		.uleb128 0x19
+ 813 0150 03       		.uleb128 0x3
+ 814 0151 0E       		.uleb128 0xe
+ 815 0152 3A       		.uleb128 0x3a
+ 816 0153 0B       		.uleb128 0xb
+ 817 0154 3B       		.uleb128 0x3b
+ 818 0155 0B       		.uleb128 0xb
+ 819 0156 27       		.uleb128 0x27
+ 820 0157 19       		.uleb128 0x19
+ 821 0158 3C       		.uleb128 0x3c
+ 822 0159 19       		.uleb128 0x19
+ 823 015a 00       		.byte	0
+ 824 015b 00       		.byte	0
+ 825 015c 00       		.byte	0
+ 826              		.section	.debug_loc,"",%progbits
+ 827              	.Ldebug_loc0:
+ 828              	.LLST0:
+ 829 0000 08000000 		.4byte	.LVL0
+ 830 0004 11000000 		.4byte	.LVL1-1
+ 831 0008 0100     		.2byte	0x1
+ 832 000a 53       		.byte	0x53
+ 833 000b 3C000000 		.4byte	.LVL8
+ 834 000f 44000000 		.4byte	.LVL9
+ 835 0013 0100     		.2byte	0x1
+ 836 0015 53       		.byte	0x53
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccZtRC7f.s 			page 17
+
+
+ 837 0016 00000000 		.4byte	0
+ 838 001a 00000000 		.4byte	0
+ 839              	.LLST1:
+ 840 001e 14000000 		.4byte	.LVL2
+ 841 0022 30000000 		.4byte	.LVL6
+ 842 0026 0100     		.2byte	0x1
+ 843 0028 54       		.byte	0x54
+ 844 0029 00000000 		.4byte	0
+ 845 002d 00000000 		.4byte	0
+ 846              	.LLST2:
+ 847 0031 14000000 		.4byte	.LVL2
+ 848 0035 22000000 		.4byte	.LVL3
+ 849 0039 0200     		.2byte	0x2
+ 850 003b 30       		.byte	0x30
+ 851 003c 9F       		.byte	0x9f
+ 852 003d 22000000 		.4byte	.LVL3
+ 853 0041 24000000 		.4byte	.LVL4
+ 854 0045 0100     		.2byte	0x1
+ 855 0047 50       		.byte	0x50
+ 856 0048 24000000 		.4byte	.LVL4
+ 857 004c 26000000 		.4byte	.LVL5
+ 858 0050 0200     		.2byte	0x2
+ 859 0052 30       		.byte	0x30
+ 860 0053 9F       		.byte	0x9f
+ 861 0054 26000000 		.4byte	.LVL5
+ 862 0058 34000000 		.4byte	.LVL7
+ 863 005c 0100     		.2byte	0x1
+ 864 005e 50       		.byte	0x50
+ 865 005f 00000000 		.4byte	0
+ 866 0063 00000000 		.4byte	0
+ 867              		.section	.debug_aranges,"",%progbits
+ 868 0000 34000000 		.4byte	0x34
+ 869 0004 0200     		.2byte	0x2
+ 870 0006 00000000 		.4byte	.Ldebug_info0
+ 871 000a 04       		.byte	0x4
+ 872 000b 00       		.byte	0
+ 873 000c 0000     		.2byte	0
+ 874 000e 0000     		.2byte	0
+ 875 0010 00000000 		.4byte	.LFB63
+ 876 0014 6C000000 		.4byte	.LFE63-.LFB63
+ 877 0018 00000000 		.4byte	.LFB64
+ 878 001c 18000000 		.4byte	.LFE64-.LFB64
+ 879 0020 00000000 		.4byte	.LFB65
+ 880 0024 0C000000 		.4byte	.LFE65-.LFB65
+ 881 0028 00000000 		.4byte	.LFB66
+ 882 002c 08000000 		.4byte	.LFE66-.LFB66
+ 883 0030 00000000 		.4byte	0
+ 884 0034 00000000 		.4byte	0
+ 885              		.section	.debug_ranges,"",%progbits
+ 886              	.Ldebug_ranges0:
+ 887 0000 00000000 		.4byte	.LFB63
+ 888 0004 6C000000 		.4byte	.LFE63
+ 889 0008 00000000 		.4byte	.LFB64
+ 890 000c 18000000 		.4byte	.LFE64
+ 891 0010 00000000 		.4byte	.LFB65
+ 892 0014 0C000000 		.4byte	.LFE65
+ 893 0018 00000000 		.4byte	.LFB66
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccZtRC7f.s 			page 18
+
+
+ 894 001c 08000000 		.4byte	.LFE66
+ 895 0020 00000000 		.4byte	0
+ 896 0024 00000000 		.4byte	0
+ 897              		.section	.debug_line,"",%progbits
+ 898              	.Ldebug_line0:
+ 899 0000 D0010000 		.section	.debug_str,"MS",%progbits,1
+ 899      02007701 
+ 899      00000201 
+ 899      FB0E0D00 
+ 899      01010101 
+ 900              	.LASF32:
+ 901 0000 2E5C5250 		.ascii	".\\RPMSensor.c\000"
+ 901      4D53656E 
+ 901      736F722E 
+ 901      6300
+ 902              	.LASF9:
+ 903 000e 5F5F696E 		.ascii	"__int32_t\000"
+ 903      7433325F 
+ 903      7400
+ 904              	.LASF35:
+ 905 0018 52504D53 		.ascii	"RPMSensor_getValue\000"
+ 905      656E736F 
+ 905      725F6765 
+ 905      7456616C 
+ 905      756500
+ 906              	.LASF22:
+ 907 002b 52504D53 		.ascii	"RPMSensor_getSpeed\000"
+ 907      656E736F 
+ 907      725F6765 
+ 907      74537065 
+ 907      656400
+ 908              	.LASF27:
+ 909 003e 52504D5F 		.ascii	"RPM_isr_StartEx\000"
+ 909      6973725F 
+ 909      53746172 
+ 909      74457800 
+ 910              	.LASF34:
+ 911 004e 52504D53 		.ascii	"RPMSensor_init\000"
+ 911      656E736F 
+ 911      725F696E 
+ 911      697400
+ 912              	.LASF13:
+ 913 005d 666C6F61 		.ascii	"float\000"
+ 913      7400
+ 914              	.LASF19:
+ 915 0063 53544154 		.ascii	"STATUS\000"
+ 915      555300
+ 916              	.LASF1:
+ 917 006a 756E7369 		.ascii	"unsigned char\000"
+ 917      676E6564 
+ 917      20636861 
+ 917      7200
+ 918              	.LASF16:
+ 919 0078 72656738 		.ascii	"reg8\000"
+ 919      00
+ 920              	.LASF33:
+ 921 007d 433A5C55 		.ascii	"C:\\Users\\Thomas\\Documents\\GitHub\\MotorControll"
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccZtRC7f.s 			page 19
+
+
+ 921      73657273 
+ 921      5C54686F 
+ 921      6D61735C 
+ 921      446F6375 
+ 922 00ab 65725C4D 		.ascii	"er\\MotorController.cydsn\000"
+ 922      6F746F72 
+ 922      436F6E74 
+ 922      726F6C6C 
+ 922      65722E63 
+ 923              	.LASF5:
+ 924 00c4 6C6F6E67 		.ascii	"long unsigned int\000"
+ 924      20756E73 
+ 924      69676E65 
+ 924      6420696E 
+ 924      7400
+ 925              	.LASF20:
+ 926 00d6 74656D70 		.ascii	"temp\000"
+ 926      00
+ 927              	.LASF3:
+ 928 00db 73686F72 		.ascii	"short unsigned int\000"
+ 928      7420756E 
+ 928      7369676E 
+ 928      65642069 
+ 928      6E7400
+ 929              	.LASF36:
+ 930 00ee 54696D65 		.ascii	"Timer_RPM_ReadCapture\000"
+ 930      725F5250 
+ 930      4D5F5265 
+ 930      61644361 
+ 930      70747572 
+ 931              	.LASF23:
+ 932 0104 49544D5F 		.ascii	"ITM_RxBuffer\000"
+ 932      52784275 
+ 932      66666572 
+ 932      00
+ 933              	.LASF14:
+ 934 0111 646F7562 		.ascii	"double\000"
+ 934      6C6500
+ 935              	.LASF12:
+ 936 0118 75696E74 		.ascii	"uint16\000"
+ 936      313600
+ 937              	.LASF25:
+ 938 011f 52504D5F 		.ascii	"RPM_reset\000"
+ 938      72657365 
+ 938      7400
+ 939              	.LASF17:
+ 940 0129 63796973 		.ascii	"cyisraddress\000"
+ 940      72616464 
+ 940      72657373 
+ 940      00
+ 941              	.LASF31:
+ 942 0136 474E5520 		.ascii	"GNU C 4.9.3 20150303 (release) [ARM/embedded-4_9-br"
+ 942      4320342E 
+ 942      392E3320 
+ 942      32303135 
+ 942      30333033 
+ 943 0169 616E6368 		.ascii	"anch revision 221220] -mcpu=cortex-m3 -mthumb -g -O"
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccZtRC7f.s 			page 20
+
+
+ 943      20726576 
+ 943      6973696F 
+ 943      6E203232 
+ 943      31323230 
+ 944 019c 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 944      66756E63 
+ 944      74696F6E 
+ 944      2D736563 
+ 944      74696F6E 
+ 945              	.LASF8:
+ 946 01c4 756E7369 		.ascii	"unsigned int\000"
+ 946      676E6564 
+ 946      20696E74 
+ 946      00
+ 947              	.LASF7:
+ 948 01d1 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 948      206C6F6E 
+ 948      6720756E 
+ 948      7369676E 
+ 948      65642069 
+ 949              	.LASF30:
+ 950 01e8 436C6F63 		.ascii	"Clock_4_Start\000"
+ 950      6B5F345F 
+ 950      53746172 
+ 950      7400
+ 951              	.LASF26:
+ 952 01f6 54696D65 		.ascii	"Timer_RPM_WriteCounter\000"
+ 952      725F5250 
+ 952      4D5F5772 
+ 952      69746543 
+ 952      6F756E74 
+ 953              	.LASF29:
+ 954 020d 54696D65 		.ascii	"Timer_RPM_Start\000"
+ 954      725F5250 
+ 954      4D5F5374 
+ 954      61727400 
+ 955              	.LASF10:
+ 956 021d 696E7433 		.ascii	"int32_t\000"
+ 956      325F7400 
+ 957              	.LASF18:
+ 958 0225 73697A65 		.ascii	"sizetype\000"
+ 958      74797065 
+ 958      00
+ 959              	.LASF6:
+ 960 022e 6C6F6E67 		.ascii	"long long int\000"
+ 960      206C6F6E 
+ 960      6720696E 
+ 960      7400
+ 961              	.LASF24:
+ 962 023c 52504D5F 		.ascii	"RPM_temp\000"
+ 962      74656D70 
+ 962      00
+ 963              	.LASF15:
+ 964 0245 63686172 		.ascii	"char\000"
+ 964      00
+ 965              	.LASF21:
+ 966 024a 74656D70 		.ascii	"temp2\000"
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccZtRC7f.s 			page 21
+
+
+ 966      3200
+ 967              	.LASF2:
+ 968 0250 73686F72 		.ascii	"short int\000"
+ 968      7420696E 
+ 968      7400
+ 969              	.LASF28:
+ 970 025a 54696D65 		.ascii	"Timer_RPM_ClearFIFO\000"
+ 970      725F5250 
+ 970      4D5F436C 
+ 970      65617246 
+ 970      49464F00 
+ 971              	.LASF11:
+ 972 026e 75696E74 		.ascii	"uint8\000"
+ 972      3800
+ 973              	.LASF4:
+ 974 0274 6C6F6E67 		.ascii	"long int\000"
+ 974      20696E74 
+ 974      00
+ 975              	.LASF0:
+ 976 027d 7369676E 		.ascii	"signed char\000"
+ 976      65642063 
+ 976      68617200 
+ 977              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 4.9.3 20150303 (release) [ARM/embedded-4_9-br

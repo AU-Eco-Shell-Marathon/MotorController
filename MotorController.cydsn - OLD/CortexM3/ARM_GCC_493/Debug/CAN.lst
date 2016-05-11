@@ -1,0 +1,1567 @@
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 1
+
+
+   1              		.syntax unified
+   2              		.cpu cortex-m3
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 1
+  11              		.eabi_attribute 34, 1
+  12              		.eabi_attribute 18, 4
+  13              		.thumb
+  14              		.file	"CAN.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.CAN_init,"ax",%progbits
+  19              		.align	2
+  20              		.global	CAN_init
+  21              		.thumb
+  22              		.thumb_func
+  23              		.type	CAN_init, %function
+  24              	CAN_init:
+  25              	.LFB63:
+  26              		.file 1 ".\\CAN.c"
+   1:.\CAN.c       **** /* ========================================
+   2:.\CAN.c       ****  *
+   3:.\CAN.c       ****  * Copyright YOUR COMPANY, THE YEAR
+   4:.\CAN.c       ****  * All Rights Reserved
+   5:.\CAN.c       ****  * UNPUBLISHED, LICENSED SOFTWARE.
+   6:.\CAN.c       ****  *
+   7:.\CAN.c       ****  * CONFIDENTIAL AND PROPRIETARY INFORMATION
+   8:.\CAN.c       ****  * WHICH IS THE PROPERTY OF your company.
+   9:.\CAN.c       ****  *
+  10:.\CAN.c       ****  * ========================================
+  11:.\CAN.c       **** */
+  12:.\CAN.c       **** #include "CAN.h"
+  13:.\CAN.c       **** #include "CAN_func.h"
+  14:.\CAN.c       **** 
+  15:.\CAN.c       **** void CAN_func(uint8 mailbox,enum CAN_flag);
+  16:.\CAN.c       **** 
+  17:.\CAN.c       **** struct BMSData BMS;
+  18:.\CAN.c       **** 
+  19:.\CAN.c       **** struct BMSData * CAN_init()
+  20:.\CAN.c       **** {
+  27              		.loc 1 20 0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31 0000 08B5     		push	{r3, lr}
+  32              		.cfi_def_cfa_offset 8
+  33              		.cfi_offset 3, -8
+  34              		.cfi_offset 14, -4
+  21:.\CAN.c       ****     CAN_1_Start();
+  35              		.loc 1 21 0
+  36 0002 FFF7FEFF 		bl	CAN_1_Start
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 2
+
+
+  37              	.LVL0:
+  22:.\CAN.c       ****     return &BMS;
+  23:.\CAN.c       **** }
+  38              		.loc 1 23 0
+  39 0006 0148     		ldr	r0, .L3
+  40 0008 08BD     		pop	{r3, pc}
+  41              	.L4:
+  42 000a 00BF     		.align	2
+  43              	.L3:
+  44 000c 00000000 		.word	BMS
+  45              		.cfi_endproc
+  46              	.LFE63:
+  47              		.size	CAN_init, .-CAN_init
+  48              		.section	.text.CAN_func,"ax",%progbits
+  49              		.align	2
+  50              		.global	CAN_func
+  51              		.thumb
+  52              		.thumb_func
+  53              		.type	CAN_func, %function
+  54              	CAN_func:
+  55              	.LFB64:
+  24:.\CAN.c       **** 
+  25:.\CAN.c       **** void CAN_func(uint8 mailbox,enum CAN_flag flag)
+  26:.\CAN.c       **** {
+  56              		.loc 1 26 0
+  57              		.cfi_startproc
+  58              		@ args = 0, pretend = 0, frame = 0
+  59              		@ frame_needed = 0, uses_anonymous_args = 0
+  60              		@ link register save eliminated.
+  61              	.LVL1:
+  27:.\CAN.c       ****     uint16 ID = CAN_1_GET_RX_ID(mailbox);
+  62              		.loc 1 27 0
+  63 0000 4A4B     		ldr	r3, .L26
+  64 0002 03EB4010 		add	r0, r3, r0, lsl #5
+  65              	.LVL2:
+  66 0006 8378     		ldrb	r3, [r0, #2]	@ zero_extendqisi2
+  67 0008 13F0100F 		tst	r3, #16
+  68 000c 01D0     		beq	.L6
+  69              		.loc 1 27 0 is_stmt 0 discriminator 1
+  70 000e 4368     		ldr	r3, [r0, #4]
+  71 0010 00E0     		b	.L7
+  72              	.L6:
+  73              		.loc 1 27 0 discriminator 2
+  74 0012 4368     		ldr	r3, [r0, #4]
+  75              	.L7:
+  28:.\CAN.c       ****     uint8 DLC = CAN_1_GET_DLC(mailbox);
+  76              		.loc 1 28 0 is_stmt 1 discriminator 4
+  77 0014 8378     		ldrb	r3, [r0, #2]	@ zero_extendqisi2
+  78 0016 03F00F03 		and	r3, r3, #15
+  79              	.LVL3:
+  29:.\CAN.c       ****     switch (flag){
+  80              		.loc 1 29 0 discriminator 4
+  81 001a 0529     		cmp	r1, #5
+  82 001c 00F28480 		bhi	.L5
+  83 0020 DFE801F0 		tbb	[pc, r1]
+  84              	.L10:
+  85 0024 03       		.byte	(.L9-.L10)/2
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 3
+
+
+  86 0025 19       		.byte	(.L11-.L10)/2
+  87 0026 34       		.byte	(.L12-.L10)/2
+  88 0027 47       		.byte	(.L13-.L10)/2
+  89 0028 69       		.byte	(.L14-.L10)/2
+  90 0029 73       		.byte	(.L15-.L10)/2
+  91              		.p2align 1
+  92              	.L9:
+  30:.\CAN.c       ****         case CAN_STATUS :
+  31:.\CAN.c       ****             if(DLC < 6) break; 
+  93              		.loc 1 31 0
+  94 002a 052B     		cmp	r3, #5
+  95 002c 7CD9     		bls	.L5
+  32:.\CAN.c       ****             BMS.state = CAN_1_RX_DATA_BYTE(mailbox,0);
+  96              		.loc 1 32 0
+  97 002e C27A     		ldrb	r2, [r0, #11]	@ zero_extendqisi2
+  98 0030 3F4B     		ldr	r3, .L26+4
+  99              	.LVL4:
+ 100 0032 1A70     		strb	r2, [r3]
+  33:.\CAN.c       ****             BMS.RunTime = ((uint16)CAN_1_RX_DATA_BYTE(mailbox,1)<<8) || ((uint16)CAN_1_RX_DATA_BYTE
+ 101              		.loc 1 33 0
+ 102 0034 837A     		ldrb	r3, [r0, #10]	@ zero_extendqisi2
+ 103 0036 1A02     		lsls	r2, r3, #8
+ 104 0038 2BB9     		cbnz	r3, .L21
+ 105              		.loc 1 33 0 is_stmt 0 discriminator 2
+ 106 003a 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 107 003c 13F0FF0F 		tst	r3, #255
+ 108 0040 02D0     		beq	.L16
+ 109              		.loc 1 33 0
+ 110 0042 0122     		movs	r2, #1
+ 111 0044 00E0     		b	.L16
+ 112              	.L21:
+ 113 0046 0122     		movs	r2, #1
+ 114              	.L16:
+ 115              		.loc 1 33 0 discriminator 6
+ 116 0048 394B     		ldr	r3, .L26+4
+ 117 004a 5A80     		strh	r2, [r3, #2]	@ movhi
+  34:.\CAN.c       ****             BMS.NewData |= (1<<0);
+ 118              		.loc 1 34 0 is_stmt 1 discriminator 6
+ 119 004c DA7D     		ldrb	r2, [r3, #23]	@ zero_extendqisi2
+ 120 004e 42F00102 		orr	r2, r2, #1
+ 121 0052 DA75     		strb	r2, [r3, #23]
+  35:.\CAN.c       ****             break;
+ 122              		.loc 1 35 0 discriminator 6
+ 123 0054 7047     		bx	lr
+ 124              	.LVL5:
+ 125              	.L11:
+  36:.\CAN.c       ****         case BATTERY_V :
+  37:.\CAN.c       ****             if(DLC < 6) break; 
+ 126              		.loc 1 37 0
+ 127 0056 052B     		cmp	r3, #5
+ 128 0058 66D9     		bls	.L5
+  38:.\CAN.c       ****             BMS.battery_V = ((uint16)CAN_1_RX_DATA_BYTE(mailbox,0)<<8) || ((uint16)CAN_1_RX_DATA_BY
+ 129              		.loc 1 38 0
+ 130 005a C37A     		ldrb	r3, [r0, #11]	@ zero_extendqisi2
+ 131              	.LVL6:
+ 132 005c 1A02     		lsls	r2, r3, #8
+ 133 005e 2BB9     		cbnz	r3, .L22
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 4
+
+
+ 134              		.loc 1 38 0 is_stmt 0 discriminator 2
+ 135 0060 837A     		ldrb	r3, [r0, #10]	@ zero_extendqisi2
+ 136 0062 13F0FF0F 		tst	r3, #255
+ 137 0066 02D0     		beq	.L17
+ 138              		.loc 1 38 0
+ 139 0068 0122     		movs	r2, #1
+ 140 006a 00E0     		b	.L17
+ 141              	.L22:
+ 142 006c 0122     		movs	r2, #1
+ 143              	.L17:
+ 144              		.loc 1 38 0 discriminator 6
+ 145 006e 304B     		ldr	r3, .L26+4
+ 146 0070 9A80     		strh	r2, [r3, #4]	@ movhi
+  39:.\CAN.c       ****             BMS.battery_cell_V_min = CAN_1_RX_DATA_BYTE(mailbox,2);
+ 147              		.loc 1 39 0 is_stmt 1 discriminator 6
+ 148 0072 427A     		ldrb	r2, [r0, #9]	@ zero_extendqisi2
+ 149 0074 DA71     		strb	r2, [r3, #7]
+  40:.\CAN.c       ****             BMS.battery_cell_no_min = CAN_1_RX_DATA_BYTE(mailbox,3);
+ 150              		.loc 1 40 0 discriminator 6
+ 151 0076 027A     		ldrb	r2, [r0, #8]	@ zero_extendqisi2
+ 152 0078 9A71     		strb	r2, [r3, #6]
+  41:.\CAN.c       ****             BMS.battery_cell_V_max = CAN_1_RX_DATA_BYTE(mailbox,4);
+ 153              		.loc 1 41 0 discriminator 6
+ 154 007a C27B     		ldrb	r2, [r0, #15]	@ zero_extendqisi2
+ 155 007c 5A72     		strb	r2, [r3, #9]
+  42:.\CAN.c       ****             BMS.battery_cell_no_max = CAN_1_RX_DATA_BYTE(mailbox,5);
+ 156              		.loc 1 42 0 discriminator 6
+ 157 007e 827B     		ldrb	r2, [r0, #14]	@ zero_extendqisi2
+ 158 0080 1A72     		strb	r2, [r3, #8]
+  43:.\CAN.c       ****             BMS.NewData |= (1<<1);
+ 159              		.loc 1 43 0 discriminator 6
+ 160 0082 DA7D     		ldrb	r2, [r3, #23]	@ zero_extendqisi2
+ 161 0084 42F00202 		orr	r2, r2, #2
+ 162 0088 DA75     		strb	r2, [r3, #23]
+  44:.\CAN.c       ****             break;
+ 163              		.loc 1 44 0 discriminator 6
+ 164 008a 7047     		bx	lr
+ 165              	.LVL7:
+ 166              	.L12:
+  45:.\CAN.c       ****         case BATTERY_A :
+  46:.\CAN.c       ****             if(DLC < 6) break; 
+ 167              		.loc 1 46 0
+ 168 008c 052B     		cmp	r3, #5
+ 169 008e 4BD9     		bls	.L5
+  47:.\CAN.c       ****             BMS.battery_A = ((uint16)CAN_1_RX_DATA_BYTE(mailbox,0)<<8) || ((uint16)CAN_1_RX_DATA_BY
+ 170              		.loc 1 47 0
+ 171 0090 C37A     		ldrb	r3, [r0, #11]	@ zero_extendqisi2
+ 172              	.LVL8:
+ 173 0092 1A02     		lsls	r2, r3, #8
+ 174 0094 2BB9     		cbnz	r3, .L23
+ 175              		.loc 1 47 0 is_stmt 0 discriminator 2
+ 176 0096 837A     		ldrb	r3, [r0, #10]	@ zero_extendqisi2
+ 177 0098 13F0FF0F 		tst	r3, #255
+ 178 009c 02D0     		beq	.L18
+ 179              		.loc 1 47 0
+ 180 009e 0122     		movs	r2, #1
+ 181 00a0 00E0     		b	.L18
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 5
+
+
+ 182              	.L23:
+ 183 00a2 0122     		movs	r2, #1
+ 184              	.L18:
+ 185              		.loc 1 47 0 discriminator 6
+ 186 00a4 224B     		ldr	r3, .L26+4
+ 187 00a6 5A81     		strh	r2, [r3, #10]	@ movhi
+  48:.\CAN.c       ****             BMS.NewData |= (1<<2);
+ 188              		.loc 1 48 0 is_stmt 1 discriminator 6
+ 189 00a8 DA7D     		ldrb	r2, [r3, #23]	@ zero_extendqisi2
+ 190 00aa 42F00402 		orr	r2, r2, #4
+ 191 00ae DA75     		strb	r2, [r3, #23]
+  49:.\CAN.c       ****             break;
+ 192              		.loc 1 49 0 discriminator 6
+ 193 00b0 7047     		bx	lr
+ 194              	.LVL9:
+ 195              	.L13:
+  50:.\CAN.c       ****         case DOD :
+  51:.\CAN.c       ****             if(DLC < 7) break; 
+ 196              		.loc 1 51 0
+ 197 00b2 062B     		cmp	r3, #6
+ 198 00b4 38D9     		bls	.L5
+  52:.\CAN.c       ****             BMS.SOC = CAN_1_RX_DATA_BYTE(mailbox,0);
+ 199              		.loc 1 52 0
+ 200 00b6 C27A     		ldrb	r2, [r0, #11]	@ zero_extendqisi2
+ 201 00b8 1D4B     		ldr	r3, .L26+4
+ 202              	.LVL10:
+ 203 00ba 1A73     		strb	r2, [r3, #12]
+  53:.\CAN.c       ****             BMS.DOD = ((uint16)CAN_1_RX_DATA_BYTE(mailbox,1)<<8) || ((uint16)CAN_1_RX_DATA_BYTE(mai
+ 204              		.loc 1 53 0
+ 205 00bc 837A     		ldrb	r3, [r0, #10]	@ zero_extendqisi2
+ 206 00be 1A02     		lsls	r2, r3, #8
+ 207 00c0 2BB9     		cbnz	r3, .L24
+ 208              		.loc 1 53 0 is_stmt 0 discriminator 2
+ 209 00c2 437A     		ldrb	r3, [r0, #9]	@ zero_extendqisi2
+ 210 00c4 13F0FF0F 		tst	r3, #255
+ 211 00c8 02D0     		beq	.L19
+ 212              		.loc 1 53 0
+ 213 00ca 0122     		movs	r2, #1
+ 214 00cc 00E0     		b	.L19
+ 215              	.L24:
+ 216 00ce 0122     		movs	r2, #1
+ 217              	.L19:
+ 218              		.loc 1 53 0 discriminator 6
+ 219 00d0 174B     		ldr	r3, .L26+4
+ 220 00d2 DA81     		strh	r2, [r3, #14]	@ movhi
+  54:.\CAN.c       ****             BMS.capacity = ((uint16)CAN_1_RX_DATA_BYTE(mailbox,3)<<8) || ((uint16)CAN_1_RX_DATA_BYT
+ 221              		.loc 1 54 0 is_stmt 1 discriminator 6
+ 222 00d4 037A     		ldrb	r3, [r0, #8]	@ zero_extendqisi2
+ 223 00d6 1A02     		lsls	r2, r3, #8
+ 224 00d8 2BB9     		cbnz	r3, .L25
+ 225              		.loc 1 54 0 is_stmt 0 discriminator 2
+ 226 00da C37B     		ldrb	r3, [r0, #15]	@ zero_extendqisi2
+ 227 00dc 13F0FF0F 		tst	r3, #255
+ 228 00e0 02D0     		beq	.L20
+ 229              		.loc 1 54 0
+ 230 00e2 0122     		movs	r2, #1
+ 231 00e4 00E0     		b	.L20
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 6
+
+
+ 232              	.L25:
+ 233 00e6 0122     		movs	r2, #1
+ 234              	.L20:
+ 235              		.loc 1 54 0 discriminator 6
+ 236 00e8 114B     		ldr	r3, .L26+4
+ 237 00ea 1A82     		strh	r2, [r3, #16]	@ movhi
+  55:.\CAN.c       ****             BMS.NewData |= (1<<3);
+ 238              		.loc 1 55 0 is_stmt 1 discriminator 6
+ 239 00ec DA7D     		ldrb	r2, [r3, #23]	@ zero_extendqisi2
+ 240 00ee 42F00802 		orr	r2, r2, #8
+ 241 00f2 DA75     		strb	r2, [r3, #23]
+  56:.\CAN.c       ****             break;
+ 242              		.loc 1 56 0 discriminator 6
+ 243 00f4 7047     		bx	lr
+ 244              	.LVL11:
+ 245              	.L14:
+  57:.\CAN.c       ****         case T_BATTERY :
+  58:.\CAN.c       ****             if(DLC < 6) break; 
+ 246              		.loc 1 58 0
+ 247 00f6 052B     		cmp	r3, #5
+ 248 00f8 16D9     		bls	.L5
+  59:.\CAN.c       ****             BMS.Tbatt = CAN_1_RX_DATA_BYTE(mailbox,0);
+ 249              		.loc 1 59 0
+ 250 00fa C27A     		ldrb	r2, [r0, #11]	@ zero_extendqisi2
+ 251 00fc 0C4B     		ldr	r3, .L26+4
+ 252              	.LVL12:
+ 253 00fe 9A74     		strb	r2, [r3, #18]
+  60:.\CAN.c       ****             BMS.NewData |= (1<<4);
+ 254              		.loc 1 60 0
+ 255 0100 DA7D     		ldrb	r2, [r3, #23]	@ zero_extendqisi2
+ 256 0102 42F01002 		orr	r2, r2, #16
+ 257 0106 DA75     		strb	r2, [r3, #23]
+  61:.\CAN.c       ****             break;
+ 258              		.loc 1 61 0
+ 259 0108 7047     		bx	lr
+ 260              	.LVL13:
+ 261              	.L15:
+  62:.\CAN.c       ****         case IR :
+  63:.\CAN.c       ****             if(DLC < 6) break;
+ 262              		.loc 1 63 0
+ 263 010a 052B     		cmp	r3, #5
+ 264 010c 0CD9     		bls	.L5
+  64:.\CAN.c       ****             BMS.IR_min = CAN_1_RX_DATA_BYTE(mailbox,2); 
+ 265              		.loc 1 64 0
+ 266 010e 427A     		ldrb	r2, [r0, #9]	@ zero_extendqisi2
+ 267 0110 074B     		ldr	r3, .L26+4
+ 268              	.LVL14:
+ 269 0112 1A75     		strb	r2, [r3, #20]
+  65:.\CAN.c       ****             BMS.IR_no_min = CAN_1_RX_DATA_BYTE(mailbox,3);
+ 270              		.loc 1 65 0
+ 271 0114 027A     		ldrb	r2, [r0, #8]	@ zero_extendqisi2
+ 272 0116 DA74     		strb	r2, [r3, #19]
+  66:.\CAN.c       ****             BMS.IR_max = CAN_1_RX_DATA_BYTE(mailbox,4);
+ 273              		.loc 1 66 0
+ 274 0118 C27B     		ldrb	r2, [r0, #15]	@ zero_extendqisi2
+ 275 011a 9A75     		strb	r2, [r3, #22]
+  67:.\CAN.c       ****             BMS.IR_no_max = CAN_1_RX_DATA_BYTE(mailbox,5);
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 7
+
+
+ 276              		.loc 1 67 0
+ 277 011c 827B     		ldrb	r2, [r0, #14]	@ zero_extendqisi2
+ 278 011e 5A75     		strb	r2, [r3, #21]
+  68:.\CAN.c       ****             BMS.NewData |= (1<<5);
+ 279              		.loc 1 68 0
+ 280 0120 DA7D     		ldrb	r2, [r3, #23]	@ zero_extendqisi2
+ 281 0122 42F02002 		orr	r2, r2, #32
+ 282 0126 DA75     		strb	r2, [r3, #23]
+ 283              	.L5:
+ 284 0128 7047     		bx	lr
+ 285              	.L27:
+ 286 012a 00BF     		.align	2
+ 287              	.L26:
+ 288 012c A0A00040 		.word	1073782944
+ 289 0130 00000000 		.word	BMS
+ 290              		.cfi_endproc
+ 291              	.LFE64:
+ 292              		.size	CAN_func, .-CAN_func
+ 293              		.comm	BMS,24,4
+ 294              		.text
+ 295              	.Letext0:
+ 296              		.file 2 "c:\\program files (x86)\\cypress\\psoc creator\\3.3\\psoc creator\\import\\gnu\\arm\\4.9.
+ 297              		.file 3 "c:\\program files (x86)\\cypress\\psoc creator\\3.3\\psoc creator\\import\\gnu\\arm\\4.9.
+ 298              		.file 4 "Generated_Source\\PSoC5/cytypes.h"
+ 299              		.file 5 "Generated_Source\\PSoC5/CAN_1.h"
+ 300              		.file 6 ".\\CAN.h"
+ 301              		.file 7 ".\\CAN_func.h"
+ 302              		.file 8 "Generated_Source\\PSoC5/core_cm3.h"
+ 303              		.section	.debug_info,"",%progbits
+ 304              	.Ldebug_info0:
+ 305 0000 5C030000 		.4byte	0x35c
+ 306 0004 0400     		.2byte	0x4
+ 307 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 308 000a 04       		.byte	0x4
+ 309 000b 01       		.uleb128 0x1
+ 310 000c 7C010000 		.4byte	.LASF55
+ 311 0010 01       		.byte	0x1
+ 312 0011 AF000000 		.4byte	.LASF56
+ 313 0015 B1020000 		.4byte	.LASF57
+ 314 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 315 001d 00000000 		.4byte	0
+ 316 0021 00000000 		.4byte	.Ldebug_line0
+ 317 0025 02       		.uleb128 0x2
+ 318 0026 01       		.byte	0x1
+ 319 0027 06       		.byte	0x6
+ 320 0028 0F010000 		.4byte	.LASF0
+ 321 002c 02       		.uleb128 0x2
+ 322 002d 01       		.byte	0x1
+ 323 002e 08       		.byte	0x8
+ 324 002f F7000000 		.4byte	.LASF1
+ 325 0033 02       		.uleb128 0x2
+ 326 0034 02       		.byte	0x2
+ 327 0035 05       		.byte	0x5
+ 328 0036 3B000000 		.4byte	.LASF2
+ 329 003a 02       		.uleb128 0x2
+ 330 003b 02       		.byte	0x2
+ 331 003c 07       		.byte	0x7
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 8
+
+
+ 332 003d 18020000 		.4byte	.LASF3
+ 333 0041 03       		.uleb128 0x3
+ 334 0042 95020000 		.4byte	.LASF9
+ 335 0046 02       		.byte	0x2
+ 336 0047 3F       		.byte	0x3f
+ 337 0048 4C000000 		.4byte	0x4c
+ 338 004c 02       		.uleb128 0x2
+ 339 004d 04       		.byte	0x4
+ 340 004e 05       		.byte	0x5
+ 341 004f B7000000 		.4byte	.LASF4
+ 342 0053 02       		.uleb128 0x2
+ 343 0054 04       		.byte	0x4
+ 344 0055 07       		.byte	0x7
+ 345 0056 72020000 		.4byte	.LASF5
+ 346 005a 02       		.uleb128 0x2
+ 347 005b 08       		.byte	0x8
+ 348 005c 05       		.byte	0x5
+ 349 005d 5C000000 		.4byte	.LASF6
+ 350 0061 02       		.uleb128 0x2
+ 351 0062 08       		.byte	0x8
+ 352 0063 07       		.byte	0x7
+ 353 0064 24010000 		.4byte	.LASF7
+ 354 0068 04       		.uleb128 0x4
+ 355 0069 04       		.byte	0x4
+ 356 006a 05       		.byte	0x5
+ 357 006b 696E7400 		.ascii	"int\000"
+ 358 006f 02       		.uleb128 0x2
+ 359 0070 04       		.byte	0x4
+ 360 0071 07       		.byte	0x7
+ 361 0072 3B010000 		.4byte	.LASF8
+ 362 0076 03       		.uleb128 0x3
+ 363 0077 C0000000 		.4byte	.LASF10
+ 364 007b 03       		.byte	0x3
+ 365 007c 2C       		.byte	0x2c
+ 366 007d 41000000 		.4byte	0x41
+ 367 0081 05       		.uleb128 0x5
+ 368 0082 78000000 		.4byte	.LASF11
+ 369 0086 04       		.byte	0x4
+ 370 0087 3801     		.2byte	0x138
+ 371 0089 2C000000 		.4byte	0x2c
+ 372 008d 05       		.uleb128 0x5
+ 373 008e 71000000 		.4byte	.LASF12
+ 374 0092 04       		.byte	0x4
+ 375 0093 3901     		.2byte	0x139
+ 376 0095 3A000000 		.4byte	0x3a
+ 377 0099 05       		.uleb128 0x5
+ 378 009a 66020000 		.4byte	.LASF13
+ 379 009e 04       		.byte	0x4
+ 380 009f 3A01     		.2byte	0x13a
+ 381 00a1 53000000 		.4byte	0x53
+ 382 00a5 02       		.uleb128 0x2
+ 383 00a6 04       		.byte	0x4
+ 384 00a7 04       		.byte	0x4
+ 385 00a8 96000000 		.4byte	.LASF14
+ 386 00ac 02       		.uleb128 0x2
+ 387 00ad 08       		.byte	0x8
+ 388 00ae 04       		.byte	0x4
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 9
+
+
+ 389 00af 84020000 		.4byte	.LASF15
+ 390 00b3 02       		.uleb128 0x2
+ 391 00b4 01       		.byte	0x1
+ 392 00b5 08       		.byte	0x8
+ 393 00b6 77010000 		.4byte	.LASF16
+ 394 00ba 05       		.uleb128 0x5
+ 395 00bb 6D020000 		.4byte	.LASF17
+ 396 00bf 04       		.byte	0x4
+ 397 00c0 E201     		.2byte	0x1e2
+ 398 00c2 C6000000 		.4byte	0xc6
+ 399 00c6 06       		.uleb128 0x6
+ 400 00c7 81000000 		.4byte	0x81
+ 401 00cb 05       		.uleb128 0x5
+ 402 00cc 18030000 		.4byte	.LASF18
+ 403 00d0 04       		.byte	0x4
+ 404 00d1 E401     		.2byte	0x1e4
+ 405 00d3 D7000000 		.4byte	0xd7
+ 406 00d7 06       		.uleb128 0x6
+ 407 00d8 99000000 		.4byte	0x99
+ 408 00dc 02       		.uleb128 0x2
+ 409 00dd 04       		.byte	0x4
+ 410 00de 07       		.byte	0x7
+ 411 00df 4B000000 		.4byte	.LASF19
+ 412 00e3 07       		.uleb128 0x7
+ 413 00e4 08       		.byte	0x8
+ 414 00e5 05       		.byte	0x5
+ 415 00e6 75       		.byte	0x75
+ 416 00e7 F8000000 		.4byte	0xf8
+ 417 00eb 08       		.uleb128 0x8
+ 418 00ec E4000000 		.4byte	.LASF21
+ 419 00f0 05       		.byte	0x5
+ 420 00f1 77       		.byte	0x77
+ 421 00f2 08010000 		.4byte	0x108
+ 422 00f6 00       		.byte	0
+ 423 00f7 00       		.byte	0
+ 424 00f8 09       		.uleb128 0x9
+ 425 00f9 BA000000 		.4byte	0xba
+ 426 00fd 08010000 		.4byte	0x108
+ 427 0101 0A       		.uleb128 0xa
+ 428 0102 DC000000 		.4byte	0xdc
+ 429 0106 07       		.byte	0x7
+ 430 0107 00       		.byte	0
+ 431 0108 06       		.uleb128 0x6
+ 432 0109 F8000000 		.4byte	0xf8
+ 433 010d 03       		.uleb128 0x3
+ 434 010e 2A000000 		.4byte	.LASF20
+ 435 0112 05       		.byte	0x5
+ 436 0113 78       		.byte	0x78
+ 437 0114 E3000000 		.4byte	0xe3
+ 438 0118 07       		.uleb128 0x7
+ 439 0119 04       		.byte	0x4
+ 440 011a 05       		.byte	0x5
+ 441 011b 7B       		.byte	0x7b
+ 442 011c 2D010000 		.4byte	0x12d
+ 443 0120 08       		.uleb128 0x8
+ 444 0121 E4000000 		.4byte	.LASF21
+ 445 0125 05       		.byte	0x5
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 10
+
+
+ 446 0126 7D       		.byte	0x7d
+ 447 0127 3D010000 		.4byte	0x13d
+ 448 012b 00       		.byte	0
+ 449 012c 00       		.byte	0
+ 450 012d 09       		.uleb128 0x9
+ 451 012e BA000000 		.4byte	0xba
+ 452 0132 3D010000 		.4byte	0x13d
+ 453 0136 0A       		.uleb128 0xa
+ 454 0137 DC000000 		.4byte	0xdc
+ 455 013b 03       		.byte	0x3
+ 456 013c 00       		.byte	0
+ 457 013d 06       		.uleb128 0x6
+ 458 013e 2D010000 		.4byte	0x12d
+ 459 0142 03       		.uleb128 0x3
+ 460 0143 89000000 		.4byte	.LASF22
+ 461 0147 05       		.byte	0x5
+ 462 0148 7E       		.byte	0x7e
+ 463 0149 18010000 		.4byte	0x118
+ 464 014d 07       		.uleb128 0x7
+ 465 014e 20       		.byte	0x20
+ 466 014f 05       		.byte	0x5
+ 467 0150 A0       		.byte	0xa0
+ 468 0151 AA010000 		.4byte	0x1aa
+ 469 0155 08       		.uleb128 0x8
+ 470 0156 12020000 		.4byte	.LASF23
+ 471 015a 05       		.byte	0x5
+ 472 015b A2       		.byte	0xa2
+ 473 015c 42010000 		.4byte	0x142
+ 474 0160 00       		.byte	0
+ 475 0161 08       		.uleb128 0x8
+ 476 0162 7E000000 		.4byte	.LASF24
+ 477 0166 05       		.byte	0x5
+ 478 0167 A3       		.byte	0xa3
+ 479 0168 42010000 		.4byte	0x142
+ 480 016c 04       		.byte	0x4
+ 481 016d 08       		.uleb128 0x8
+ 482 016e 6A000000 		.4byte	.LASF25
+ 483 0172 05       		.byte	0x5
+ 484 0173 A4       		.byte	0xa4
+ 485 0174 0D010000 		.4byte	0x10d
+ 486 0178 08       		.byte	0x8
+ 487 0179 08       		.uleb128 0x8
+ 488 017a 12030000 		.4byte	.LASF26
+ 489 017e 05       		.byte	0x5
+ 490 017f A5       		.byte	0xa5
+ 491 0180 42010000 		.4byte	0x142
+ 492 0184 10       		.byte	0x10
+ 493 0185 08       		.uleb128 0x8
+ 494 0186 83000000 		.4byte	.LASF27
+ 495 018a 05       		.byte	0x5
+ 496 018b A6       		.byte	0xa6
+ 497 018c 42010000 		.4byte	0x142
+ 498 0190 14       		.byte	0x14
+ 499 0191 08       		.uleb128 0x8
+ 500 0192 F0000000 		.4byte	.LASF28
+ 501 0196 05       		.byte	0x5
+ 502 0197 A7       		.byte	0xa7
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 11
+
+
+ 503 0198 42010000 		.4byte	0x142
+ 504 019c 18       		.byte	0x18
+ 505 019d 08       		.uleb128 0x8
+ 506 019e AA020000 		.4byte	.LASF29
+ 507 01a2 05       		.byte	0x5
+ 508 01a3 A8       		.byte	0xa8
+ 509 01a4 42010000 		.4byte	0x142
+ 510 01a8 1C       		.byte	0x1c
+ 511 01a9 00       		.byte	0
+ 512 01aa 03       		.uleb128 0x3
+ 513 01ab 14000000 		.4byte	.LASF30
+ 514 01af 05       		.byte	0x5
+ 515 01b0 A9       		.byte	0xa9
+ 516 01b1 4D010000 		.4byte	0x14d
+ 517 01b5 0B       		.uleb128 0xb
+ 518 01b6 0A020000 		.4byte	.LASF58
+ 519 01ba 18       		.byte	0x18
+ 520 01bb 06       		.byte	0x6
+ 521 01bc 06       		.byte	0x6
+ 522 01bd 8E020000 		.4byte	0x28e
+ 523 01c1 08       		.uleb128 0x8
+ 524 01c2 24000000 		.4byte	.LASF31
+ 525 01c6 06       		.byte	0x6
+ 526 01c7 08       		.byte	0x8
+ 527 01c8 81000000 		.4byte	0x81
+ 528 01cc 00       		.byte	0
+ 529 01cd 08       		.uleb128 0x8
+ 530 01ce F8020000 		.4byte	.LASF32
+ 531 01d2 06       		.byte	0x6
+ 532 01d3 09       		.byte	0x9
+ 533 01d4 8D000000 		.4byte	0x8d
+ 534 01d8 02       		.byte	0x2
+ 535 01d9 08       		.uleb128 0x8
+ 536 01da 8B020000 		.4byte	.LASF33
+ 537 01de 06       		.byte	0x6
+ 538 01df 0A       		.byte	0xa
+ 539 01e0 8D000000 		.4byte	0x8d
+ 540 01e4 04       		.byte	0x4
+ 541 01e5 08       		.uleb128 0x8
+ 542 01e6 3F020000 		.4byte	.LASF34
+ 543 01ea 06       		.byte	0x6
+ 544 01eb 0B       		.byte	0xb
+ 545 01ec 81000000 		.4byte	0x81
+ 546 01f0 06       		.byte	0x6
+ 547 01f1 08       		.uleb128 0x8
+ 548 01f2 D1000000 		.4byte	.LASF35
+ 549 01f6 06       		.byte	0x6
+ 550 01f7 0C       		.byte	0xc
+ 551 01f8 81000000 		.4byte	0x81
+ 552 01fc 07       		.byte	0x7
+ 553 01fd 08       		.uleb128 0x8
+ 554 01fe 59010000 		.4byte	.LASF36
+ 555 0202 06       		.byte	0x6
+ 556 0203 0D       		.byte	0xd
+ 557 0204 81000000 		.4byte	0x81
+ 558 0208 08       		.byte	0x8
+ 559 0209 08       		.uleb128 0x8
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 12
+
+
+ 560 020a 9C000000 		.4byte	.LASF37
+ 561 020e 06       		.byte	0x6
+ 562 020f 0E       		.byte	0xe
+ 563 0210 81000000 		.4byte	0x81
+ 564 0214 09       		.byte	0x9
+ 565 0215 08       		.uleb128 0x8
+ 566 0216 35020000 		.4byte	.LASF38
+ 567 021a 06       		.byte	0x6
+ 568 021b 0F       		.byte	0xf
+ 569 021c 8D000000 		.4byte	0x8d
+ 570 0220 0A       		.byte	0xa
+ 571 0221 0C       		.uleb128 0xc
+ 572 0222 534F4300 		.ascii	"SOC\000"
+ 573 0226 06       		.byte	0x6
+ 574 0227 10       		.byte	0x10
+ 575 0228 81000000 		.4byte	0x81
+ 576 022c 0C       		.byte	0xc
+ 577 022d 0C       		.uleb128 0xc
+ 578 022e 444F4400 		.ascii	"DOD\000"
+ 579 0232 06       		.byte	0x6
+ 580 0233 11       		.byte	0x11
+ 581 0234 8D000000 		.4byte	0x8d
+ 582 0238 0E       		.byte	0xe
+ 583 0239 08       		.uleb128 0x8
+ 584 023a 1B010000 		.4byte	.LASF39
+ 585 023e 06       		.byte	0x6
+ 586 023f 12       		.byte	0x12
+ 587 0240 8D000000 		.4byte	0x8d
+ 588 0244 10       		.byte	0x10
+ 589 0245 08       		.uleb128 0x8
+ 590 0246 45000000 		.4byte	.LASF40
+ 591 024a 06       		.byte	0x6
+ 592 024b 13       		.byte	0x13
+ 593 024c 81000000 		.4byte	0x81
+ 594 0250 12       		.byte	0x12
+ 595 0251 08       		.uleb128 0x8
+ 596 0252 6D010000 		.4byte	.LASF41
+ 597 0256 06       		.byte	0x6
+ 598 0257 14       		.byte	0x14
+ 599 0258 81000000 		.4byte	0x81
+ 600 025c 13       		.byte	0x13
+ 601 025d 08       		.uleb128 0x8
+ 602 025e 48010000 		.4byte	.LASF42
+ 603 0262 06       		.byte	0x6
+ 604 0263 15       		.byte	0x15
+ 605 0264 81000000 		.4byte	0x81
+ 606 0268 14       		.byte	0x14
+ 607 0269 08       		.uleb128 0x8
+ 608 026a 05010000 		.4byte	.LASF43
+ 609 026e 06       		.byte	0x6
+ 610 026f 16       		.byte	0x16
+ 611 0270 81000000 		.4byte	0x81
+ 612 0274 15       		.byte	0x15
+ 613 0275 08       		.uleb128 0x8
+ 614 0276 E9000000 		.4byte	.LASF44
+ 615 027a 06       		.byte	0x6
+ 616 027b 17       		.byte	0x17
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 13
+
+
+ 617 027c 81000000 		.4byte	0x81
+ 618 0280 16       		.byte	0x16
+ 619 0281 08       		.uleb128 0x8
+ 620 0282 54000000 		.4byte	.LASF45
+ 621 0286 06       		.byte	0x6
+ 622 0287 18       		.byte	0x18
+ 623 0288 81000000 		.4byte	0x81
+ 624 028c 17       		.byte	0x17
+ 625 028d 00       		.byte	0
+ 626 028e 0D       		.uleb128 0xd
+ 627 028f 1E030000 		.4byte	.LASF59
+ 628 0293 01       		.byte	0x1
+ 629 0294 07       		.byte	0x7
+ 630 0295 06       		.byte	0x6
+ 631 0296 BE020000 		.4byte	0x2be
+ 632 029a 0E       		.uleb128 0xe
+ 633 029b 9F020000 		.4byte	.LASF46
+ 634 029f 00       		.sleb128 0
+ 635 02a0 0E       		.uleb128 0xe
+ 636 02a1 2B020000 		.4byte	.LASF47
+ 637 02a5 01       		.sleb128 1
+ 638 02a6 0E       		.uleb128 0xe
+ 639 02a7 4F010000 		.4byte	.LASF48
+ 640 02ab 02       		.sleb128 2
+ 641 02ac 0F       		.uleb128 0xf
+ 642 02ad 444F4400 		.ascii	"DOD\000"
+ 643 02b1 03       		.sleb128 3
+ 644 02b2 0E       		.uleb128 0xe
+ 645 02b3 5C020000 		.4byte	.LASF49
+ 646 02b7 04       		.sleb128 4
+ 647 02b8 0F       		.uleb128 0xf
+ 648 02b9 495200   		.ascii	"IR\000"
+ 649 02bc 05       		.sleb128 5
+ 650 02bd 00       		.byte	0
+ 651 02be 10       		.uleb128 0x10
+ 652 02bf 53020000 		.4byte	.LASF50
+ 653 02c3 01       		.byte	0x1
+ 654 02c4 13       		.byte	0x13
+ 655 02c5 E1020000 		.4byte	0x2e1
+ 656 02c9 00000000 		.4byte	.LFB63
+ 657 02cd 10000000 		.4byte	.LFE63-.LFB63
+ 658 02d1 01       		.uleb128 0x1
+ 659 02d2 9C       		.byte	0x9c
+ 660 02d3 E1020000 		.4byte	0x2e1
+ 661 02d7 11       		.uleb128 0x11
+ 662 02d8 06000000 		.4byte	.LVL0
+ 663 02dc 54030000 		.4byte	0x354
+ 664 02e0 00       		.byte	0
+ 665 02e1 12       		.uleb128 0x12
+ 666 02e2 04       		.byte	0x4
+ 667 02e3 B5010000 		.4byte	0x1b5
+ 668 02e7 13       		.uleb128 0x13
+ 669 02e8 C8000000 		.4byte	.LASF51
+ 670 02ec 01       		.byte	0x1
+ 671 02ed 19       		.byte	0x19
+ 672 02ee 00000000 		.4byte	.LFB64
+ 673 02f2 34010000 		.4byte	.LFE64-.LFB64
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 14
+
+
+ 674 02f6 01       		.uleb128 0x1
+ 675 02f7 9C       		.byte	0x9c
+ 676 02f8 32030000 		.4byte	0x332
+ 677 02fc 14       		.uleb128 0x14
+ 678 02fd 0C000000 		.4byte	.LASF52
+ 679 0301 01       		.byte	0x1
+ 680 0302 19       		.byte	0x19
+ 681 0303 81000000 		.4byte	0x81
+ 682 0307 00000000 		.4byte	.LLST0
+ 683 030b 15       		.uleb128 0x15
+ 684 030c 00030000 		.4byte	.LASF53
+ 685 0310 01       		.byte	0x1
+ 686 0311 19       		.byte	0x19
+ 687 0312 8E020000 		.4byte	0x28e
+ 688 0316 01       		.uleb128 0x1
+ 689 0317 51       		.byte	0x51
+ 690 0318 16       		.uleb128 0x16
+ 691 0319 494400   		.ascii	"ID\000"
+ 692 031c 01       		.byte	0x1
+ 693 031d 1B       		.byte	0x1b
+ 694 031e 8D000000 		.4byte	0x8d
+ 695 0322 17       		.uleb128 0x17
+ 696 0323 444C4300 		.ascii	"DLC\000"
+ 697 0327 01       		.byte	0x1
+ 698 0328 1C       		.byte	0x1c
+ 699 0329 81000000 		.4byte	0x81
+ 700 032d 21000000 		.4byte	.LLST1
+ 701 0331 00       		.byte	0
+ 702 0332 18       		.uleb128 0x18
+ 703 0333 05030000 		.4byte	.LASF54
+ 704 0337 08       		.byte	0x8
+ 705 0338 5506     		.2byte	0x655
+ 706 033a 3E030000 		.4byte	0x33e
+ 707 033e 06       		.uleb128 0x6
+ 708 033f 76000000 		.4byte	0x76
+ 709 0343 19       		.uleb128 0x19
+ 710 0344 424D5300 		.ascii	"BMS\000"
+ 711 0348 01       		.byte	0x1
+ 712 0349 11       		.byte	0x11
+ 713 034a B5010000 		.4byte	0x1b5
+ 714 034e 05       		.uleb128 0x5
+ 715 034f 03       		.byte	0x3
+ 716 0350 00000000 		.4byte	BMS
+ 717 0354 1A       		.uleb128 0x1a
+ 718 0355 00000000 		.4byte	.LASF60
+ 719 0359 05       		.byte	0x5
+ 720 035a C5       		.byte	0xc5
+ 721 035b 81000000 		.4byte	0x81
+ 722 035f 00       		.byte	0
+ 723              		.section	.debug_abbrev,"",%progbits
+ 724              	.Ldebug_abbrev0:
+ 725 0000 01       		.uleb128 0x1
+ 726 0001 11       		.uleb128 0x11
+ 727 0002 01       		.byte	0x1
+ 728 0003 25       		.uleb128 0x25
+ 729 0004 0E       		.uleb128 0xe
+ 730 0005 13       		.uleb128 0x13
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 15
+
+
+ 731 0006 0B       		.uleb128 0xb
+ 732 0007 03       		.uleb128 0x3
+ 733 0008 0E       		.uleb128 0xe
+ 734 0009 1B       		.uleb128 0x1b
+ 735 000a 0E       		.uleb128 0xe
+ 736 000b 55       		.uleb128 0x55
+ 737 000c 17       		.uleb128 0x17
+ 738 000d 11       		.uleb128 0x11
+ 739 000e 01       		.uleb128 0x1
+ 740 000f 10       		.uleb128 0x10
+ 741 0010 17       		.uleb128 0x17
+ 742 0011 00       		.byte	0
+ 743 0012 00       		.byte	0
+ 744 0013 02       		.uleb128 0x2
+ 745 0014 24       		.uleb128 0x24
+ 746 0015 00       		.byte	0
+ 747 0016 0B       		.uleb128 0xb
+ 748 0017 0B       		.uleb128 0xb
+ 749 0018 3E       		.uleb128 0x3e
+ 750 0019 0B       		.uleb128 0xb
+ 751 001a 03       		.uleb128 0x3
+ 752 001b 0E       		.uleb128 0xe
+ 753 001c 00       		.byte	0
+ 754 001d 00       		.byte	0
+ 755 001e 03       		.uleb128 0x3
+ 756 001f 16       		.uleb128 0x16
+ 757 0020 00       		.byte	0
+ 758 0021 03       		.uleb128 0x3
+ 759 0022 0E       		.uleb128 0xe
+ 760 0023 3A       		.uleb128 0x3a
+ 761 0024 0B       		.uleb128 0xb
+ 762 0025 3B       		.uleb128 0x3b
+ 763 0026 0B       		.uleb128 0xb
+ 764 0027 49       		.uleb128 0x49
+ 765 0028 13       		.uleb128 0x13
+ 766 0029 00       		.byte	0
+ 767 002a 00       		.byte	0
+ 768 002b 04       		.uleb128 0x4
+ 769 002c 24       		.uleb128 0x24
+ 770 002d 00       		.byte	0
+ 771 002e 0B       		.uleb128 0xb
+ 772 002f 0B       		.uleb128 0xb
+ 773 0030 3E       		.uleb128 0x3e
+ 774 0031 0B       		.uleb128 0xb
+ 775 0032 03       		.uleb128 0x3
+ 776 0033 08       		.uleb128 0x8
+ 777 0034 00       		.byte	0
+ 778 0035 00       		.byte	0
+ 779 0036 05       		.uleb128 0x5
+ 780 0037 16       		.uleb128 0x16
+ 781 0038 00       		.byte	0
+ 782 0039 03       		.uleb128 0x3
+ 783 003a 0E       		.uleb128 0xe
+ 784 003b 3A       		.uleb128 0x3a
+ 785 003c 0B       		.uleb128 0xb
+ 786 003d 3B       		.uleb128 0x3b
+ 787 003e 05       		.uleb128 0x5
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 16
+
+
+ 788 003f 49       		.uleb128 0x49
+ 789 0040 13       		.uleb128 0x13
+ 790 0041 00       		.byte	0
+ 791 0042 00       		.byte	0
+ 792 0043 06       		.uleb128 0x6
+ 793 0044 35       		.uleb128 0x35
+ 794 0045 00       		.byte	0
+ 795 0046 49       		.uleb128 0x49
+ 796 0047 13       		.uleb128 0x13
+ 797 0048 00       		.byte	0
+ 798 0049 00       		.byte	0
+ 799 004a 07       		.uleb128 0x7
+ 800 004b 13       		.uleb128 0x13
+ 801 004c 01       		.byte	0x1
+ 802 004d 0B       		.uleb128 0xb
+ 803 004e 0B       		.uleb128 0xb
+ 804 004f 3A       		.uleb128 0x3a
+ 805 0050 0B       		.uleb128 0xb
+ 806 0051 3B       		.uleb128 0x3b
+ 807 0052 0B       		.uleb128 0xb
+ 808 0053 01       		.uleb128 0x1
+ 809 0054 13       		.uleb128 0x13
+ 810 0055 00       		.byte	0
+ 811 0056 00       		.byte	0
+ 812 0057 08       		.uleb128 0x8
+ 813 0058 0D       		.uleb128 0xd
+ 814 0059 00       		.byte	0
+ 815 005a 03       		.uleb128 0x3
+ 816 005b 0E       		.uleb128 0xe
+ 817 005c 3A       		.uleb128 0x3a
+ 818 005d 0B       		.uleb128 0xb
+ 819 005e 3B       		.uleb128 0x3b
+ 820 005f 0B       		.uleb128 0xb
+ 821 0060 49       		.uleb128 0x49
+ 822 0061 13       		.uleb128 0x13
+ 823 0062 38       		.uleb128 0x38
+ 824 0063 0B       		.uleb128 0xb
+ 825 0064 00       		.byte	0
+ 826 0065 00       		.byte	0
+ 827 0066 09       		.uleb128 0x9
+ 828 0067 01       		.uleb128 0x1
+ 829 0068 01       		.byte	0x1
+ 830 0069 49       		.uleb128 0x49
+ 831 006a 13       		.uleb128 0x13
+ 832 006b 01       		.uleb128 0x1
+ 833 006c 13       		.uleb128 0x13
+ 834 006d 00       		.byte	0
+ 835 006e 00       		.byte	0
+ 836 006f 0A       		.uleb128 0xa
+ 837 0070 21       		.uleb128 0x21
+ 838 0071 00       		.byte	0
+ 839 0072 49       		.uleb128 0x49
+ 840 0073 13       		.uleb128 0x13
+ 841 0074 2F       		.uleb128 0x2f
+ 842 0075 0B       		.uleb128 0xb
+ 843 0076 00       		.byte	0
+ 844 0077 00       		.byte	0
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 17
+
+
+ 845 0078 0B       		.uleb128 0xb
+ 846 0079 13       		.uleb128 0x13
+ 847 007a 01       		.byte	0x1
+ 848 007b 03       		.uleb128 0x3
+ 849 007c 0E       		.uleb128 0xe
+ 850 007d 0B       		.uleb128 0xb
+ 851 007e 0B       		.uleb128 0xb
+ 852 007f 3A       		.uleb128 0x3a
+ 853 0080 0B       		.uleb128 0xb
+ 854 0081 3B       		.uleb128 0x3b
+ 855 0082 0B       		.uleb128 0xb
+ 856 0083 01       		.uleb128 0x1
+ 857 0084 13       		.uleb128 0x13
+ 858 0085 00       		.byte	0
+ 859 0086 00       		.byte	0
+ 860 0087 0C       		.uleb128 0xc
+ 861 0088 0D       		.uleb128 0xd
+ 862 0089 00       		.byte	0
+ 863 008a 03       		.uleb128 0x3
+ 864 008b 08       		.uleb128 0x8
+ 865 008c 3A       		.uleb128 0x3a
+ 866 008d 0B       		.uleb128 0xb
+ 867 008e 3B       		.uleb128 0x3b
+ 868 008f 0B       		.uleb128 0xb
+ 869 0090 49       		.uleb128 0x49
+ 870 0091 13       		.uleb128 0x13
+ 871 0092 38       		.uleb128 0x38
+ 872 0093 0B       		.uleb128 0xb
+ 873 0094 00       		.byte	0
+ 874 0095 00       		.byte	0
+ 875 0096 0D       		.uleb128 0xd
+ 876 0097 04       		.uleb128 0x4
+ 877 0098 01       		.byte	0x1
+ 878 0099 03       		.uleb128 0x3
+ 879 009a 0E       		.uleb128 0xe
+ 880 009b 0B       		.uleb128 0xb
+ 881 009c 0B       		.uleb128 0xb
+ 882 009d 3A       		.uleb128 0x3a
+ 883 009e 0B       		.uleb128 0xb
+ 884 009f 3B       		.uleb128 0x3b
+ 885 00a0 0B       		.uleb128 0xb
+ 886 00a1 01       		.uleb128 0x1
+ 887 00a2 13       		.uleb128 0x13
+ 888 00a3 00       		.byte	0
+ 889 00a4 00       		.byte	0
+ 890 00a5 0E       		.uleb128 0xe
+ 891 00a6 28       		.uleb128 0x28
+ 892 00a7 00       		.byte	0
+ 893 00a8 03       		.uleb128 0x3
+ 894 00a9 0E       		.uleb128 0xe
+ 895 00aa 1C       		.uleb128 0x1c
+ 896 00ab 0D       		.uleb128 0xd
+ 897 00ac 00       		.byte	0
+ 898 00ad 00       		.byte	0
+ 899 00ae 0F       		.uleb128 0xf
+ 900 00af 28       		.uleb128 0x28
+ 901 00b0 00       		.byte	0
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 18
+
+
+ 902 00b1 03       		.uleb128 0x3
+ 903 00b2 08       		.uleb128 0x8
+ 904 00b3 1C       		.uleb128 0x1c
+ 905 00b4 0D       		.uleb128 0xd
+ 906 00b5 00       		.byte	0
+ 907 00b6 00       		.byte	0
+ 908 00b7 10       		.uleb128 0x10
+ 909 00b8 2E       		.uleb128 0x2e
+ 910 00b9 01       		.byte	0x1
+ 911 00ba 3F       		.uleb128 0x3f
+ 912 00bb 19       		.uleb128 0x19
+ 913 00bc 03       		.uleb128 0x3
+ 914 00bd 0E       		.uleb128 0xe
+ 915 00be 3A       		.uleb128 0x3a
+ 916 00bf 0B       		.uleb128 0xb
+ 917 00c0 3B       		.uleb128 0x3b
+ 918 00c1 0B       		.uleb128 0xb
+ 919 00c2 49       		.uleb128 0x49
+ 920 00c3 13       		.uleb128 0x13
+ 921 00c4 11       		.uleb128 0x11
+ 922 00c5 01       		.uleb128 0x1
+ 923 00c6 12       		.uleb128 0x12
+ 924 00c7 06       		.uleb128 0x6
+ 925 00c8 40       		.uleb128 0x40
+ 926 00c9 18       		.uleb128 0x18
+ 927 00ca 9742     		.uleb128 0x2117
+ 928 00cc 19       		.uleb128 0x19
+ 929 00cd 01       		.uleb128 0x1
+ 930 00ce 13       		.uleb128 0x13
+ 931 00cf 00       		.byte	0
+ 932 00d0 00       		.byte	0
+ 933 00d1 11       		.uleb128 0x11
+ 934 00d2 898201   		.uleb128 0x4109
+ 935 00d5 00       		.byte	0
+ 936 00d6 11       		.uleb128 0x11
+ 937 00d7 01       		.uleb128 0x1
+ 938 00d8 31       		.uleb128 0x31
+ 939 00d9 13       		.uleb128 0x13
+ 940 00da 00       		.byte	0
+ 941 00db 00       		.byte	0
+ 942 00dc 12       		.uleb128 0x12
+ 943 00dd 0F       		.uleb128 0xf
+ 944 00de 00       		.byte	0
+ 945 00df 0B       		.uleb128 0xb
+ 946 00e0 0B       		.uleb128 0xb
+ 947 00e1 49       		.uleb128 0x49
+ 948 00e2 13       		.uleb128 0x13
+ 949 00e3 00       		.byte	0
+ 950 00e4 00       		.byte	0
+ 951 00e5 13       		.uleb128 0x13
+ 952 00e6 2E       		.uleb128 0x2e
+ 953 00e7 01       		.byte	0x1
+ 954 00e8 3F       		.uleb128 0x3f
+ 955 00e9 19       		.uleb128 0x19
+ 956 00ea 03       		.uleb128 0x3
+ 957 00eb 0E       		.uleb128 0xe
+ 958 00ec 3A       		.uleb128 0x3a
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 19
+
+
+ 959 00ed 0B       		.uleb128 0xb
+ 960 00ee 3B       		.uleb128 0x3b
+ 961 00ef 0B       		.uleb128 0xb
+ 962 00f0 27       		.uleb128 0x27
+ 963 00f1 19       		.uleb128 0x19
+ 964 00f2 11       		.uleb128 0x11
+ 965 00f3 01       		.uleb128 0x1
+ 966 00f4 12       		.uleb128 0x12
+ 967 00f5 06       		.uleb128 0x6
+ 968 00f6 40       		.uleb128 0x40
+ 969 00f7 18       		.uleb128 0x18
+ 970 00f8 9742     		.uleb128 0x2117
+ 971 00fa 19       		.uleb128 0x19
+ 972 00fb 01       		.uleb128 0x1
+ 973 00fc 13       		.uleb128 0x13
+ 974 00fd 00       		.byte	0
+ 975 00fe 00       		.byte	0
+ 976 00ff 14       		.uleb128 0x14
+ 977 0100 05       		.uleb128 0x5
+ 978 0101 00       		.byte	0
+ 979 0102 03       		.uleb128 0x3
+ 980 0103 0E       		.uleb128 0xe
+ 981 0104 3A       		.uleb128 0x3a
+ 982 0105 0B       		.uleb128 0xb
+ 983 0106 3B       		.uleb128 0x3b
+ 984 0107 0B       		.uleb128 0xb
+ 985 0108 49       		.uleb128 0x49
+ 986 0109 13       		.uleb128 0x13
+ 987 010a 02       		.uleb128 0x2
+ 988 010b 17       		.uleb128 0x17
+ 989 010c 00       		.byte	0
+ 990 010d 00       		.byte	0
+ 991 010e 15       		.uleb128 0x15
+ 992 010f 05       		.uleb128 0x5
+ 993 0110 00       		.byte	0
+ 994 0111 03       		.uleb128 0x3
+ 995 0112 0E       		.uleb128 0xe
+ 996 0113 3A       		.uleb128 0x3a
+ 997 0114 0B       		.uleb128 0xb
+ 998 0115 3B       		.uleb128 0x3b
+ 999 0116 0B       		.uleb128 0xb
+ 1000 0117 49       		.uleb128 0x49
+ 1001 0118 13       		.uleb128 0x13
+ 1002 0119 02       		.uleb128 0x2
+ 1003 011a 18       		.uleb128 0x18
+ 1004 011b 00       		.byte	0
+ 1005 011c 00       		.byte	0
+ 1006 011d 16       		.uleb128 0x16
+ 1007 011e 34       		.uleb128 0x34
+ 1008 011f 00       		.byte	0
+ 1009 0120 03       		.uleb128 0x3
+ 1010 0121 08       		.uleb128 0x8
+ 1011 0122 3A       		.uleb128 0x3a
+ 1012 0123 0B       		.uleb128 0xb
+ 1013 0124 3B       		.uleb128 0x3b
+ 1014 0125 0B       		.uleb128 0xb
+ 1015 0126 49       		.uleb128 0x49
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 20
+
+
+ 1016 0127 13       		.uleb128 0x13
+ 1017 0128 00       		.byte	0
+ 1018 0129 00       		.byte	0
+ 1019 012a 17       		.uleb128 0x17
+ 1020 012b 34       		.uleb128 0x34
+ 1021 012c 00       		.byte	0
+ 1022 012d 03       		.uleb128 0x3
+ 1023 012e 08       		.uleb128 0x8
+ 1024 012f 3A       		.uleb128 0x3a
+ 1025 0130 0B       		.uleb128 0xb
+ 1026 0131 3B       		.uleb128 0x3b
+ 1027 0132 0B       		.uleb128 0xb
+ 1028 0133 49       		.uleb128 0x49
+ 1029 0134 13       		.uleb128 0x13
+ 1030 0135 02       		.uleb128 0x2
+ 1031 0136 17       		.uleb128 0x17
+ 1032 0137 00       		.byte	0
+ 1033 0138 00       		.byte	0
+ 1034 0139 18       		.uleb128 0x18
+ 1035 013a 34       		.uleb128 0x34
+ 1036 013b 00       		.byte	0
+ 1037 013c 03       		.uleb128 0x3
+ 1038 013d 0E       		.uleb128 0xe
+ 1039 013e 3A       		.uleb128 0x3a
+ 1040 013f 0B       		.uleb128 0xb
+ 1041 0140 3B       		.uleb128 0x3b
+ 1042 0141 05       		.uleb128 0x5
+ 1043 0142 49       		.uleb128 0x49
+ 1044 0143 13       		.uleb128 0x13
+ 1045 0144 3F       		.uleb128 0x3f
+ 1046 0145 19       		.uleb128 0x19
+ 1047 0146 3C       		.uleb128 0x3c
+ 1048 0147 19       		.uleb128 0x19
+ 1049 0148 00       		.byte	0
+ 1050 0149 00       		.byte	0
+ 1051 014a 19       		.uleb128 0x19
+ 1052 014b 34       		.uleb128 0x34
+ 1053 014c 00       		.byte	0
+ 1054 014d 03       		.uleb128 0x3
+ 1055 014e 08       		.uleb128 0x8
+ 1056 014f 3A       		.uleb128 0x3a
+ 1057 0150 0B       		.uleb128 0xb
+ 1058 0151 3B       		.uleb128 0x3b
+ 1059 0152 0B       		.uleb128 0xb
+ 1060 0153 49       		.uleb128 0x49
+ 1061 0154 13       		.uleb128 0x13
+ 1062 0155 3F       		.uleb128 0x3f
+ 1063 0156 19       		.uleb128 0x19
+ 1064 0157 02       		.uleb128 0x2
+ 1065 0158 18       		.uleb128 0x18
+ 1066 0159 00       		.byte	0
+ 1067 015a 00       		.byte	0
+ 1068 015b 1A       		.uleb128 0x1a
+ 1069 015c 2E       		.uleb128 0x2e
+ 1070 015d 00       		.byte	0
+ 1071 015e 3F       		.uleb128 0x3f
+ 1072 015f 19       		.uleb128 0x19
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 21
+
+
+ 1073 0160 03       		.uleb128 0x3
+ 1074 0161 0E       		.uleb128 0xe
+ 1075 0162 3A       		.uleb128 0x3a
+ 1076 0163 0B       		.uleb128 0xb
+ 1077 0164 3B       		.uleb128 0x3b
+ 1078 0165 0B       		.uleb128 0xb
+ 1079 0166 27       		.uleb128 0x27
+ 1080 0167 19       		.uleb128 0x19
+ 1081 0168 49       		.uleb128 0x49
+ 1082 0169 13       		.uleb128 0x13
+ 1083 016a 3C       		.uleb128 0x3c
+ 1084 016b 19       		.uleb128 0x19
+ 1085 016c 00       		.byte	0
+ 1086 016d 00       		.byte	0
+ 1087 016e 00       		.byte	0
+ 1088              		.section	.debug_loc,"",%progbits
+ 1089              	.Ldebug_loc0:
+ 1090              	.LLST0:
+ 1091 0000 00000000 		.4byte	.LVL1
+ 1092 0004 06000000 		.4byte	.LVL2
+ 1093 0008 0100     		.2byte	0x1
+ 1094 000a 50       		.byte	0x50
+ 1095 000b 06000000 		.4byte	.LVL2
+ 1096 000f 34010000 		.4byte	.LFE64
+ 1097 0013 0400     		.2byte	0x4
+ 1098 0015 F3       		.byte	0xf3
+ 1099 0016 01       		.uleb128 0x1
+ 1100 0017 50       		.byte	0x50
+ 1101 0018 9F       		.byte	0x9f
+ 1102 0019 00000000 		.4byte	0
+ 1103 001d 00000000 		.4byte	0
+ 1104              	.LLST1:
+ 1105 0021 1A000000 		.4byte	.LVL3
+ 1106 0025 32000000 		.4byte	.LVL4
+ 1107 0029 0100     		.2byte	0x1
+ 1108 002b 53       		.byte	0x53
+ 1109 002c 56000000 		.4byte	.LVL5
+ 1110 0030 5C000000 		.4byte	.LVL6
+ 1111 0034 0100     		.2byte	0x1
+ 1112 0036 53       		.byte	0x53
+ 1113 0037 8C000000 		.4byte	.LVL7
+ 1114 003b 92000000 		.4byte	.LVL8
+ 1115 003f 0100     		.2byte	0x1
+ 1116 0041 53       		.byte	0x53
+ 1117 0042 B2000000 		.4byte	.LVL9
+ 1118 0046 BA000000 		.4byte	.LVL10
+ 1119 004a 0100     		.2byte	0x1
+ 1120 004c 53       		.byte	0x53
+ 1121 004d F6000000 		.4byte	.LVL11
+ 1122 0051 FE000000 		.4byte	.LVL12
+ 1123 0055 0100     		.2byte	0x1
+ 1124 0057 53       		.byte	0x53
+ 1125 0058 0A010000 		.4byte	.LVL13
+ 1126 005c 12010000 		.4byte	.LVL14
+ 1127 0060 0100     		.2byte	0x1
+ 1128 0062 53       		.byte	0x53
+ 1129 0063 00000000 		.4byte	0
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 22
+
+
+ 1130 0067 00000000 		.4byte	0
+ 1131              		.section	.debug_aranges,"",%progbits
+ 1132 0000 24000000 		.4byte	0x24
+ 1133 0004 0200     		.2byte	0x2
+ 1134 0006 00000000 		.4byte	.Ldebug_info0
+ 1135 000a 04       		.byte	0x4
+ 1136 000b 00       		.byte	0
+ 1137 000c 0000     		.2byte	0
+ 1138 000e 0000     		.2byte	0
+ 1139 0010 00000000 		.4byte	.LFB63
+ 1140 0014 10000000 		.4byte	.LFE63-.LFB63
+ 1141 0018 00000000 		.4byte	.LFB64
+ 1142 001c 34010000 		.4byte	.LFE64-.LFB64
+ 1143 0020 00000000 		.4byte	0
+ 1144 0024 00000000 		.4byte	0
+ 1145              		.section	.debug_ranges,"",%progbits
+ 1146              	.Ldebug_ranges0:
+ 1147 0000 00000000 		.4byte	.LFB63
+ 1148 0004 10000000 		.4byte	.LFE63
+ 1149 0008 00000000 		.4byte	.LFB64
+ 1150 000c 34010000 		.4byte	.LFE64
+ 1151 0010 00000000 		.4byte	0
+ 1152 0014 00000000 		.4byte	0
+ 1153              		.section	.debug_line,"",%progbits
+ 1154              	.Ldebug_line0:
+ 1155 0000 41020000 		.section	.debug_str,"MS",%progbits,1
+ 1155      02006E01 
+ 1155      00000201 
+ 1155      FB0E0D00 
+ 1155      01010101 
+ 1156              	.LASF60:
+ 1157 0000 43414E5F 		.ascii	"CAN_1_Start\000"
+ 1157      315F5374 
+ 1157      61727400 
+ 1158              	.LASF52:
+ 1159 000c 6D61696C 		.ascii	"mailbox\000"
+ 1159      626F7800 
+ 1160              	.LASF30:
+ 1161 0014 43414E5F 		.ascii	"CAN_1_RX_STRUCT\000"
+ 1161      315F5258 
+ 1161      5F535452 
+ 1161      55435400 
+ 1162              	.LASF31:
+ 1163 0024 73746174 		.ascii	"state\000"
+ 1163      6500
+ 1164              	.LASF20:
+ 1165 002a 43414E5F 		.ascii	"CAN_1_DATA_BYTES\000"
+ 1165      315F4441 
+ 1165      54415F42 
+ 1165      59544553 
+ 1165      00
+ 1166              	.LASF2:
+ 1167 003b 73686F72 		.ascii	"short int\000"
+ 1167      7420696E 
+ 1167      7400
+ 1168              	.LASF40:
+ 1169 0045 54626174 		.ascii	"Tbatt\000"
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 23
+
+
+ 1169      7400
+ 1170              	.LASF19:
+ 1171 004b 73697A65 		.ascii	"sizetype\000"
+ 1171      74797065 
+ 1171      00
+ 1172              	.LASF45:
+ 1173 0054 4E657744 		.ascii	"NewData\000"
+ 1173      61746100 
+ 1174              	.LASF6:
+ 1175 005c 6C6F6E67 		.ascii	"long long int\000"
+ 1175      206C6F6E 
+ 1175      6720696E 
+ 1175      7400
+ 1176              	.LASF25:
+ 1177 006a 72786461 		.ascii	"rxdata\000"
+ 1177      746100
+ 1178              	.LASF12:
+ 1179 0071 75696E74 		.ascii	"uint16\000"
+ 1179      313600
+ 1180              	.LASF11:
+ 1181 0078 75696E74 		.ascii	"uint8\000"
+ 1181      3800
+ 1182              	.LASF24:
+ 1183 007e 72786964 		.ascii	"rxid\000"
+ 1183      00
+ 1184              	.LASF27:
+ 1185 0083 72786163 		.ascii	"rxacr\000"
+ 1185      7200
+ 1186              	.LASF22:
+ 1187 0089 43414E5F 		.ascii	"CAN_1_REG_32\000"
+ 1187      315F5245 
+ 1187      475F3332 
+ 1187      00
+ 1188              	.LASF14:
+ 1189 0096 666C6F61 		.ascii	"float\000"
+ 1189      7400
+ 1190              	.LASF37:
+ 1191 009c 62617474 		.ascii	"battery_cell_V_max\000"
+ 1191      6572795F 
+ 1191      63656C6C 
+ 1191      5F565F6D 
+ 1191      617800
+ 1192              	.LASF56:
+ 1193 00af 2E5C4341 		.ascii	".\\CAN.c\000"
+ 1193      4E2E6300 
+ 1194              	.LASF4:
+ 1195 00b7 6C6F6E67 		.ascii	"long int\000"
+ 1195      20696E74 
+ 1195      00
+ 1196              	.LASF10:
+ 1197 00c0 696E7433 		.ascii	"int32_t\000"
+ 1197      325F7400 
+ 1198              	.LASF51:
+ 1199 00c8 43414E5F 		.ascii	"CAN_func\000"
+ 1199      66756E63 
+ 1199      00
+ 1200              	.LASF35:
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 24
+
+
+ 1201 00d1 62617474 		.ascii	"battery_cell_V_min\000"
+ 1201      6572795F 
+ 1201      63656C6C 
+ 1201      5F565F6D 
+ 1201      696E00
+ 1202              	.LASF21:
+ 1203 00e4 62797465 		.ascii	"byte\000"
+ 1203      00
+ 1204              	.LASF44:
+ 1205 00e9 49525F6D 		.ascii	"IR_max\000"
+ 1205      617800
+ 1206              	.LASF28:
+ 1207 00f0 7278616D 		.ascii	"rxamrd\000"
+ 1207      726400
+ 1208              	.LASF1:
+ 1209 00f7 756E7369 		.ascii	"unsigned char\000"
+ 1209      676E6564 
+ 1209      20636861 
+ 1209      7200
+ 1210              	.LASF43:
+ 1211 0105 49525F6E 		.ascii	"IR_no_max\000"
+ 1211      6F5F6D61 
+ 1211      7800
+ 1212              	.LASF0:
+ 1213 010f 7369676E 		.ascii	"signed char\000"
+ 1213      65642063 
+ 1213      68617200 
+ 1214              	.LASF39:
+ 1215 011b 63617061 		.ascii	"capacity\000"
+ 1215      63697479 
+ 1215      00
+ 1216              	.LASF7:
+ 1217 0124 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 1217      206C6F6E 
+ 1217      6720756E 
+ 1217      7369676E 
+ 1217      65642069 
+ 1218              	.LASF8:
+ 1219 013b 756E7369 		.ascii	"unsigned int\000"
+ 1219      676E6564 
+ 1219      20696E74 
+ 1219      00
+ 1220              	.LASF42:
+ 1221 0148 49525F6D 		.ascii	"IR_min\000"
+ 1221      696E00
+ 1222              	.LASF48:
+ 1223 014f 42415454 		.ascii	"BATTERY_A\000"
+ 1223      4552595F 
+ 1223      4100
+ 1224              	.LASF36:
+ 1225 0159 62617474 		.ascii	"battery_cell_no_max\000"
+ 1225      6572795F 
+ 1225      63656C6C 
+ 1225      5F6E6F5F 
+ 1225      6D617800 
+ 1226              	.LASF41:
+ 1227 016d 49525F6E 		.ascii	"IR_no_min\000"
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 25
+
+
+ 1227      6F5F6D69 
+ 1227      6E00
+ 1228              	.LASF16:
+ 1229 0177 63686172 		.ascii	"char\000"
+ 1229      00
+ 1230              	.LASF55:
+ 1231 017c 474E5520 		.ascii	"GNU C 4.9.3 20150303 (release) [ARM/embedded-4_9-br"
+ 1231      4320342E 
+ 1231      392E3320 
+ 1231      32303135 
+ 1231      30333033 
+ 1232 01af 616E6368 		.ascii	"anch revision 221220] -mcpu=cortex-m3 -mthumb -g -O"
+ 1232      20726576 
+ 1232      6973696F 
+ 1232      6E203232 
+ 1232      31323230 
+ 1233 01e2 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 1233      66756E63 
+ 1233      74696F6E 
+ 1233      2D736563 
+ 1233      74696F6E 
+ 1234              	.LASF58:
+ 1235 020a 424D5344 		.ascii	"BMSData\000"
+ 1235      61746100 
+ 1236              	.LASF23:
+ 1237 0212 7278636D 		.ascii	"rxcmd\000"
+ 1237      6400
+ 1238              	.LASF3:
+ 1239 0218 73686F72 		.ascii	"short unsigned int\000"
+ 1239      7420756E 
+ 1239      7369676E 
+ 1239      65642069 
+ 1239      6E7400
+ 1240              	.LASF47:
+ 1241 022b 42415454 		.ascii	"BATTERY_V\000"
+ 1241      4552595F 
+ 1241      5600
+ 1242              	.LASF38:
+ 1243 0235 62617474 		.ascii	"battery_A\000"
+ 1243      6572795F 
+ 1243      4100
+ 1244              	.LASF34:
+ 1245 023f 62617474 		.ascii	"battery_cell_no_min\000"
+ 1245      6572795F 
+ 1245      63656C6C 
+ 1245      5F6E6F5F 
+ 1245      6D696E00 
+ 1246              	.LASF50:
+ 1247 0253 43414E5F 		.ascii	"CAN_init\000"
+ 1247      696E6974 
+ 1247      00
+ 1248              	.LASF49:
+ 1249 025c 545F4241 		.ascii	"T_BATTERY\000"
+ 1249      54544552 
+ 1249      5900
+ 1250              	.LASF13:
+ 1251 0266 75696E74 		.ascii	"uint32\000"
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 26
+
+
+ 1251      333200
+ 1252              	.LASF17:
+ 1253 026d 72656738 		.ascii	"reg8\000"
+ 1253      00
+ 1254              	.LASF5:
+ 1255 0272 6C6F6E67 		.ascii	"long unsigned int\000"
+ 1255      20756E73 
+ 1255      69676E65 
+ 1255      6420696E 
+ 1255      7400
+ 1256              	.LASF15:
+ 1257 0284 646F7562 		.ascii	"double\000"
+ 1257      6C6500
+ 1258              	.LASF33:
+ 1259 028b 62617474 		.ascii	"battery_V\000"
+ 1259      6572795F 
+ 1259      5600
+ 1260              	.LASF9:
+ 1261 0295 5F5F696E 		.ascii	"__int32_t\000"
+ 1261      7433325F 
+ 1261      7400
+ 1262              	.LASF46:
+ 1263 029f 43414E5F 		.ascii	"CAN_STATUS\000"
+ 1263      53544154 
+ 1263      555300
+ 1264              	.LASF29:
+ 1265 02aa 72786163 		.ascii	"rxacrd\000"
+ 1265      726400
+ 1266              	.LASF57:
+ 1267 02b1 433A5C55 		.ascii	"C:\\Users\\Thomas\\Documents\\GitHub\\MotorControll"
+ 1267      73657273 
+ 1267      5C54686F 
+ 1267      6D61735C 
+ 1267      446F6375 
+ 1268 02df 65725C4D 		.ascii	"er\\MotorController.cydsn\000"
+ 1268      6F746F72 
+ 1268      436F6E74 
+ 1268      726F6C6C 
+ 1268      65722E63 
+ 1269              	.LASF32:
+ 1270 02f8 52756E54 		.ascii	"RunTime\000"
+ 1270      696D6500 
+ 1271              	.LASF53:
+ 1272 0300 666C6167 		.ascii	"flag\000"
+ 1272      00
+ 1273              	.LASF54:
+ 1274 0305 49544D5F 		.ascii	"ITM_RxBuffer\000"
+ 1274      52784275 
+ 1274      66666572 
+ 1274      00
+ 1275              	.LASF26:
+ 1276 0312 7278616D 		.ascii	"rxamr\000"
+ 1276      7200
+ 1277              	.LASF18:
+ 1278 0318 72656733 		.ascii	"reg32\000"
+ 1278      3200
+ 1279              	.LASF59:
+ARM GAS  C:\Users\Thomas\AppData\Local\Temp\ccAjB7GY.s 			page 27
+
+
+ 1280 031e 43414E5F 		.ascii	"CAN_flag\000"
+ 1280      666C6167 
+ 1280      00
+ 1281              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 4.9.3 20150303 (release) [ARM/embedded-4_9-br
