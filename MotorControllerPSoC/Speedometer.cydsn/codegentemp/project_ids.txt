@@ -1,6 +1,0 @@
-C:\Users\Thomas\Documents\PSoC Creator\Projects\Speedometer.cydsn\Speedometer.cyprj|e7566f9a-93e4-47e1-acd5-eda4da686edd
-C:\Program Files (x86)\Cypress\PSoC Creator\3.2\PSoC Creator\psoc\content\default\CyAnnotationLibrary\CyAnnotationLibrary.cylib\CyAnnotationLibrary.cyprj|c7d80b44-8c72-40b5-8cc6-99f885c277db
-C:\Program Files (x86)\Cypress\PSoC Creator\3.2\PSoC Creator\psoc\content\default\CyReferenceLibrary\CyReferenceLibrary.cylib\CyReferenceLibrary.cyprj|bbab9174-46ae-4cd6-974e-87cac9721620
-C:\Program Files (x86)\Cypress\PSoC Creator\3.2\PSoC Creator\psoc\content\cycomponentlibraryupdates\CyComponentLibraryUpdates.cylib\CyComponentLibraryUpdates.cyprj|c444bf59-c69e-4392-a288-c72e819ce316
-C:\Program Files (x86)\Cypress\PSoC Creator\3.2\PSoC Creator\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\CyComponentLibrary.cyprj|369a1b60-950e-4655-bf94-71767cbe9b0b
-C:\Program Files (x86)\Cypress\PSoC Creator\3.2\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\CyPrimitives.cyprj|d4bd1c07-0dd9-4046-b4fe-c50f0d74b5f1
