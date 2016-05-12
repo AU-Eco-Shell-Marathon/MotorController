@@ -64,7 +64,7 @@ void effectSensor_init(int16 Volt, int16 Current)
     
     DMA_ADC_A_V_init();
     
-    VDACSetOffset(Current_offset);
+    //VDACSetOffset(Current_offset);
     VDAC8_1_Start();
     CyDelay(100);
     Comp_1_Start();
@@ -82,8 +82,10 @@ void effectSensor_calibrate(int16 * Volt, int16 * Current)
     
     *Volt = Volt_offset;
     *Current = Current_offset;
-    VDACSetOffset(ADC_A_CountsTo_mVolts(Current_offset)-effect_sensor_OFFSET);
+    //VDACSetOffset(ADC_A_CountsTo_mVolts(Current_offset)-effect_sensor_OFFSET);
 }
+
+/*
 
 void VDACSetOffset(int16 Current)
 {
@@ -91,7 +93,7 @@ void VDACSetOffset(int16 Current)
     //VDAC8_1_SetValue(calc); 
     Control_Reg_motor_reset_Write(1u);
 }
-
+*/
 
 
 

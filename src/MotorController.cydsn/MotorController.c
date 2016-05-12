@@ -55,9 +55,24 @@ CY_ISR(MOTOR_tick)
 }
 
 
-CY_ISR(OVERCURRENT)
+CY_ISR(OVERCURRENT) //tjekker om det er nødvendigt at lukke for systemet eller ej.
 {
+    CyGlobalIntDisable;
     MC_stop();
+    PWM_motor_WriteCompare(0x00);
+    CyDelay(1000);
+    PWM_motor_WriteCompare(0x01);
+    Control_Reg_motor_reset_Write(1u);
+    CyDelay(100);
+    if((Status_Reg_1_Read()&1u) == 1u)
+    {
+        PWM_motor_WriteCompare(0x00);
+        while(1); // der er for stor belastning på motoren og MCU går i lukke tilstand og kræver en genstart af systemet før bilen kan køre videre.
+    }
+    
+    
+    MC_start(); //Det er vurderet at det er iorden at forsætte og MCU går tilbage til normal tilstand og tillader interupt igen.
+    CyGlobalIntEnable;
 }
 
 void MC_start()
@@ -72,22 +87,19 @@ void MC_stop()
 
 void MC_init(const struct PIDparameter * pidval)
 {
+    //initialiser PID regulatoren
     PID_init();
     setPID(pidval);
     
+    //opsætter interrupt rutine til tilfælde af overbelastning.
     isr_overCurrent_StartEx(OVERCURRENT);
     
-    /*
-    speed_ = speed;
-    rpm_ = rpm;
-    current_ = current;
-    volt_ = volt;
-    */
-    
+    //Starter de hardware blokke der skal bruges af MotorController.
     Clock_motor_Start();
     PWM_motor_Start();
-    MC_start();
     
+    //Sætter bilen i start tilstand og opsætter interrupt rutine til MotorControlleren.
+    MC_start();
     isr_motor_StartEx(MOTOR_tick);
 }
 
