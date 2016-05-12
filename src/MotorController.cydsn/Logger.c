@@ -14,7 +14,6 @@ FS_FILE* dataFile_;
 
 void Logger_Init(void)
 {
-    int i;
     char buffer[100];
     char volumeName[20];
     
