@@ -1,5 +1,7 @@
 #ifndef LOGGER_H
 #define LOGGER_H
+
+#define LOGGER_WriteLogToUart 1
     
 void FS_X_Log(const char *s);
 void FS_X_Warn(const char *s);
@@ -19,7 +21,11 @@ void Logger_Init(void);
 /**
  * @brief Write to log
  */
-void Logger_Write(char* str);
+void Logger_Write(const char *format, ...);
+/**
+ * @brief Log data name header
+ */
+void Logger_LogDataHeaderLine(int argc,...);
 /**
  * @brief Log data
  */
@@ -28,9 +34,5 @@ void Logger_LogData(int argc,...);
  * @brief Close logger
  */
 void Logger_Exit(void);
-/**
- * @brief Write to debug uart
- */
-void Logger_WriteToDebugUART(const char* str);
 
 #endif

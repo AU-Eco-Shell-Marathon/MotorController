@@ -29,9 +29,11 @@ CY_ISR(MOTOR_tick)
 {
 
     uint16 output;
+    
     uint16 power = effectSensor_getValue();
     uint16 rpm = RPMSensor_getValue();
     uint16 WantedSpeed = Pedal_getValue();
+    
     uint16 Speed_LUT = LUT_speed(WantedSpeed, rpm, power);
     
     switch(state){

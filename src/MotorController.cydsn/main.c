@@ -19,7 +19,7 @@ int main()
     CyGlobalIntEnable; /* Enable global interrupts. */
     
     Logger_Init();
-    Logger_Write("TEST");    
+    Logger_Write("Ready");
     
     init();            /* Place your initialization/startup code here (e.g. MyInst_Start()) */
 
