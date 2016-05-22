@@ -9,17 +9,17 @@
  *
  * ========================================
 */
-#include "effectSensor.h"
+#include "powerSensor.h"
 #define effect_sensor_OFFSET 5000 //mV
-int16 Current_temp = 0;
-int16 Volt_temp = 0;
+int16   Current_temp = 0,
+        Volt_temp = 0;
 
-int16 Volt_offset = 0;
-int16 Current_offset = 0;
+int16   Volt_offset = 0,
+        Current_offset = 0;
 
 
-int32 y_Current = 0;
-int32 y_Volt = 0;
+int32   y_Current = 0,
+        y_Volt = 0;
 
 uint8 a = 3; // fra 0 til 255! er lig med 0-1.
 
@@ -35,16 +35,16 @@ void VDACSetOffset(int16 Current);
 
 CY_ISR(ISR_AMP)
 {
-    y_Current = (int32)a*(int32)Current_temp + (((int32)(256u-a)*(int32)y_Current)>>8);
+    y_Current = (((int32)a*(int32)Current_temp)<<8) + (int32)(((int64)(256u-a)*(int64)y_Current)>>8) + (int32)1;
 }
 
 
 CY_ISR(ISR_VOLT)
 {
-    y_Volt = (int32)a*(int32)Volt_temp + (((int32)(256u-a)*(int32)y_Volt)>>8);
+    y_Volt = (((int32)a*(int32)Volt_temp)<<8) + (int32)(((int64)(256u-a)*(int32)y_Volt)>>8) + (int32)1;
 }
 
-void effectSensor_init(int16 Volt, int16 Current)
+void powerSensor_init(int16 Volt, int16 Current)
 {
     Volt_offset = Volt;
     Current_offset = Current;
@@ -70,13 +70,13 @@ void effectSensor_init(int16 Volt, int16 Current)
     Comp_1_Start();
 }
 
-void effectSensor_calibrate(int16 * Volt, int16 * Current)
+void powerSensor_calibrate(int16 * Volt, int16 * Current)
 {
     uint8 a_tmp = a;
     a = 1;
     CyDelay(10000);
-    Volt_offset = (int16)(y_Volt>>8);
-    Current_offset = (int16)(y_Current>>8);
+    Volt_offset = (int16)(y_Volt>>16);
+    Current_offset = (int16)(y_Current>>16);
     
     a = a_tmp;
     
@@ -97,10 +97,10 @@ void VDACSetOffset(int16 Current)
 
 
 
-uint16 effectSensor_getValue()
+uint16 powerSensor_getValue()
 {
-    int16 rawVolt = ADC_V_CountsTo_mVolts((int16)(y_Volt>>8)-Volt_offset); // mangler validering
-    int16 rawCurrent = ADC_A_CountsTo_mVolts((int16)(y_Current>>8)-Current_offset);
+    int16 rawVolt = ADC_V_CountsTo_mVolts((int16)(y_Volt>>16)-Volt_offset); // mangler validering
+    int16 rawCurrent = ADC_A_CountsTo_mVolts((int16)(y_Current>>16)-Current_offset);
     
     /*
     uint32 volt = (rawVolt <= (int16)effect_sensor_OFFSET ? 0u : rawVolt - (uint32)effect_sensor_OFFSET)*15.625;// *15.625)/1000; skal trække minus 5 volt fra!!!

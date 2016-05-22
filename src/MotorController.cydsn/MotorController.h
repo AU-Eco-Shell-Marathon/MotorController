@@ -3,7 +3,7 @@
 
 #include <project.h>
 #include "PID.h"
-#include "effectSensor.h"
+#include "powerSensor.h"
 #include "RPMSensor.h"
 #include "Motor_lookupTable.h"
 #include "Pedal.h"

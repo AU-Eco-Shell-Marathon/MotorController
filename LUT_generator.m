@@ -30,10 +30,15 @@ for i=1:size(ramp,1)
 end
 
 figure
+subplot(221)
 plot(power_ramp(:,2), power_ramp(:,1));
 hold on
 grid on
 plot(power_ramp(:,2), power_ramp(:,3));
+title('Ramp')
+xlabel('rpm(motor)')
+ylabel('watt')
+
 
 power_const=zeros(size(const,1),3);
 for i=1:size(const,1)
@@ -42,12 +47,14 @@ for i=1:size(const,1)
     power_const(i,1) = power_const(i,3)*(2-const(i, 3));
 end
 
-figure
+subplot(222)
 plot(power_const(:,2), power_const(:,1));
 hold on
 grid on
 plot(power_const(:,2), power_const(:,3));
-
+title('Const')
+xlabel('rpm(motor)')
+ylabel('watt')
 
 power_ramp_LUT=ones(1, array_size)*power_ramp(size(power_ramp,1),2);
 for i=1:size(power_ramp,1)-1
@@ -69,11 +76,16 @@ for i=1:size(power_const,1)-1
 end
 power_const_LUT=power_const_LUT(1:array_size).*gear
 
-figure
-plot(power_ramp_LUT)
+
+N=length(power_ramp_LUT);
+subplot(2,2,[3,4])
+plot([0:N-1]*2^array_size_watt_shift,power_ramp_LUT)
 hold on
 grid on
-plot(power_const_LUT)
+plot([0:N-1]*2^array_size_watt_shift,power_const_LUT)
+title('LUT')
+xlabel('watt')
+ylabel('rpm(wheel)')
 
 %% LUT to header file
 

@@ -36,13 +36,13 @@ void init()
     int16 offset[2];
     if(EEPROM_read(1, (uint8 *)offset) == 0)
     {
-        effectSensor_init(0, 0);
-        effectSensor_calibrate(&offset[0], &offset[1]);
+        powerSensor_init(0, 0);
+        powerSensor_calibrate(&offset[0], &offset[1]);
         EEPROM_write(1, (uint8 *)offset);
     }
     else
     {
-        effectSensor_init(offset[0], offset[1]); 
+        powerSensor_init(offset[0], offset[1]); 
     }
 
     RPMSensor_init();
@@ -81,7 +81,7 @@ void run()
             BMSdata->state,
             BMSdata->RunTime,
             RPMSensor_getSpeed(),
-            effectSensor_getValue()
+            powerSensor_getValue()
         );
         
         BMSdata->NewData = 0x00;
