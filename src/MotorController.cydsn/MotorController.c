@@ -33,7 +33,7 @@ CY_ISR(MOTOR_tick)
     uint16 rpm = RPMSensor_getValue();
     uint16 WantedSpeed = Pedal_getValue();
     
-    uint16 Speed_LUT = LUT_speed(WantedSpeed, rpm, power);
+    uint16 Power_LUT = LUT_speed(WantedSpeed, rpm)*10;
     
     switch(state){
     case TEST:
@@ -41,7 +41,7 @@ CY_ISR(MOTOR_tick)
         break;
     case ACC:
         
-        output = PID(Speed_LUT, rpm);
+        output = PID(Power_LUT, power);
         PWM_motor_WriteCompare((uint8)output);
         if(rpm >= WantedSpeed) state = CAB;
         break;
