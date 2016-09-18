@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Atmel Studio Solution File, Format Version 11.00
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "ShellEco", "ShellEco\ShellEco.cproj", "{2DE1B418-733B-4A48-B2FC-1D140EBE5973}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|AVR = Debug|AVR
+		Release|AVR = Release|AVR
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2DE1B418-733B-4A48-B2FC-1D140EBE5973}.Debug|AVR.ActiveCfg = Debug|AVR
+		{2DE1B418-733B-4A48-B2FC-1D140EBE5973}.Debug|AVR.Build.0 = Debug|AVR
+		{2DE1B418-733B-4A48-B2FC-1D140EBE5973}.Release|AVR.ActiveCfg = Release|AVR
+		{2DE1B418-733B-4A48-B2FC-1D140EBE5973}.Release|AVR.Build.0 = Release|AVR
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
